@@ -1,0 +1,23 @@
+{
+  "projectName": "yujee-catherine",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "pnpm",
+  "includeExamples": false,
+  "tailwind": true,
+  "addOnOptions": {},
+  "envVarValues": {},
+  "git": false,
+  "routerOnly": false,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": [
+    "eslint",
+    "compiler",
+    "form",
+    "shadcn",
+    "table",
+    "store",
+    "tanstack-query"
+  ]
+}
