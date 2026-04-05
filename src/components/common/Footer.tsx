@@ -2,7 +2,7 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="w-full bg-muted text-muted-foreground flex flex-col text-sm">
+    <footer className="w-full bg-muted text-muted-foreground flex flex-col text-sm p-4">
       <div>
         &copy; 2026{year === 2026 ? "" : `-${year}`} Yujee Catherine Chang. All rights reserved.
       </div>

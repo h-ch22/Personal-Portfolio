@@ -1,6 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -16,13 +16,12 @@ const firebaseConfig = {
 
 const isBrowser = typeof window !== "undefined";
 
-const app = isBrowser && getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const app = (isBrowser && getApps().length > 0) ? getApp() : initializeApp(firebaseConfig);
 const analytics = isBrowser 
     ? isSupported().then((yes) => (yes ? getAnalytics(app) : null))
     : null;
-const auth = getAuth(app);
-const firestore = getFirestore(app);
-const storage = getStorage(app);
-const googleProvider = new GoogleAuthProvider();
+const auth = isBrowser ? getAuth(app) : null;
+const firestore = isBrowser ? getFirestore(app, "default") : null;
+const storage = isBrowser ? getStorage(app) : null;
 
-export { analytics, auth, firestore, storage, googleProvider };
+export { analytics, auth, firestore, storage };

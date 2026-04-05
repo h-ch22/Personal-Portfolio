@@ -3,10 +3,12 @@ import { create } from "zustand";
 
 interface AuthState {
     user: User | null;
-    setUser: (user: User | null) => void;
+    userName: string | null;
+    isAdmin: boolean;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>(() => ({
     user: null,
-    setUser: (user) => set({ user })
+    userName: null,
+    isAdmin: false
 }))

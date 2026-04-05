@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ErrorRouteImport } from './routes/error'
+import { Route as EducationRouteImport } from './routes/education'
 import { Route as IndexRouteImport } from './routes/index'
 
 const ErrorRoute = ErrorRouteImport.update({
   id: '/error',
   path: '/error',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducationRoute = EducationRouteImport.update({
+  id: '/education',
+  path: '/education',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/error'
+  fullPaths: '/' | '/education' | '/error'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/error'
-  id: '__root__' | '/' | '/error'
+  to: '/' | '/education' | '/error'
+  id: '__root__' | '/' | '/education' | '/error'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EducationRoute: typeof EducationRoute
   ErrorRoute: typeof ErrorRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/error'
       fullPath: '/error'
       preLoaderRoute: typeof ErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/education': {
+      id: '/education'
+      path: '/education'
+      fullPath: '/education'
+      preLoaderRoute: typeof EducationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EducationRoute: EducationRoute,
   ErrorRoute: ErrorRoute,
 }
 export const routeTree = rootRouteImport

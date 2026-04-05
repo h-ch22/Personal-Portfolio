@@ -5,15 +5,15 @@ import { ArrowLeftIcon, HomeIcon } from "lucide-react";
 
 export default function ErrorPage() {
     const state = useRouterState({ select: (s) => s.location.state });
-    const code = state?.errorCode?.toString() ?? "Unknown Error";
+    const code = state?.errorCode?.toString() ?? "Unknown";
     const messsage = state?.errorMessage ?? "An unknown error occurred. Please try again later.";
 
     return (
         <div className="w-full h-full flex flex-col justify-center items-center gap-4">
             <img src={error} className="w-96" />
             <div className="font-bold text-7xl text-primary">Oops!</div>
-            <div className="text-2xl font-semibold">{`Error Code ${code}`}</div>
-            <div className="text-lg text-muted-foreground">{messsage}</div>
+            <div className="text-3xl font-semibold text-foreground">{`${code} Error`}</div>
+            <div className="text-sm text-muted-foreground">{messsage}</div>
 
             <div className="w-full flex flex-row items-center justify-center gap-2">
                 <Button variant="outline" size="lg">

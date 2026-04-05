@@ -2,7 +2,7 @@ import yujee from '@/assets/images/yujee.png'
 
 import { Link } from '@tanstack/react-router'
 import { Button } from '../ui/button'
-import { LogOutIcon, MenuIcon, UserIcon, XIcon } from 'lucide-react'
+import { LogOutIcon, MenuIcon, SearchIcon, UserIcon, XIcon } from 'lucide-react'
 import type { Theme } from '#/types/theme'
 import { useState } from 'react'
 import AuthDialog from '../auth/AuthDialog'
@@ -26,34 +26,48 @@ export default function Header({
   const CurrentIcon = IconMap[theme];
 
   return (
-    <header className="w-full relative flex flex-row justify-between items-center z-50">
-      <Link to="/">
-        <div className='flex flex-row items-center font-semibold text-primary'>
-          <img src={yujee} alt="Yujee Catherine" className="h-16 w-16" />
-          { "Yujee Catherine" }
+    <header className="fixed left-0 right-0 top-4 z-50 mx-auto w-[calc(100%-2rem)] rounded-2xl bg-background/50 px-4 py-2 shadow-lg backdrop-blur-lg transition-all">
+      <div className='flex flex-row justify-between items-center w-full'>
+        <Link to="/">
+          <div className='flex flex-row items-center font-semibold text-primary'>
+            <img src={yujee} alt="Yujee Catherine" className="h-16 w-16" />
+
+            <div className="hidden sm:inline-flex">
+              { "Yujee Catherine" }
+            </div>
+          </div>
+        </Link>
+
+        <div className="flex flex-row items-center gap-4">
+          <Button className="hidden sm:inline-flex" variant="ghost" size="icon">
+            <SearchIcon />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => {
+            setShowMenu(false);
+            setShowAuthDialog((prev) => !prev);
+          }}>
+            { showAuthDialog
+              ? <XIcon />
+              : user === null
+                ? <UserIcon />
+                : <LogOutIcon />
+            }
+          </Button>
+
+          <Button variant="ghost" size="icon" onClick={() => onThemeButtonClick()}>
+            <CurrentIcon />
+          </Button>
+
+          <Button variant="ghost" size="icon" onClick={() => {
+            setShowAuthDialog(false);
+            setShowMenu((prev) => !prev);
+          }}>
+            { showMenu
+              ? <XIcon />
+              : <MenuIcon />
+            }
+          </Button>
         </div>
-      </Link>
-
-      <div className="flex flex-row items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => setShowAuthDialog((prev) => !prev)}>
-          { showAuthDialog
-            ? <XIcon />
-            : user === null
-              ? <UserIcon />
-              : <LogOutIcon />
-          }
-        </Button>
-
-        <Button variant="ghost" size="icon" onClick={() => onThemeButtonClick()}>
-          <CurrentIcon />
-        </Button>
-
-        <Button variant="ghost" size="icon" onClick={() => setShowMenu((prev) => !prev)}>
-          { showMenu
-            ? <XIcon />
-            : <MenuIcon />
-          }
-        </Button>
       </div>
 
 
