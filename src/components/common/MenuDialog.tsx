@@ -1,66 +1,35 @@
-import { Link } from "@tanstack/react-router"
-import { GraduationCapIcon, LaptopMinimalCheckIcon, NewspaperIcon, ShieldCheckIcon, SproutIcon, TrophyIcon } from "lucide-react";
+import { Link } from '@tanstack/react-router'
+import {
+  BookIcon,
+  GraduationCapIcon,
+  ImageIcon,
+  LaptopMinimalCheckIcon,
+  NewspaperIcon,
+  SproutIcon,
+  TrophyIcon,
+} from 'lucide-react'
 
-export default function MenuDialog() {
-    const MENU_LIST = [
-        {
-            name: "Education",
-            to: "/education"
-        },
-        {
-            name: "Publications",
-            to: "/publications"
-        },
-        {
-            name: "Projects",
-            to: "/projects"
-        },
-        {
-            name: "Certificates",
-            to: "/certificates"
-        },
-        {
-            name: "Awards",
-            to: "/awards"
-        },
-        {
-            name: "Experience",
-            to: "/experience"
-        }
-    ];
+const MENU_LIST = [
+  { name: 'Awards', to: '/awards', icon: TrophyIcon },
+  { name: 'Education', to: '/education', icon: GraduationCapIcon },
+  { name: 'Experience', to: '/experience', icon: SproutIcon },
+  { name: 'Gallery', to: '/gallery', icon: ImageIcon },
+  { name: 'News', to: '/news', icon: NewspaperIcon },
+  { name: 'Projects', to: '/projects', icon: LaptopMinimalCheckIcon },
+  { name: 'Publications', to: '/publications', icon: BookIcon },
+]
 
-    function getIcon(menu: string) {
-        switch(menu) {
-            case "Education":
-                return <GraduationCapIcon />
-
-            case "Publications":
-                return <NewspaperIcon />
-
-            case "Projects":
-                return <LaptopMinimalCheckIcon />
-
-            case "Certificates":
-                return <ShieldCheckIcon />
-
-            case "Awards":
-                return <TrophyIcon />
-
-            case "Experience":
-                return <SproutIcon />
-        }
-    }
-
-    return (
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            { MENU_LIST.map((menu) => (
-                <Link to={menu.to} key={menu.name}>
-                    <div className="flex flex-col justify-center text-foreground text-center items-center hover:underline">
-                        { getIcon(menu.name) }
-                        { menu.name }
-                    </div>
-                </Link>
-            ))}
-        </div>
-    )
+export default function MenuDialog({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="grid grid-cols-3 md:grid-cols-7 gap-2">
+      {MENU_LIST.map(({ name, to, icon: Icon }) => (
+        <Link to={to} key={name} onClick={onClose} viewTransition={true}>
+          <div className="flex flex-col justify-center items-center gap-1.5 rounded-lg p-3 text-foreground text-center hover:bg-accent transition-colors">
+            <Icon className="w-5 h-5" />
+            <span className="text-sm">{name}</span>
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
 }

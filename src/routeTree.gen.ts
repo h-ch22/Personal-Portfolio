@@ -9,10 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PublicationsRouteImport } from './routes/publications'
+import { Route as ExperienceRouteImport } from './routes/experience'
 import { Route as ErrorRouteImport } from './routes/error'
 import { Route as EducationRouteImport } from './routes/education'
+import { Route as AwardsRouteImport } from './routes/awards'
 import { Route as IndexRouteImport } from './routes/index'
 
+const PublicationsRoute = PublicationsRouteImport.update({
+  id: '/publications',
+  path: '/publications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExperienceRoute = ExperienceRouteImport.update({
+  id: '/experience',
+  path: '/experience',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ErrorRoute = ErrorRouteImport.update({
   id: '/error',
   path: '/error',
@@ -23,6 +36,11 @@ const EducationRoute = EducationRouteImport.update({
   path: '/education',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AwardsRoute = AwardsRouteImport.update({
+  id: '/awards',
+  path: '/awards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +49,81 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/awards': typeof AwardsRoute
   '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
+  '/experience': typeof ExperienceRoute
+  '/publications': typeof PublicationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/awards': typeof AwardsRoute
   '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
+  '/experience': typeof ExperienceRoute
+  '/publications': typeof PublicationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/awards': typeof AwardsRoute
   '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
+  '/experience': typeof ExperienceRoute
+  '/publications': typeof PublicationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/education' | '/error'
+  fullPaths:
+    | '/'
+    | '/awards'
+    | '/education'
+    | '/error'
+    | '/experience'
+    | '/publications'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/education' | '/error'
-  id: '__root__' | '/' | '/education' | '/error'
+  to:
+    | '/'
+    | '/awards'
+    | '/education'
+    | '/error'
+    | '/experience'
+    | '/publications'
+  id:
+    | '__root__'
+    | '/'
+    | '/awards'
+    | '/education'
+    | '/error'
+    | '/experience'
+    | '/publications'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AwardsRoute: typeof AwardsRoute
   EducationRoute: typeof EducationRoute
   ErrorRoute: typeof ErrorRoute
+  ExperienceRoute: typeof ExperienceRoute
+  PublicationsRoute: typeof PublicationsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/publications': {
+      id: '/publications'
+      path: '/publications'
+      fullPath: '/publications'
+      preLoaderRoute: typeof PublicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/experience': {
+      id: '/experience'
+      path: '/experience'
+      fullPath: '/experience'
+      preLoaderRoute: typeof ExperienceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/error': {
       id: '/error'
       path: '/error'
@@ -75,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/awards': {
+      id: '/awards'
+      path: '/awards'
+      fullPath: '/awards'
+      preLoaderRoute: typeof AwardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,8 +157,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AwardsRoute: AwardsRoute,
   EducationRoute: EducationRoute,
   ErrorRoute: ErrorRoute,
+  ExperienceRoute: ExperienceRoute,
+  PublicationsRoute: PublicationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
