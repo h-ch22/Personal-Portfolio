@@ -54,7 +54,6 @@ const AwardsPage = () => {
         onAddButtonClick={() => handleDialogClose(true)}
       />
 
-      {/* Search */}
       <div className="flex flex-row justify-end items-center gap-2 mt-2">
         <Input
           className="flex-1 max-w-96"
@@ -67,7 +66,6 @@ const AwardsPage = () => {
         </Button>
       </div>
 
-      {/* Type filter badges */}
       <div className="flex justify-end flex-wrap gap-1.5 mt-2">
         {AWARD_TYPES.map((type) => {
           const active = typeFilter.includes(type)
@@ -84,7 +82,6 @@ const AwardsPage = () => {
         })}
       </div>
 
-      {/* Active filter indicator */}
       {hasFilters && (
         <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
           <span>Filters active</span>

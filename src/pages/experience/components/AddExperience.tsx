@@ -220,7 +220,6 @@ const AddExperience = ({
                                 onSelect={({ from, to }) => {
                                   startDateField.handleChange(from)
                                   endDateField.handleChange(to)
-                                  // Close only when range is complete
                                   if (
                                     to !== null ||
                                     isCurrentlyWorkingField.state.value

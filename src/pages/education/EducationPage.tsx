@@ -31,7 +31,7 @@ const EducationPage = () => {
       <BoardHeader
         title={'Education'}
         description={
-          'The learning journey tha fuels my growth! 📚 A record of my academic life and my continous pursuit of knowledge. 🎓'
+          'The learning journey that fuels my growth! 📚 A record of my academic life and my continous pursuit of knowledge. 🎓'
         }
         Icon={GraduationCap}
         onAddButtonClick={() => handleDialogClose(true)}

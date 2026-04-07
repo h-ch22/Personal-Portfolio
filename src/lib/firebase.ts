@@ -21,7 +21,7 @@ const analytics = isBrowser
     ? isSupported().then((yes) => (yes ? getAnalytics(app) : null))
     : null;
 const auth = isBrowser ? getAuth(app) : null;
-const firestore = isBrowser ? getFirestore(app, "default") : null;
+const firestore = isBrowser ? getFirestore(app) : null;
 const storage = isBrowser ? getStorage(app) : null;
 
 export { analytics, auth, firestore, storage };

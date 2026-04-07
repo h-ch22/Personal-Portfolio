@@ -199,7 +199,6 @@ const AddPublication = ({
               )}
             </form.Field>
 
-            {/* Publication Date — MonthRangePicker (single) */}
             <form.Field name="publicationYear">
               {(yearField) => (
                 <form.Field name="publicationMonth">

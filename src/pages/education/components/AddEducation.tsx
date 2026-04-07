@@ -142,7 +142,6 @@ const AddEducation = ({
               )}
             </form.Field>
 
-            {/* Period — MonthRangePicker */}
             <form.Field name="inProgress">
               {(inProgressField) => (
                 <form.Field name="startYear">
@@ -172,7 +171,9 @@ const AddEducation = ({
                                   <Field>
                                     <FieldLabel>
                                       Period{' '}
-                                      <span className="text-destructive">*</span>
+                                      <span className="text-destructive">
+                                        *
+                                      </span>
                                     </FieldLabel>
                                     <Popover
                                       open={datePickerOpen}
@@ -183,7 +184,8 @@ const AddEducation = ({
                                           variant="outline"
                                           className={cn(
                                             'w-full justify-start text-left font-normal',
-                                            !startDate && 'text-muted-foreground',
+                                            !startDate &&
+                                              'text-muted-foreground',
                                           )}
                                         >
                                           <CalendarIcon className="mr-2 h-4 w-4" />
@@ -225,8 +227,6 @@ const AddEducation = ({
                                                 to.getMonth() + 1,
                                               )
                                             } else {
-                                              // to=null means a fresh start was selected;
-                                              // clear end so picker enters "pick end" mode next click
                                               endYearField.handleChange(0)
                                               endMonthField.handleChange(0)
                                             }

@@ -29,10 +29,12 @@ export default function Header({
     <header className="fixed left-0 right-0 top-4 z-50 mx-auto w-[calc(100%-2rem)] rounded-2xl bg-background/50 px-4 py-2 shadow-lg backdrop-blur-lg transition-all">
       <div className="flex flex-row justify-between items-center w-full">
         <Link to="/">
-          <div className="flex flex-row items-center font-semibold text-primary">
+          <div className="flex flex-row tracking-widest items-center font-semibold">
             <img src={yujee} alt="Yujee Catherine" className="h-16 w-16" />
 
-            <div className="hidden sm:inline-flex">{'Yujee Catherine'}</div>
+            <div className="hidden font-great-vibes text-xl sm:inline-flex">
+              {'Yujee Catherine'}
+            </div>
           </div>
         </Link>
 

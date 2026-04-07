@@ -30,7 +30,7 @@ const BoardHeader = ({
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }, // 제자리로 부드럽게 안착!
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
   }
 
   return (

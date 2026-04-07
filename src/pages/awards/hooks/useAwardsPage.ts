@@ -6,6 +6,16 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import z from "zod";
+
+const awardSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    issuer: z.string().min(1, "Issuer is required"),
+    date: z.date().refine(date => date.getFullYear() >= 2001, "Date must be after your birth year"),
+    type: z.enum(["Competition", "Academic", "Scholarship", "Recognition", "Other"]),
+    description: z.string()
+})
+
 const useAwardsPageController = () => {
     const queryClient = useQueryClient();
 
@@ -24,20 +34,10 @@ const useAwardsPageController = () => {
             type: "Competition" as AwardType,
             description: "",
         },
+        validators: {
+            onSubmit: awardSchema
+        },
         onSubmit: async ({ value }) => {
-            if (!value.title.trim()) {
-                toast.error("Title is required.");
-                return;
-            }
-            if (!value.issuer.trim()) {
-                toast.error("Issuer is required.");
-                return;
-            }
-            if (value.date.getFullYear() < 2001) {
-                toast.error("Date must be after your birth year.");
-                return;
-            }
-
             const operation = selectedData
                 ? modifyAward(value, selectedData.id)
                 : uploadAward(value);

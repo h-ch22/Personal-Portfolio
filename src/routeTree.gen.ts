@@ -10,6 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicationsRouteImport } from './routes/publications'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as NewsRouteImport } from './routes/news'
+import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as ExperienceRouteImport } from './routes/experience'
 import { Route as ErrorRouteImport } from './routes/error'
 import { Route as EducationRouteImport } from './routes/education'
@@ -19,6 +22,21 @@ import { Route as IndexRouteImport } from './routes/index'
 const PublicationsRoute = PublicationsRouteImport.update({
   id: '/publications',
   path: '/publications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExperienceRoute = ExperienceRouteImport.update({
@@ -53,6 +71,9 @@ export interface FileRoutesByFullPath {
   '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
   '/experience': typeof ExperienceRoute
+  '/gallery': typeof GalleryRoute
+  '/news': typeof NewsRoute
+  '/projects': typeof ProjectsRoute
   '/publications': typeof PublicationsRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +82,9 @@ export interface FileRoutesByTo {
   '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
   '/experience': typeof ExperienceRoute
+  '/gallery': typeof GalleryRoute
+  '/news': typeof NewsRoute
+  '/projects': typeof ProjectsRoute
   '/publications': typeof PublicationsRoute
 }
 export interface FileRoutesById {
@@ -70,6 +94,9 @@ export interface FileRoutesById {
   '/education': typeof EducationRoute
   '/error': typeof ErrorRoute
   '/experience': typeof ExperienceRoute
+  '/gallery': typeof GalleryRoute
+  '/news': typeof NewsRoute
+  '/projects': typeof ProjectsRoute
   '/publications': typeof PublicationsRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +107,9 @@ export interface FileRouteTypes {
     | '/education'
     | '/error'
     | '/experience'
+    | '/gallery'
+    | '/news'
+    | '/projects'
     | '/publications'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +118,9 @@ export interface FileRouteTypes {
     | '/education'
     | '/error'
     | '/experience'
+    | '/gallery'
+    | '/news'
+    | '/projects'
     | '/publications'
   id:
     | '__root__'
@@ -96,6 +129,9 @@ export interface FileRouteTypes {
     | '/education'
     | '/error'
     | '/experience'
+    | '/gallery'
+    | '/news'
+    | '/projects'
     | '/publications'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +141,9 @@ export interface RootRouteChildren {
   EducationRoute: typeof EducationRoute
   ErrorRoute: typeof ErrorRoute
   ExperienceRoute: typeof ExperienceRoute
+  GalleryRoute: typeof GalleryRoute
+  NewsRoute: typeof NewsRoute
+  ProjectsRoute: typeof ProjectsRoute
   PublicationsRoute: typeof PublicationsRoute
 }
 
@@ -115,6 +154,27 @@ declare module '@tanstack/react-router' {
       path: '/publications'
       fullPath: '/publications'
       preLoaderRoute: typeof PublicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/experience': {
@@ -161,6 +221,9 @@ const rootRouteChildren: RootRouteChildren = {
   EducationRoute: EducationRoute,
   ErrorRoute: ErrorRoute,
   ExperienceRoute: ExperienceRoute,
+  GalleryRoute: GalleryRoute,
+  NewsRoute: NewsRoute,
+  ProjectsRoute: ProjectsRoute,
   PublicationsRoute: PublicationsRoute,
 }
 export const routeTree = rootRouteImport
