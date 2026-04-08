@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
+import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
 import { Badge } from '#/components/ui/badge'
@@ -205,20 +206,23 @@ const ExperiencePage = () => {
             .sort(([a], [b]) => Number(b) - Number(a))
             .map(([year, experiences]) => (
               <div key={year} className="mb-8">
-                <div className="text-3xl font-semibold my-2">{year}</div>
+                <AnimatedItem>
+                  <div className="text-3xl font-semibold my-2">{year}</div>
+                </AnimatedItem>
                 {[...experiences]
                   .sort(
                     (a, b) =>
                       new Date(b.startDate).getTime() -
                       new Date(a.startDate).getTime(),
                   )
-                  .map((d) => (
-                    <ExperienceListItem
-                      key={d.id}
-                      data={d}
-                      onModifyButtonClick={onModifyButtonClick}
-                      onDeleteButtonClick={onDeleteButtonClick}
-                    />
+                  .map((d, i) => (
+                    <AnimatedItem key={d.id} index={i + 1}>
+                      <ExperienceListItem
+                        data={d}
+                        onModifyButtonClick={onModifyButtonClick}
+                        onDeleteButtonClick={onDeleteButtonClick}
+                      />
+                    </AnimatedItem>
                   ))}
               </div>
             ))}

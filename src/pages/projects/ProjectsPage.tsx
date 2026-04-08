@@ -1,3 +1,4 @@
+import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -120,14 +121,15 @@ const ProjectsPage = () => {
                   new Date(b.startDate).getTime() -
                   new Date(a.startDate).getTime(),
               )
-              .map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  data={project}
-                  onCardClick={onCardClick}
-                  onModifyButtonClick={onModifyButtonClick}
-                  onDeleteButtonClick={onDeleteButtonClick}
-                />
+              .map((project, i) => (
+                <AnimatedItem key={project.id} index={i}>
+                  <ProjectCard
+                    data={project}
+                    onCardClick={onCardClick}
+                    onModifyButtonClick={onModifyButtonClick}
+                    onDeleteButtonClick={onDeleteButtonClick}
+                  />
+                </AnimatedItem>
               ))}
           </div>
         </ScrollArea>

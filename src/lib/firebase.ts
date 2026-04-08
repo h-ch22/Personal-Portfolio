@@ -14,14 +14,10 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const isBrowser = typeof window !== "undefined";
-
-const app = (isBrowser && getApps().length > 0) ? getApp() : initializeApp(firebaseConfig);
-const analytics = isBrowser 
-    ? isSupported().then((yes) => (yes ? getAnalytics(app) : null))
-    : null;
-const auth = isBrowser ? getAuth(app) : null;
-const firestore = isBrowser ? getFirestore(app) : null;
-const storage = isBrowser ? getStorage(app) : null;
+const app = (getApps().length > 0) ? getApp() : initializeApp(firebaseConfig);
+const analytics = isSupported().then((yes) => (yes ? getAnalytics(app) : null))
+const auth = getAuth(app);
+const firestore = getFirestore(app);
+const storage = getStorage(app);
 
 export { analytics, auth, firestore, storage };

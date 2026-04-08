@@ -1,9 +1,10 @@
-import { useRouterState } from "@tanstack/react-router"
+import { useRouter, useRouterState } from "@tanstack/react-router"
 import error from "@/assets/images/error.png"
 import { Button } from "#/components/ui/button";
 import { ArrowLeftIcon, HomeIcon } from "lucide-react";
 
 export default function ErrorPage() {
+    const router = useRouter();
     const state = useRouterState({ select: (s) => s.location.state });
     const code = state?.errorCode?.toString() ?? "Unknown";
     const messsage = state?.errorMessage ?? "An unknown error occurred. Please try again later.";
@@ -16,12 +17,12 @@ export default function ErrorPage() {
             <div className="text-sm text-muted-foreground">{messsage}</div>
 
             <div className="w-full flex flex-row items-center justify-center gap-2">
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" onClick={() => router.history.back()}>
                     <ArrowLeftIcon />
                     Go to Previous Page
                 </Button>
 
-                <Button variant="default" size="lg">
+                <Button variant="default" size="lg" onClick={() => router.navigate({ to: '/', viewTransition: true, replace: true })}>
                     <HomeIcon />
                     Go to Home Page
                 </Button>

@@ -5,8 +5,36 @@ rules_version = '2';
 //    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if false;
+    function isAdmin() {
+    	let userDocPath = /databases/(default)/documents/Users/$(request.auth.uid);
+      return request.auth != null &&
+      			firestore.exists(userDocPath) &&
+            firestore.get(userDocPath).data.isAdmin == true;
+    }
+  
+    match /banner/{fileName} {
+      allow read: if true;
+      allow write, delete, update, create: if isAdmin();
+    }
+    
+    match /gallery/{id}/{fileName} {
+    	allow read: if true;
+      allow write, delete, update, create: if isAdmin();
+    }
+    
+    match /news/{id}/{fileName} {
+    allow read: if true;
+    allow write, delete, update, create: if isAdmin();
+    }
+    
+    match /projects/{id}/{fileName} {
+    allow read: if true;
+    allow write, delete, update, create: if isAdmin();
+    }
+    
+    match /settings/{fileName} {
+    allow read: if true;
+    allow write, delete, update, create: if isAdmin();
     }
   }
 }

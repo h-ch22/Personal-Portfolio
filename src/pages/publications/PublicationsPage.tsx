@@ -1,3 +1,4 @@
+import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { Book, FrownIcon, SearchIcon } from 'lucide-react'
 import { usePublicationsPageController } from './hooks/usePublicationsPage'
@@ -53,7 +54,7 @@ const PublicationsPage = () => {
             'International Conference',
             'Domestic Journal',
             'Domestic Conference',
-            'Patient',
+            'Patent',
             'Book',
           ].map((type) => (
             <ToggleGroupItem
@@ -95,15 +96,18 @@ const PublicationsPage = () => {
 
               return (
                 <div key={year} className="mb-8">
-                  <div className="text-3xl font-semibold my-2">{year}</div>
-                  {sorted.map((p) => (
-                    <PublicationListItem
-                      key={p.id}
-                      data={p}
-                      showType={isSearching}
-                      onModifyButtonClick={onModifyButtonClick}
-                      onDeleteButtonClick={onDeleteButtonClick}
-                    />
+                  <AnimatedItem>
+                    <div className="text-3xl font-semibold my-2">{year}</div>
+                  </AnimatedItem>
+                  {sorted.map((p, i) => (
+                    <AnimatedItem key={p.id} index={i + 1}>
+                      <PublicationListItem
+                        data={p}
+                        showType={isSearching}
+                        onModifyButtonClick={onModifyButtonClick}
+                        onDeleteButtonClick={onDeleteButtonClick}
+                      />
+                    </AnimatedItem>
                   ))}
                 </div>
               )

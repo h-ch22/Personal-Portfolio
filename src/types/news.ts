@@ -18,4 +18,16 @@ export type News = {
   link?: string
 }
 
+export const CATEGORY_VARIANT: Record<
+  NewsCategory,
+  'default' | 'secondary' | 'outline'
+> = {
+  Award: 'default',
+  Research: 'secondary',
+  Publication: 'secondary',
+  Activity: 'outline',
+  Press: 'outline',
+  Other: 'outline',
+}
+
 export type NewsRequest = Omit<News, 'id'>

@@ -1,3 +1,4 @@
+import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { Button } from '#/components/ui/button'
 import {
@@ -71,14 +72,15 @@ const GalleryPage = () => {
                 (a, b) =>
                   new Date(b.date).getTime() - new Date(a.date).getTime(),
               )
-              .map((gallery) => (
-                <GalleryCard
-                  key={gallery.id}
-                  data={gallery}
-                  onCardClick={onCardClick}
-                  onModifyButtonClick={onModifyButtonClick}
-                  onDeleteButtonClick={onDeleteButtonClick}
-                />
+              .map((gallery, i) => (
+                <AnimatedItem key={gallery.id} index={i}>
+                  <GalleryCard
+                    data={gallery}
+                    onCardClick={onCardClick}
+                    onModifyButtonClick={onModifyButtonClick}
+                    onDeleteButtonClick={onDeleteButtonClick}
+                  />
+                </AnimatedItem>
               ))}
           </div>
         </ScrollArea>

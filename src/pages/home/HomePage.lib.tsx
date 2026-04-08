@@ -1,11 +1,21 @@
 import {
   fetchBannerImage,
   fetchBannerText,
+  fetchHomeDescription,
+  fetchProfileImage,
   updateBannerText,
+  updateHomeDescription,
+  uploadBannerImage,
+  uploadProfileImage,
 } from '#/api/banner/banner'
 import { fetchGalleries } from '#/api/gallery/gallery'
 import { fetchNews } from '#/api/news/news'
 import { fetchPublications } from '#/api/publications/publications'
+import {
+  createSocialLink,
+  deleteSocialLink,
+  fetchSocialLinks,
+} from '#/api/sociallinks/sociallinks'
 import {
   createTechStack,
   deleteTechStack,
@@ -13,9 +23,14 @@ import {
 } from '#/api/techstack/techstack'
 import { storage } from '#/lib/firebase'
 import { useAuthStore } from '#/stores/use-auth-store'
-import type { TechStackCategory, TechStackRequest } from '#/types/techstack'
+import type { SocialLinkRequest, SocialPlatform } from '#/types/sociallink'
+import type {
+  TechStackCategory,
+  TechStackIconType,
+  TechStackRequest,
+} from '#/types/techstack'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 const useHomeViewController = () => {
@@ -30,11 +45,26 @@ const useHomeViewController = () => {
   const [isEditingBanner, setIsEditingBanner] = useState(false)
   const [bannerTextInput, setBannerTextInput] = useState('')
 
+  const bannerImageInputRef = useRef<HTMLInputElement>(null)
+
+  const profileImageInputRef = useRef<HTMLInputElement>(null)
+
+  const [isEditingDescription, setIsEditingDescription] = useState(false)
+  const [descriptionInput, setDescriptionInput] = useState('')
+
   const [showAddTechStack, setShowAddTechStack] = useState(false)
   const [techStackForm, setTechStackForm] = useState<TechStackRequest>({
     name: '',
+    iconType: 'emoji' as TechStackIconType,
     icon: '',
     category: 'Language' as TechStackCategory,
+  })
+
+  const [showAddSocialLink, setShowAddSocialLink] = useState(false)
+  const [socialLinkForm, setSocialLinkForm] = useState<SocialLinkRequest>({
+    platform: 'Email' as SocialPlatform,
+    url: '',
+    label: '',
   })
 
   const { data: bannerImage, isSuccess } = useQuery({
@@ -42,7 +72,7 @@ const useHomeViewController = () => {
     queryFn: fetchBannerImage,
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 30,
-    enabled: typeof window !== 'undefined' && !!storage,
+    enabled: !!storage,
   })
 
   const { data: bannerText = 'Yujee Chang' } = useQuery({
@@ -51,16 +81,18 @@ const useHomeViewController = () => {
     staleTime: 1000 * 60 * 30,
   })
 
-  const { mutate: saveBannerText, isPending: isSavingBanner } = useMutation({
-    mutationFn: (text: string) => updateBannerText(text),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bannerText'] })
-      setIsEditingBanner(false)
-      toast.success('Banner text updated!')
-    },
-    onError: (e: any) => {
-      toast.error(`Failed to update banner text: ${e.message}`)
-    },
+  const { data: profileImage } = useQuery({
+    queryKey: ['profileImage'],
+    queryFn: fetchProfileImage,
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 30,
+    enabled: !!storage,
+  })
+
+  const { data: homeDescription = '' } = useQuery({
+    queryKey: ['homeDescription'],
+    queryFn: fetchHomeDescription,
+    staleTime: 1000 * 60 * 30,
   })
 
   const { data: publications = [] } = useQuery({
@@ -99,12 +131,72 @@ const useHomeViewController = () => {
     staleTime: 1000 * 60 * 10,
   })
 
+  const { data: socialLinks = [] } = useQuery({
+    queryKey: ['socialLinks'],
+    queryFn: fetchSocialLinks,
+    staleTime: 1000 * 60 * 10,
+  })
+
+  const { mutate: saveBannerText, isPending: isSavingBanner } = useMutation({
+    mutationFn: (text: string) => updateBannerText(text),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bannerText'] })
+      setIsEditingBanner(false)
+      toast.success('Banner text updated!')
+    },
+    onError: (e: any) => {
+      toast.error(`Failed to update banner text: ${e.message}`)
+    },
+  })
+
+  const { mutate: saveBannerImage, isPending: isUploadingBannerImage } =
+    useMutation({
+      mutationFn: (file: File) => uploadBannerImage(file),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['bannerImage'] })
+        toast.success('Banner image updated!')
+      },
+      onError: (e: any) => {
+        toast.error(`Failed to upload banner image: ${e.message}`)
+      },
+    })
+
+  const { mutate: saveProfileImage, isPending: isUploadingProfileImage } =
+    useMutation({
+      mutationFn: (file: File) => uploadProfileImage(file),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['profileImage'] })
+        toast.success('Profile image updated!')
+      },
+      onError: (e: any) => {
+        toast.error(`Failed to upload profile image: ${e.message}`)
+      },
+    })
+
+  const { mutate: saveHomeDescription, isPending: isSavingDescription } =
+    useMutation({
+      mutationFn: (description: string) => updateHomeDescription(description),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['homeDescription'] })
+        setIsEditingDescription(false)
+        toast.success('Description updated!')
+      },
+      onError: (e: any) => {
+        toast.error(`Failed to update description: ${e.message}`)
+      },
+    })
+
   const { mutate: addTechStack, isPending: isAddingTechStack } = useMutation({
     mutationFn: (data: TechStackRequest) => createTechStack(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['techStacks'] })
       setShowAddTechStack(false)
-      setTechStackForm({ name: '', icon: '', category: 'Language' })
+      setTechStackForm({
+        name: '',
+        iconType: 'emoji',
+        icon: '',
+        category: 'Language',
+      })
       toast.success('Tech stack added!')
     },
     onError: (e: any) => {
@@ -123,20 +215,64 @@ const useHomeViewController = () => {
     },
   })
 
+  const { mutate: addSocialLink, isPending: isAddingSocialLink } = useMutation({
+    mutationFn: (data: SocialLinkRequest) => createSocialLink(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['socialLinks'] })
+      setShowAddSocialLink(false)
+      setSocialLinkForm({ platform: 'Email', url: '', label: '' })
+      toast.success('Social link added!')
+    },
+    onError: (e: any) => {
+      toast.error(`Failed to add social link: ${e.message}`)
+    },
+  })
+
+  const { mutate: removeSocialLink } = useMutation({
+    mutationFn: (id: string) => deleteSocialLink(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['socialLinks'] })
+      toast.success('Social link removed!')
+    },
+    onError: (e: any) => {
+      toast.error(`Failed to remove social link: ${e.message}`)
+    },
+  })
+
   const handleBannerEditStart = () => {
     setBannerTextInput(bannerText)
     setIsEditingBanner(true)
   }
-
   const handleBannerSave = () => {
-    if (bannerTextInput.trim()) {
-      saveBannerText(bannerTextInput.trim())
-    }
+    if (bannerTextInput.trim()) saveBannerText(bannerTextInput.trim())
   }
-
   const handleBannerCancel = () => {
     setIsEditingBanner(false)
     setBannerTextInput('')
+  }
+
+  const handleBannerImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) saveBannerImage(file)
+    if (bannerImageInputRef.current) bannerImageInputRef.current.value = ''
+  }
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) saveProfileImage(file)
+    if (profileImageInputRef.current) profileImageInputRef.current.value = ''
+  }
+
+  const handleDescriptionEditStart = () => {
+    setDescriptionInput(homeDescription)
+    setIsEditingDescription(true)
+  }
+  const handleDescriptionSave = () => {
+    if (descriptionInput.trim()) saveHomeDescription(descriptionInput.trim())
+  }
+  const handleDescriptionCancel = () => {
+    setIsEditingDescription(false)
+    setDescriptionInput('')
   }
 
   useEffect(() => {
@@ -159,6 +295,21 @@ const useHomeViewController = () => {
     handleBannerEditStart,
     handleBannerSave,
     handleBannerCancel,
+    bannerImageInputRef,
+    isUploadingBannerImage,
+    handleBannerImageChange,
+    profileImage,
+    profileImageInputRef,
+    isUploadingProfileImage,
+    handleProfileImageChange,
+    homeDescription,
+    isEditingDescription,
+    descriptionInput,
+    setDescriptionInput,
+    isSavingDescription,
+    handleDescriptionEditStart,
+    handleDescriptionSave,
+    handleDescriptionCancel,
     publications,
     news,
     galleries,
@@ -172,6 +323,14 @@ const useHomeViewController = () => {
     isAddingTechStack,
     addTechStack,
     removeTechStack,
+    socialLinks,
+    showAddSocialLink,
+    setShowAddSocialLink,
+    socialLinkForm,
+    setSocialLinkForm,
+    isAddingSocialLink,
+    addSocialLink,
+    removeSocialLink,
   }
 }
 

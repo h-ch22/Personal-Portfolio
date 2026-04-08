@@ -13,7 +13,7 @@ const publicationSchema = z.object({
     authors: z.array(z.string()).min(1, "At least one author is required"),
     publicationYear: z.number().int().min(2001, "Publication year must be after your birth year"),
     publicationMonth: z.number().int().min(1, "Publication month must be between 1 and 12").max(12, "Publication month must be between 1 and 12"),
-    type: z.enum(["International Journal", "International Conference", "Domestic Journal", "Domestic Conference", "Patient", "Book"]),
+    type: z.enum(["International Journal", "International Conference", "Domestic Journal", "Domestic Conference", "Patent", "Book"]),
     link: z.string()
 })
 

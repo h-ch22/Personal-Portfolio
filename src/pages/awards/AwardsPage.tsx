@@ -1,3 +1,4 @@
+import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -109,19 +110,22 @@ const AwardsPage = () => {
             .sort(([a], [b]) => Number(b) - Number(a))
             .map(([year, awards]) => (
               <div key={year} className="mb-8">
-                <div className="text-3xl font-semibold my-2">{year}</div>
+                <AnimatedItem>
+                  <div className="text-3xl font-semibold my-2">{year}</div>
+                </AnimatedItem>
                 {[...awards]
                   .sort(
                     (a, b) =>
                       new Date(b.date).getTime() - new Date(a.date).getTime(),
                   )
-                  .map((d) => (
-                    <AwardListItem
-                      key={d.id}
-                      data={d}
-                      onModifyButtonClick={onModifyButtonClick}
-                      onDeleteButtonClick={onDeleteButtonClick}
-                    />
+                  .map((d, i) => (
+                    <AnimatedItem key={d.id} index={i + 1}>
+                      <AwardListItem
+                        data={d}
+                        onModifyButtonClick={onModifyButtonClick}
+                        onDeleteButtonClick={onDeleteButtonClick}
+                      />
+                    </AnimatedItem>
                   ))}
               </div>
             ))}

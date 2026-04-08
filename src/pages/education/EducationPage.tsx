@@ -1,3 +1,4 @@
+import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { FrownIcon, GraduationCap, SearchIcon } from 'lucide-react'
 import { useEducationPageController } from './hooks/useEducationPage'
@@ -60,16 +61,19 @@ const EducationPage = () => {
             .reverse()
             .map(([year, educations]) => (
               <div key={year} className="mb-8">
-                <div className="text-3xl font-semibold my-2">{year}</div>
+                <AnimatedItem>
+                  <div className="text-3xl font-semibold my-2">{year}</div>
+                </AnimatedItem>
                 {[...educations]
                   .sort((a, b) => b.startMonth - a.startMonth)
-                  .map((d) => (
-                    <EducationListItem
-                      key={d.id}
-                      data={d}
-                      onModifyButtonClick={onModifyButtonClick}
-                      onDeleteButtonClick={onDeleteButtonClick}
-                    />
+                  .map((d, i) => (
+                    <AnimatedItem key={d.id} index={i + 1}>
+                      <EducationListItem
+                        data={d}
+                        onModifyButtonClick={onModifyButtonClick}
+                        onDeleteButtonClick={onDeleteButtonClick}
+                      />
+                    </AnimatedItem>
                   ))}
               </div>
             ))}

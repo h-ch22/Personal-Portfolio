@@ -101,7 +101,7 @@ const PUBLICATION_TYPES: PublicationType[] = [
   'International Conference',
   'Domestic Journal',
   'Domestic Conference',
-  'Patient',
+  'Patent',
   'Book',
 ]
 

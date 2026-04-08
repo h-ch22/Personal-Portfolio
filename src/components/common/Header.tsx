@@ -39,9 +39,6 @@ export default function Header({
         </Link>
 
         <div className="flex flex-row items-center gap-4">
-          <Button className="hidden sm:inline-flex" variant="ghost" size="icon">
-            <SearchIcon />
-          </Button>
           <Button
             variant="ghost"
             size="icon"

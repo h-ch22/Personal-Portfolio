@@ -8,8 +8,8 @@ export const fetchTechStacks = async (): Promise<TechStack[]> => {
     }
 
     try {
-        const ref = collection(db, 'TechStack')
-        const snapshot = await getDocs(ref)
+        const colRef = collection(db, 'TechStack')
+        const snapshot = await getDocs(colRef)
 
         return snapshot.docs.map((d) => ({
             id: d.id,
@@ -26,8 +26,8 @@ export const createTechStack = async (data: TechStackRequest): Promise<TechStack
     }
 
     try {
-        const ref = collection(db, 'TechStack')
-        const docRef = await addDoc(ref, data)
+        const colRef = collection(db, 'TechStack')
+        const docRef = await addDoc(colRef, data)
 
         return { id: docRef.id, ...data }
     } catch (e: any) {

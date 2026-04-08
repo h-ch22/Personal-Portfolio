@@ -1,4 +1,4 @@
-export type PublicationType = "International Journal" | "International Conference" | "Domestic Journal" | "Domestic Conference" | "Patient" | "Book"
+export type PublicationType = "International Journal" | "International Conference" | "Domestic Journal" | "Domestic Conference" | "Patent" | "Book"
 
 export type Publication = {
     id: string;

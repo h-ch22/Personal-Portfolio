@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react'
-import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 let context:
@@ -16,11 +20,11 @@ export function getContext() {
   const queryClient = new QueryClient({
     queryCache: new QueryCache({
       onError: (error) => {
-        if(typeof window !== "undefined") {
-          toast.error(`Error fetching data: ${error instanceof Error ? error.message : 'Unknown error'}`)
-        }
-      }
-    })
+        toast.error(
+          `Error fetching data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
+      },
+    }),
   })
 
   context = {

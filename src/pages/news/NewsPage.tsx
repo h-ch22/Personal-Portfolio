@@ -1,3 +1,4 @@
+import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -118,14 +119,15 @@ const NewsPage = () => {
       ) : (
         <ScrollArea className="w-full h-full mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
-            {sortedData.map((news) => (
-              <NewsCard
-                key={news.id}
-                data={news}
-                onCardClick={onCardClick}
-                onModifyButtonClick={onModifyButtonClick}
-                onDeleteButtonClick={onDeleteButtonClick}
-              />
+            {sortedData.map((news, i) => (
+              <AnimatedItem key={news.id} index={i}>
+                <NewsCard
+                  data={news}
+                  onCardClick={onCardClick}
+                  onModifyButtonClick={onModifyButtonClick}
+                  onDeleteButtonClick={onDeleteButtonClick}
+                />
+              </AnimatedItem>
             ))}
           </div>
         </ScrollArea>

@@ -7,7 +7,7 @@ import Header from '#/components/common/Header'
 
 import TanStackQueryProvider from '@/integrations/tanstack-query/root-provider'
 import TanStackQueryDevtools from '@/integrations/tanstack-query/devtools'
-import { HeadContent, Outlet, Scripts } from '@tanstack/react-router'
+import { Outlet } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -52,45 +52,37 @@ export default function RootDocument() {
   }, [])
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <HeadContent />
-      </head>
-      <body className="font-pretendard antialiased">
-        <TooltipProvider>
-          <TanStackQueryProvider>
-            <div className="flex flex-col min-h-screen pt-32">
-              <Header
-                onThemeButtonClick={() => setShowThemeDialog((prev) => !prev)}
-                IconMap={IconMap}
-                theme={theme}
-              />
+    <TooltipProvider>
+      <TanStackQueryProvider>
+        <div className="font-pretendard antialiased flex flex-col min-h-screen pt-32">
+          <Header
+            onThemeButtonClick={() => setShowThemeDialog((prev) => !prev)}
+            IconMap={IconMap}
+            theme={theme}
+          />
 
-              <main className="grow flex flex-col">
-                <Outlet />
-              </main>
+          <main className="grow flex flex-col">
+            <Outlet />
+          </main>
 
-              <GlobalAlertDialog />
-              <Toaster />
+          <GlobalAlertDialog />
+          <Toaster />
 
-              <Footer />
-            </div>
+          <Footer />
+        </div>
 
-            <TanStackDevtools
-              config={{
-                position: 'bottom-right',
-              }}
-              plugins={[
-                {
-                  name: 'Tanstack Router',
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-                TanStackQueryDevtools,
-              ]}
-            />
-          </TanStackQueryProvider>
-        </TooltipProvider>
-        <Scripts />
+        <TanStackDevtools
+          config={{
+            position: 'bottom-right',
+          }}
+          plugins={[
+            {
+              name: 'Tanstack Router',
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+            TanStackQueryDevtools,
+          ]}
+        />
 
         <Dialog
           open={showThemeDialog}
@@ -106,7 +98,7 @@ export default function RootDocument() {
             <ThemeSelectionDialogContents theme={theme} setTheme={setTheme} />
           </DialogContent>
         </Dialog>
-      </body>
-    </html>
+      </TanStackQueryProvider>
+    </TooltipProvider>
   )
 }

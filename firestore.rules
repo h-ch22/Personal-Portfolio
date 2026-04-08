@@ -4,12 +4,62 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
       return request.auth != null && 
-             get(/databases/$(database)/documents/User/$(request.auth.uid)).data.isAdmin == true;
+             get(/databases/$(database)/documents/Users/$(request.auth.uid)).data.isAdmin == true;
     }
     
     match /Users/{userId} {
-    	allow read: if reques.auth != null;
+    	allow read: if request.auth != null;
       allow write: if false;
+    }
+    
+    match /Education/{postId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /Publications/{pubId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /Experience/{expId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /Awards/{awardId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /Gallery/{postId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /News/{newsId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /Projects/{projId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /TechStack/{techId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /SocialLinks/{docId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
+    }
+    
+    match /Settings/{docId} {
+    allow read: if true;
+    allow write, create, delete, update: if isAdmin();
     }
   }
 }
