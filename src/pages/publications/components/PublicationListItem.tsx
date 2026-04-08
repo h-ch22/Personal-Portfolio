@@ -38,10 +38,10 @@ const PublicationListItem = ({
     <Card className="mb-2 w-full gap-2">
       <CardHeader>
         <CardTitle>
-          <div className="flex flex-row items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xl">{data.title}</div>
 
-            <div className="flex flex-row items-center gap-1">
+            <div className="flex flex-row items-center gap-1 shrink-0">
               {showType && <Badge variant="outline">{data.type}</Badge>}
               <Badge>{data.journal}</Badge>
             </div>
@@ -51,10 +51,10 @@ const PublicationListItem = ({
 
       <CardContent>
         <CardDescription>
-          <div className="w-full flex flex-row items-center justify-between">
-            <div className="w-full flex flex-col gap-2">
-              <div className="flex flex-row items-center gap-1">
-                <UsersIcon className="w-4 h-4" />
+          <div className="w-full flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-row items-center gap-1 flex-wrap">
+                <UsersIcon className="w-4 h-4 shrink-0" />
                 {data.authors.map((a, i) => (
                   <div
                     key={i}
@@ -66,7 +66,7 @@ const PublicationListItem = ({
               </div>
 
               <div className="flex flex-row items-center gap-1">
-                <CalendarIcon className="w-4 h-4" />
+                <CalendarIcon className="w-4 h-4 shrink-0" />
                 {`${data.publicationYear}.${String(data.publicationMonth).padStart(2, '0')}`}
               </div>
             </div>
@@ -75,6 +75,7 @@ const PublicationListItem = ({
               <Button
                 variant="outline"
                 size="sm"
+                className="self-start sm:self-auto"
                 onClick={() => window.open(data.link, '_blank')}
               >
                 <ExternalLinkIcon />
