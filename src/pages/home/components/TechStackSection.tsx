@@ -92,15 +92,17 @@ export function TechStackSection({
                     {cat}
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                    {groupedTechStacks[cat].map((item, i) => (
-                      <AnimatedItem key={item.id} index={i}>
-                        <TechStackCard
-                          data={item}
-                          isAdmin={!!(user && isAdmin)}
-                          onDelete={removeTechStack}
-                        />
-                      </AnimatedItem>
-                    ))}
+                    {groupedTechStacks[cat]
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((item, i) => (
+                        <AnimatedItem key={item.id} index={i}>
+                          <TechStackCard
+                            data={item}
+                            isAdmin={!!(user && isAdmin)}
+                            onDelete={removeTechStack}
+                          />
+                        </AnimatedItem>
+                      ))}
                   </div>
                 </div>
               ))}
@@ -164,8 +166,14 @@ export function TechStackSection({
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       {[
                         { label: 'Devicon', href: 'https://devicon.dev' },
-                        { label: 'Simple Icons', href: 'https://simpleicons.org' },
-                        { label: 'Shields.io', href: 'https://shields.io/badges/static-badge' },
+                        {
+                          label: 'Simple Icons',
+                          href: 'https://simpleicons.org',
+                        },
+                        {
+                          label: 'Shields.io',
+                          href: 'https://shields.io/badges/static-badge',
+                        },
                       ].map(({ label, href }) => (
                         <a
                           key={href}
@@ -199,7 +207,10 @@ export function TechStackSection({
                 placeholder="e.g. React"
                 value={techStackForm.name}
                 onChange={(e) =>
-                  setTechStackForm((prev) => ({ ...prev, name: e.target.value }))
+                  setTechStackForm((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
                 }
               />
             </div>
@@ -250,7 +261,10 @@ export function TechStackSection({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddTechStack(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowAddTechStack(false)}
+            >
               Cancel
             </Button>
             <Button

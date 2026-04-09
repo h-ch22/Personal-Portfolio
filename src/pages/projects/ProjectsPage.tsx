@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { Input } from '#/components/ui/input'
-import { ScrollArea } from '#/components/ui/scroll-area'
 import { FrownIcon, LaptopMinimalCheckIcon, SearchIcon } from 'lucide-react'
 import { AddProject } from './components/AddProject'
 import { ProjectCard } from './components/ProjectCard'
@@ -113,7 +112,7 @@ const ProjectsPage = () => {
           <span>No projects found.</span>
         </div>
       ) : (
-        <ScrollArea className="w-full h-full mt-4">
+        <div className="w-full mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4">
             {[...filteredData]
               .sort(
@@ -132,7 +131,7 @@ const ProjectsPage = () => {
                 </AnimatedItem>
               ))}
           </div>
-        </ScrollArea>
+        </div>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleAddDialogClose}>

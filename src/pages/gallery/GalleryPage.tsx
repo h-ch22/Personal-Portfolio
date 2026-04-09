@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { Input } from '#/components/ui/input'
-import { ScrollArea } from '#/components/ui/scroll-area'
 import { FrownIcon, ImagesIcon, SearchIcon } from 'lucide-react'
 import { AddGallery } from './components/AddGallery'
 import { GalleryCard } from './components/GalleryCard'
@@ -65,7 +64,7 @@ const GalleryPage = () => {
           <span>No posts found.</span>
         </div>
       ) : (
-        <ScrollArea className="w-full h-full mt-4">
+        <div className="w-full mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
             {[...filteredData]
               .sort(
@@ -83,7 +82,7 @@ const GalleryPage = () => {
                 </AnimatedItem>
               ))}
           </div>
-        </ScrollArea>
+        </div>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleAddDialogClose}>

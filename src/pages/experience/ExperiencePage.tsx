@@ -17,7 +17,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '#/components/ui/popover'
-import { ScrollArea } from '#/components/ui/scroll-area'
 import { cn } from '#/lib/utils'
 import {
   CalendarIcon,
@@ -201,7 +200,7 @@ const ExperiencePage = () => {
           {'No experience content found.'}
         </div>
       ) : (
-        <ScrollArea className="w-full h-full mt-4">
+        <div className="w-full mt-4">
           {Object.entries(groupedData)
             .sort(([a], [b]) => Number(b) - Number(a))
             .map(([year, experiences]) => (
@@ -226,7 +225,7 @@ const ExperiencePage = () => {
                   ))}
               </div>
             ))}
-        </ScrollArea>
+        </div>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleDialogClose}>

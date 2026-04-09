@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { Input } from '#/components/ui/input'
-import { ScrollArea } from '#/components/ui/scroll-area'
 import type { AwardType } from '#/types/award'
 import { FrownIcon, SearchIcon, Trophy } from 'lucide-react'
 import { AddAward } from './components/AddAward'
@@ -105,7 +104,7 @@ const AwardsPage = () => {
           {'No awards found.'}
         </div>
       ) : (
-        <ScrollArea className="w-full h-full mt-4">
+        <div className="w-full mt-4">
           {Object.entries(groupedData)
             .sort(([a], [b]) => Number(b) - Number(a))
             .map(([year, awards]) => (
@@ -129,7 +128,7 @@ const AwardsPage = () => {
                   ))}
               </div>
             ))}
-        </ScrollArea>
+        </div>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleDialogClose}>

@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { AddEducation } from './components/AddEducation'
-import { ScrollArea } from '#/components/ui/scroll-area'
 import { EducationListItem } from './components/EducationListItem'
 import { Input } from '#/components/ui/input'
 import { Button } from '#/components/ui/button'
@@ -56,7 +55,7 @@ const EducationPage = () => {
           {'No education content found.'}
         </div>
       ) : (
-        <ScrollArea className="w-full h-full">
+        <div className="w-full">
           {Object.entries(groupedData)
             .reverse()
             .map(([year, educations]) => (
@@ -77,7 +76,7 @@ const EducationPage = () => {
                   ))}
               </div>
             ))}
-        </ScrollArea>
+        </div>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleDialogClose}>

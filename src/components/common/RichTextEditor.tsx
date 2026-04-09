@@ -74,7 +74,7 @@ const RichTextEditor = ({
     editorProps: {
       attributes: {
         class: cn(
-          'prose prose-sm dark:prose-invert max-w-none min-h-[200px] px-3 py-2 outline-none focus:outline-none',
+          'prose prose-sm dark:prose-invert max-w-none min-h-[200px] px-3 py-2 outline-none focus:outline-none [&_p]:leading-normal [&_p]:my-1 [&_hr]:my-2',
         ),
       },
     },

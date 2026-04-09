@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { Input } from '#/components/ui/input'
-import { ScrollArea } from '#/components/ui/scroll-area'
 import type { NewsCategory } from '#/types/news'
 import { FrownIcon, NewspaperIcon, SearchIcon } from 'lucide-react'
 import { AddNews } from './components/AddNews'
@@ -117,7 +116,7 @@ const NewsPage = () => {
           <span>No news found.</span>
         </div>
       ) : (
-        <ScrollArea className="w-full h-full mt-4">
+        <div className="w-full mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
             {sortedData.map((news, i) => (
               <AnimatedItem key={news.id} index={i}>
@@ -130,7 +129,7 @@ const NewsPage = () => {
               </AnimatedItem>
             ))}
           </div>
-        </ScrollArea>
+        </div>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleAddDialogClose}>

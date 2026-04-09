@@ -2,7 +2,6 @@ import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { Book, FrownIcon, SearchIcon } from 'lucide-react'
 import { usePublicationsPageController } from './hooks/usePublicationsPage'
-import { ScrollArea } from '#/components/ui/scroll-area'
 import {
   Dialog,
   DialogContent,
@@ -86,7 +85,7 @@ const PublicationsPage = () => {
           {'No publications content found.'}
         </div>
       ) : (
-        <ScrollArea className="w-full h-full">
+        <div className="w-full">
           {Object.entries(groupedData)
             .reverse()
             .map(([year, pub]) => {
@@ -112,7 +111,7 @@ const PublicationsPage = () => {
                 </div>
               )
             })}
-        </ScrollArea>
+        </div>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleDialogClose}>
