@@ -32,6 +32,7 @@ import {
   createTechStack,
   deleteTechStack,
   fetchTechStacks,
+  updateTechStack,
 } from '#/api/techstack/techstack'
 import { CONFIG } from '#/config'
 import { storage } from '#/lib/firebase'
@@ -43,6 +44,8 @@ import type {
   TechStackIconType,
   TechStackRequest,
 } from '#/types/techstack'
+
+type TechStackViewMode = 'category' | 'proficiency' | 'group'
 import type { Project } from '#/types/project'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
@@ -76,6 +79,15 @@ const useHomeViewController = () => {
     icon: '',
     category: 'Language' as TechStackCategory,
   })
+  const [editingTechStack, setEditingTechStack] = useState<TechStack | null>(null)
+  const [showEditTechStack, setShowEditTechStack] = useState(false)
+  const [editTechStackForm, setEditTechStackForm] = useState<TechStackRequest>({
+    name: '',
+    iconType: 'emoji' as TechStackIconType,
+    icon: '',
+    category: 'Language' as TechStackCategory,
+  })
+  const [techStackViewMode, setTechStackViewMode] = useState<TechStackViewMode>('category')
 
   const [showAddSocialLink, setShowAddSocialLink] = useState(false)
   const [socialLinkForm, setSocialLinkForm] = useState<SocialLinkRequest>({
@@ -312,6 +324,33 @@ const useHomeViewController = () => {
     },
   })
 
+  const { mutate: editTechStack, isPending: isEditingTechStack } = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<TechStackRequest> }) =>
+      updateTechStack(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['techStacks'] })
+      setShowEditTechStack(false)
+      setEditingTechStack(null)
+      toast.success('Tech stack updated!')
+    },
+    onError: (e: any) => {
+      toast.error(`Failed to update tech stack: ${e.message}`)
+    },
+  })
+
+  const handleEditTechStackOpen = (item: TechStack) => {
+    setEditingTechStack(item)
+    setEditTechStackForm({
+      name: item.name,
+      iconType: item.iconType,
+      icon: item.icon,
+      category: item.category,
+      proficiency: item.proficiency,
+      group: item.group,
+    })
+    setShowEditTechStack(true)
+  }
+
   const { mutate: addSocialLink, isPending: isAddingSocialLink } = useMutation({
     mutationFn: (data: SocialLinkRequest) => createSocialLink(data),
     onSuccess: () => {
@@ -419,16 +458,6 @@ const useHomeViewController = () => {
     saveSectionVisibility({ ...DEFAULT_SECTION_VISIBILITY })
   }
 
-  const groupedTechStacks = techStacks.reduce<
-    Record<TechStackCategory, TechStack[]>
-  >(
-    (acc, item) => {
-      if (!acc[item.category]) acc[item.category] = []
-      acc[item.category].push(item)
-      return acc
-    },
-    {} as Record<TechStackCategory, TechStack[]>,
-  )
 
   useEffect(() => {
     if (isSuccess) {
@@ -478,6 +507,16 @@ const useHomeViewController = () => {
     isAddingTechStack,
     addTechStack,
     removeTechStack,
+    editingTechStack,
+    showEditTechStack,
+    setShowEditTechStack,
+    editTechStackForm,
+    setEditTechStackForm,
+    isEditingTechStack,
+    editTechStack,
+    handleEditTechStackOpen,
+    techStackViewMode,
+    setTechStackViewMode,
     socialLinks,
     showAddSocialLink,
     setShowAddSocialLink,
@@ -512,7 +551,6 @@ const useHomeViewController = () => {
     setShowSectionSettings,
     handleToggleSection,
     handleResetSections,
-    groupedTechStacks,
   }
 }
 

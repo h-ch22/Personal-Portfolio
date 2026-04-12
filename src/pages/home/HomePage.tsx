@@ -60,6 +60,16 @@ export default function HomePage() {
     isAddingTechStack,
     addTechStack,
     removeTechStack,
+    editingTechStack,
+    showEditTechStack,
+    setShowEditTechStack,
+    editTechStackForm,
+    setEditTechStackForm,
+    isEditingTechStack,
+    editTechStack,
+    handleEditTechStackOpen,
+    techStackViewMode,
+    setTechStackViewMode,
     socialLinks,
     showAddSocialLink,
     setShowAddSocialLink,
@@ -91,7 +101,6 @@ export default function HomePage() {
     setShowSectionSettings,
     handleToggleSection,
     handleResetSections,
-    groupedTechStacks,
   } = useHomeViewController()
 
   return (
@@ -161,7 +170,6 @@ export default function HomePage() {
                     key={id}
                     muted={muted}
                     techStacks={techStacks}
-                    groupedTechStacks={groupedTechStacks}
                     user={user}
                     isAdmin={isAdmin}
                     showAddTechStack={showAddTechStack}
@@ -171,6 +179,16 @@ export default function HomePage() {
                     isAddingTechStack={isAddingTechStack}
                     addTechStack={addTechStack}
                     removeTechStack={removeTechStack}
+                    showEditTechStack={showEditTechStack}
+                    setShowEditTechStack={setShowEditTechStack}
+                    editTechStackForm={editTechStackForm}
+                    setEditTechStackForm={setEditTechStackForm}
+                    isEditingTechStack={isEditingTechStack}
+                    editTechStack={editTechStack}
+                    editingTechStack={editingTechStack}
+                    handleEditTechStackOpen={handleEditTechStackOpen}
+                    techStackViewMode={techStackViewMode}
+                    setTechStackViewMode={setTechStackViewMode}
                   />
                 )
               case 'featuredProjects':

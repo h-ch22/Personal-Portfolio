@@ -23,6 +23,7 @@ import {
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
 import { cn } from '#/lib/utils'
 import type { ExperienceRequest } from '#/types/experience'
+import { TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
 import type { ExperienceFormInstance } from '../hooks/useExperiencePage'
 
 const AddExperience = ({
@@ -32,7 +33,7 @@ const AddExperience = ({
   form: ExperienceFormInstance
   isEditMode: boolean
 }) => {
-  const [techInput, setTechInput] = useState({ name: '', iconUrl: '' })
+  const [techInput, setTechInput] = useState({ name: '', iconUrl: '', group: 'Other' as TechStackGroup })
   const [datePickerOpen, setDatePickerOpen] = useState(false)
 
   return (
@@ -307,12 +308,13 @@ const AddExperience = ({
                               ...field.state.value,
                               {
                                 name: techInput.name.trim(),
+                                group: techInput.group,
                                 ...(techInput.iconUrl.trim() && {
                                   iconUrl: techInput.iconUrl.trim(),
                                 }),
                               },
                             ])
-                            setTechInput({ name: '', iconUrl: '' })
+                            setTechInput({ name: '', iconUrl: '', group: 'Other' })
                           }
                         }
                       }}
@@ -327,6 +329,23 @@ const AddExperience = ({
                         }))
                       }
                     />
+                    <Select
+                      value={techInput.group}
+                      onValueChange={(v) =>
+                        setTechInput((prev) => ({ ...prev, group: v as TechStackGroup }))
+                      }
+                    >
+                      <SelectTrigger className="w-36 shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {TECH_STACK_GROUPS.map((g) => (
+                            <SelectItem key={g} value={g}>{g}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                     <Button
                       type="button"
                       variant="outline"
@@ -337,12 +356,13 @@ const AddExperience = ({
                             ...field.state.value,
                             {
                               name: techInput.name.trim(),
+                              group: techInput.group,
                               ...(techInput.iconUrl.trim() && {
                                 iconUrl: techInput.iconUrl.trim(),
                               }),
                             },
                           ])
-                          setTechInput({ name: '', iconUrl: '' })
+                          setTechInput({ name: '', iconUrl: '', group: 'Other' })
                         }
                       }}
                     >

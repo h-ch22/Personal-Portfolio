@@ -1,5 +1,5 @@
 import type { TechStack, TechStackRequest } from '#/types/techstack'
-import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore'
 import { firestore as db } from '#/lib/firebase'
 
 export const fetchTechStacks = async (): Promise<TechStack[]> => {
@@ -30,6 +30,20 @@ export const createTechStack = async (data: TechStackRequest): Promise<TechStack
         const docRef = await addDoc(colRef, data)
 
         return { id: docRef.id, ...data }
+    } catch (e: any) {
+        throw e
+    }
+}
+
+export const updateTechStack = async (id: string, data: Partial<TechStackRequest>): Promise<void> => {
+    if (!db) {
+        throw new Error('Cannot update tech stack: database is not initialized.')
+    }
+
+    try {
+        const docRef = doc(db, 'TechStack', id)
+        const clean = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined))
+        await updateDoc(docRef, clean)
     } catch (e: any) {
         throw e
     }

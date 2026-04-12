@@ -149,7 +149,6 @@ export const fetchSectionOrder = async (): Promise<SectionId[]> => {
     if (snapshot.exists()) {
       const raw = snapshot.data().sectionOrder as SectionId[] | undefined
       if (raw && raw.length > 0) {
-        // 새로 추가된 섹션이 있을 경우 뒤에 붙임
         const missing = DEFAULT_SECTION_ORDER.filter((id) => !raw.includes(id))
         return [...raw, ...missing]
       }

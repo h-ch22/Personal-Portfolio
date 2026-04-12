@@ -135,8 +135,8 @@ const ProjectsPage = () => {
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleAddDialogClose}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+          <DialogHeader className="shrink-0">
             <DialogTitle>
               {selectedData ? 'Edit Project' : 'New Project'}
             </DialogTitle>

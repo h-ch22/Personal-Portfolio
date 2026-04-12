@@ -25,6 +25,7 @@ import {
 } from '#/components/ui/card'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { Experience } from '#/types/experience'
+import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
 
 const TYPE_ICON = {
   Work: <BriefcaseIcon />,
@@ -92,26 +93,42 @@ const ExperienceListItem = ({
               </p>
             )}
 
-            {data.techStack.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {data.techStack.map((tech, i) => (
-                  <Badge
-                    key={i}
-                    variant="secondary"
-                    className="flex items-center gap-1.5 pl-1.5"
-                  >
-                    {tech.iconUrl && (
-                      <img
-                        src={tech.iconUrl}
-                        alt={tech.name}
-                        className="w-4 h-4 rounded-sm object-contain"
-                      />
-                    )}
-                    <span>{tech.name}</span>
-                  </Badge>
-                ))}
-              </div>
-            )}
+            {data.techStack.length > 0 && (() => {
+              const grouped = data.techStack.reduce<Record<string, typeof data.techStack>>((acc, tech) => {
+                const g = tech.group ?? 'Other'
+                if (!acc[g]) acc[g] = []
+                acc[g].push(tech)
+                return acc
+              }, {})
+              const orderedGroups = [...TECH_STACK_GROUPS.filter((g) => grouped[g]), ...Object.keys(grouped).filter((g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup))]
+              return (
+                <div className="flex flex-col gap-2 mt-1">
+                  {orderedGroups.map((g) => (
+                    <div key={g} className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-xs font-medium text-muted-foreground w-16 shrink-0">{g}</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {grouped[g].map((tech, i) => (
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className={`flex items-center gap-1.5 pl-1.5 border-0 ${TECH_STACK_GROUP_COLORS[g as TechStackGroup] ?? TECH_STACK_GROUP_COLORS.Other}`}
+                          >
+                            {tech.iconUrl && (
+                              <img
+                                src={tech.iconUrl}
+                                alt={tech.name}
+                                className="w-4 h-4 rounded-sm object-contain"
+                              />
+                            )}
+                            <span>{tech.name}</span>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
         </CardDescription>
       </CardContent>

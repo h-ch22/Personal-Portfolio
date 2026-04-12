@@ -14,9 +14,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '#/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '#/components/ui/select'
 import { cn } from '#/lib/utils'
 import type { GalleryImage } from '#/types/gallery'
 import type { TechStackItem } from '#/types/experience'
+import { TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
 import type { ProjectMember } from '#/types/project'
 import type { ProjectFormInstance } from '../hooks/useProjectsPage'
 
@@ -44,7 +53,7 @@ const AddProject = ({
   onUnmarkImageForDeletion: (path: string) => void
 }) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false)
-  const [techInput, setTechInput] = useState({ name: '', iconUrl: '' })
+  const [techInput, setTechInput] = useState({ name: '', iconUrl: '', group: 'Other' as TechStackGroup })
   const [memberInput, setMemberInput] = useState({ name: '', role: '' })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -75,16 +84,17 @@ const AddProject = ({
       ...techStack,
       {
         name: techInput.name.trim(),
+        group: techInput.group,
         ...(techInput.iconUrl.trim() && { iconUrl: techInput.iconUrl.trim() }),
       },
     ])
-    setTechInput({ name: '', iconUrl: '' })
+    setTechInput({ name: '', iconUrl: '', group: 'Other' })
   }
 
   const pendingPreviews = pendingFiles.map((f) => URL.createObjectURL(f))
 
   return (
-    <div className="w-full flex flex-col gap-4 max-h-[75vh] overflow-y-auto pr-1">
+    <div className="w-full flex flex-col gap-4 overflow-y-auto flex-1 min-h-0 pr-1">
       <form
         noValidate
         onSubmit={(e) => {
@@ -360,6 +370,23 @@ const AddProject = ({
                       }))
                     }
                   />
+                  <Select
+                    value={techInput.group}
+                    onValueChange={(v) =>
+                      setTechInput((prev) => ({ ...prev, group: v as TechStackGroup }))
+                    }
+                  >
+                    <SelectTrigger className="w-36 shrink-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {TECH_STACK_GROUPS.map((g) => (
+                          <SelectItem key={g} value={g}>{g}</SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   <Button
                     type="button"
                     variant="outline"

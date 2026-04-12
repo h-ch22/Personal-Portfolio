@@ -12,8 +12,14 @@ export default function Footer() {
       </div>
 
       <div>
-        Conceived by
-        <span className="font-semibold"> Yujee Catherine Chang</span>, Built by{' '}
+        Conceived by{' '}
+        <a
+          href="https://yujee-catherine.web.app"
+          className="font-semibold underline"
+        >
+          Yujee Catherine Chang
+        </a>{' '}
+        Built by{' '}
         <a href="https://github.com/h-ch22" className="font-semibold underline">
           Changjin Ha.
         </a>

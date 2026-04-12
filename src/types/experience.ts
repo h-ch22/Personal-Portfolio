@@ -1,8 +1,11 @@
+import type { TechStackGroup } from '#/types/techstack'
+
 export type ExperienceType = 'Work' | 'Project' | 'Activity' | 'Open Source';
 
 export type TechStackItem = {
     name: string;
     iconUrl?: string;
+    group?: TechStackGroup;
 };
 
 export type Experience = {

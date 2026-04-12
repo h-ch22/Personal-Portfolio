@@ -22,6 +22,7 @@ import {
 } from '#/components/ui/dialog'
 import { Badge } from '#/components/ui/badge'
 import { ScrollArea } from '#/components/ui/scroll-area'
+import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
 import type { Project } from '#/types/project'
 
 const ProjectDetailDialog = ({
@@ -148,29 +149,43 @@ const ProjectDetailDialog = ({
               </div>
             )}
 
-            {project.techStack.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-semibold">Tech Stack</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {project.techStack.map((tech, i) => (
-                    <Badge
-                      key={i}
-                      variant="secondary"
-                      className="flex items-center gap-1.5 px-2 py-1 h-auto"
-                    >
-                      {tech.iconUrl && (
-                        <img
-                          src={tech.iconUrl}
-                          alt={tech.name}
-                          className="w-4 h-4 object-contain"
-                        />
-                      )}
-                      <span className="text-xs">{tech.name}</span>
-                    </Badge>
+            {project.techStack.length > 0 && (() => {
+              const grouped = project.techStack.reduce<Record<string, typeof project.techStack>>((acc, tech) => {
+                const g = tech.group ?? 'Other'
+                if (!acc[g]) acc[g] = []
+                acc[g].push(tech)
+                return acc
+              }, {})
+              const orderedGroups = [...TECH_STACK_GROUPS.filter((g) => grouped[g]), ...Object.keys(grouped).filter((g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup))]
+              return (
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm font-semibold">Tech Stack</span>
+                  {orderedGroups.map((g) => (
+                    <div key={g} className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-xs font-medium text-muted-foreground w-16 shrink-0">{g}</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {grouped[g].map((tech, i) => (
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className={`flex items-center gap-1.5 px-2 py-1 h-auto border-0 ${TECH_STACK_GROUP_COLORS[(g as TechStackGroup)] ?? TECH_STACK_GROUP_COLORS.Other}`}
+                          >
+                            {tech.iconUrl && (
+                              <img
+                                src={tech.iconUrl}
+                                alt={tech.name}
+                                className="w-4 h-4 object-contain"
+                              />
+                            )}
+                            <span className="text-xs">{tech.name}</span>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             <div
               className="prose prose-sm dark:prose-invert max-w-none"
