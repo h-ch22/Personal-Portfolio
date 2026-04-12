@@ -38,6 +38,7 @@ interface TechStackSectionProps {
   isAddingTechStack: boolean
   addTechStack: (form: TechStackRequest) => void
   removeTechStack: (id: string) => void
+  muted?: boolean
 }
 
 export function TechStackSection({
@@ -52,11 +53,12 @@ export function TechStackSection({
   isAddingTechStack,
   addTechStack,
   removeTechStack,
+  muted = false,
 }: TechStackSectionProps) {
   return (
     <>
       <AnimatedItem>
-        <div className="flex flex-col gap-4 px-6 py-8">
+        <div className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}>
           <div className="flex flex-row items-end justify-between">
             <div>
               <div className="flex items-center gap-2 text-3xl font-bold text-foreground">

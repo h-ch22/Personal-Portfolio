@@ -23,7 +23,6 @@ import {
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 
-// ── Education card ──────────────────────────────────────────────
 const EDU_TYPE_ICON: Record<Education['type'], React.ReactNode> = {
   DEGREE: <GraduationCapIcon className="w-3 h-3" />,
   BOOTCAMP: <TentIcon className="w-3 h-3" />,
@@ -32,11 +31,14 @@ const EDU_TYPE_ICON: Record<Education['type'], React.ReactNode> = {
 }
 
 function EducationCard({ data }: { data: Education }) {
-  const period = data.type === 'CERTIFICATE'
-    ? `${data.endYear}.${String(data.endMonth).padStart(2, '0')}`
-    : `${data.startYear}.${String(data.startMonth).padStart(2, '0')} – ${
-        data.inProgress ? 'Present' : `${data.endYear}.${String(data.endMonth).padStart(2, '0')}`
-      }`
+  const period =
+    data.type === 'CERTIFICATE'
+      ? `${data.endYear}.${String(data.endMonth).padStart(2, '0')}`
+      : `${data.startYear}.${String(data.startMonth).padStart(2, '0')} – ${
+          data.inProgress
+            ? 'Present'
+            : `${data.endYear}.${String(data.endMonth).padStart(2, '0')}`
+        }`
 
   return (
     <div className="flex flex-col gap-1 rounded-lg border bg-card px-4 py-3">
@@ -66,7 +68,6 @@ function EducationCard({ data }: { data: Education }) {
   )
 }
 
-// ── Experience card ─────────────────────────────────────────────
 const EXP_TYPE_ICON: Record<Experience['type'], React.ReactNode> = {
   Work: <BriefcaseIcon className="w-3 h-3" />,
   Project: <FolderGitIcon className="w-3 h-3" />,
@@ -109,9 +110,17 @@ function ExperienceCard({ data }: { data: Experience }) {
       {data.techStack.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-1">
           {data.techStack.slice(0, 4).map((t, i) => (
-            <Badge key={i} variant="outline" className="text-xs px-1.5 py-0 h-auto gap-1">
+            <Badge
+              key={i}
+              variant="outline"
+              className="text-xs px-1.5 py-0 h-auto gap-1"
+            >
               {t.iconUrl && (
-                <img src={t.iconUrl} alt={t.name} className="w-3 h-3 object-contain" />
+                <img
+                  src={t.iconUrl}
+                  alt={t.name}
+                  className="w-3 h-3 object-contain"
+                />
               )}
               {t.name}
             </Badge>
@@ -127,8 +136,9 @@ function ExperienceCard({ data }: { data: Experience }) {
   )
 }
 
-// ── Grouped list renderer ────────────────────────────────────────
-function GroupedList<T extends { id: string; inProgress?: boolean; isCurrentlyWorking?: boolean }>({
+function GroupedList<
+  T extends { id: string; inProgress?: boolean; isCurrentlyWorking?: boolean },
+>({
   items,
   groupKey,
   renderCard,
@@ -194,19 +204,22 @@ function GroupedList<T extends { id: string; inProgress?: boolean; isCurrentlyWo
   )
 }
 
-// ── Section ──────────────────────────────────────────────────────
 interface EducationExperienceSectionProps {
   recentEducation: Education[]
   recentExperience: Experience[]
+  muted?: boolean
 }
 
 export function EducationExperienceSection({
   recentEducation,
   recentExperience,
+  muted = false,
 }: EducationExperienceSectionProps) {
   return (
     <AnimatedItem>
-      <div className="flex flex-col gap-4 px-6 py-8">
+      <div
+        className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}
+      >
         <div className="flex items-center gap-2 text-3xl font-bold text-foreground">
           <BookOpenCheckIcon className="w-7 h-7" />
           Education & Experience
@@ -224,9 +237,7 @@ export function EducationExperienceSection({
           <TabsContent value="experience">
             <GroupedList
               items={recentExperience}
-              groupKey={(e) =>
-                (e.endDate ?? e.startDate).getFullYear()
-              }
+              groupKey={(e) => (e.endDate ?? e.startDate).getFullYear()}
               renderCard={(e) => <ExperienceCard data={e} />}
             />
             <Button variant="ghost" asChild className="mt-4 w-full">

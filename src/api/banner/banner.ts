@@ -108,6 +108,95 @@ export const updateHomeDescription = async (description: string): Promise<void> 
     await setDoc(docRef, { description }, { merge: true })
 }
 
+export type SectionId =
+  | 'techStack'
+  | 'featuredProjects'
+  | 'educationExperience'
+  | 'publications'
+  | 'news'
+  | 'gallery'
+  | 'socialLinks'
+
+export type SectionVisibility = Record<SectionId, boolean>
+
+export const DEFAULT_SECTION_VISIBILITY: SectionVisibility = {
+  techStack: true,
+  featuredProjects: true,
+  educationExperience: true,
+  publications: true,
+  news: true,
+  gallery: true,
+  socialLinks: true,
+}
+
+export const DEFAULT_SECTION_ORDER: SectionId[] = [
+  'techStack',
+  'featuredProjects',
+  'educationExperience',
+  'publications',
+  'news',
+  'gallery',
+  'socialLinks',
+]
+
+export const fetchSectionOrder = async (): Promise<SectionId[]> => {
+  if (!db) return [...DEFAULT_SECTION_ORDER]
+
+  try {
+    const docRef = doc(db, 'Settings', 'home')
+    const snapshot = await getDoc(docRef)
+
+    if (snapshot.exists()) {
+      const raw = snapshot.data().sectionOrder as SectionId[] | undefined
+      if (raw && raw.length > 0) {
+        // 새로 추가된 섹션이 있을 경우 뒤에 붙임
+        const missing = DEFAULT_SECTION_ORDER.filter((id) => !raw.includes(id))
+        return [...raw, ...missing]
+      }
+    }
+
+    return [...DEFAULT_SECTION_ORDER]
+  } catch {
+    return [...DEFAULT_SECTION_ORDER]
+  }
+}
+
+export const updateSectionOrder = async (order: SectionId[]): Promise<void> => {
+  if (!db) {
+    throw new Error('Cannot update section order: database is not initialized.')
+  }
+
+  const docRef = doc(db, 'Settings', 'home')
+  await setDoc(docRef, { sectionOrder: order }, { merge: true })
+}
+
+export const fetchSectionVisibility = async (): Promise<SectionVisibility> => {
+  if (!db) return { ...DEFAULT_SECTION_VISIBILITY }
+
+  try {
+    const docRef = doc(db, 'Settings', 'home')
+    const snapshot = await getDoc(docRef)
+
+    if (snapshot.exists()) {
+      const raw = snapshot.data().sectionVisibility as Partial<SectionVisibility> | undefined
+      return { ...DEFAULT_SECTION_VISIBILITY, ...raw }
+    }
+
+    return { ...DEFAULT_SECTION_VISIBILITY }
+  } catch {
+    return { ...DEFAULT_SECTION_VISIBILITY }
+  }
+}
+
+export const updateSectionVisibility = async (visibility: SectionVisibility): Promise<void> => {
+  if (!db) {
+    throw new Error('Cannot update section visibility: database is not initialized.')
+  }
+
+  const docRef = doc(db, 'Settings', 'home')
+  await setDoc(docRef, { sectionVisibility: visibility }, { merge: true })
+}
+
 export const fetchFeaturedProjectIds = async (): Promise<string[]> => {
     if (!db) return []
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { CalendarIcon, Plus, Minus } from 'lucide-react'
+import { CalendarIcon, Plus, Minus, GripVerticalIcon } from 'lucide-react'
+import { Reorder, useDragControls } from 'framer-motion'
 
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
 import { Button } from '#/components/ui/button'
@@ -22,6 +23,38 @@ import {
 import { cn } from '#/lib/utils'
 import type { PublicationRequest, PublicationType } from '#/types/publication'
 import type { PublicationFormInstance } from '../hooks/usePublicationsPage'
+
+function DraggableAuthorRow({
+  author,
+  onRemove,
+}: {
+  author: string
+  onRemove: () => void
+}) {
+  const controls = useDragControls()
+  return (
+    <Reorder.Item
+      value={author}
+      dragListener={false}
+      dragControls={controls}
+      className="flex items-center gap-2"
+    >
+      <button
+        type="button"
+        onPointerDown={(e) => controls.start(e)}
+        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+      >
+        <GripVerticalIcon className="w-4 h-4" />
+      </button>
+      <span className="flex-1 text-sm border rounded-md px-3 py-2 bg-muted">
+        {author}
+      </span>
+      <Button type="button" variant="outline" size="icon-sm" onClick={onRemove}>
+        <Minus />
+      </Button>
+    </Reorder.Item>
+  )
+}
 
 const AuthorsField = ({
   value,
@@ -50,23 +83,20 @@ const AuthorsField = ({
         Authors <span className="text-destructive">*</span>
       </FieldLabel>
       <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
+        <Reorder.Group
+          axis="y"
+          values={value}
+          onReorder={onChange}
+          className="flex flex-col gap-2 max-h-40 overflow-y-auto"
+        >
           {value.map((author, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <span className="flex-1 text-sm border rounded-md px-3 py-2 bg-muted">
-                {author}
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-sm"
-                onClick={() => removeAuthor(index)}
-              >
-                <Minus />
-              </Button>
-            </div>
+            <DraggableAuthorRow
+              key={author}
+              author={author}
+              onRemove={() => removeAuthor(index)}
+            />
           ))}
-        </div>
+        </Reorder.Group>
         <div className="flex items-center gap-2">
           <Input
             placeholder="Author name"
@@ -89,6 +119,9 @@ const AuthorsField = ({
           </Button>
         </div>
       </div>
+      <p className="text-xs text-muted-foreground">
+        * Authors with the same name cannot be reordered.
+      </p>
       {errors.length > 0 && (
         <p className="text-destructive text-sm">{errors[0]?.message}</p>
       )}

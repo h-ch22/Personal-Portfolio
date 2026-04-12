@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { Button } from '#/components/ui/button'
 import {
@@ -16,59 +15,49 @@ import type { Project } from '#/types/project'
 import { ProjectDetailDialog } from '#/pages/projects/components/ProjectDetailDialog'
 import { ProjectPreviewCard } from './ProjectPreviewCard'
 
-const MAX_FEATURED = 10
-
 interface FeaturedProjectsSectionProps {
   featuredProjects: Project[]
   allProjects: Project[]
-  featuredProjectIds: string[]
+  featuredSelectedIds: string[]
   user: User | null
   isAdmin: boolean
   isSavingFeatured: boolean
-  onSaveFeatured: (ids: string[]) => void
+  maxFeatured: number
+  showSelectDialog: boolean
+  setShowSelectDialog: (open: boolean) => void
+  onOpenSelectDialog: () => void
+  onToggle: (id: string) => void
+  onSave: () => void
+  detailProject: Project | null
+  showDetail: boolean
+  setShowDetail: (open: boolean) => void
+  onCardClick: (project: Project) => void
+  muted?: boolean
 }
 
 export function FeaturedProjectsSection({
   featuredProjects,
   allProjects,
-  featuredProjectIds,
+  featuredSelectedIds,
   user,
   isAdmin,
   isSavingFeatured,
-  onSaveFeatured,
+  maxFeatured,
+  showSelectDialog,
+  setShowSelectDialog,
+  onOpenSelectDialog,
+  onToggle,
+  onSave,
+  detailProject,
+  showDetail,
+  setShowDetail,
+  onCardClick,
+  muted = false,
 }: FeaturedProjectsSectionProps) {
-  const [showSelectDialog, setShowSelectDialog] = useState(false)
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [detailProject, setDetailProject] = useState<Project | null>(null)
-  const [showDetail, setShowDetail] = useState(false)
-
-  const handleOpenSelectDialog = () => {
-    setSelectedIds([...featuredProjectIds])
-    setShowSelectDialog(true)
-  }
-
-  const handleToggle = (id: string) => {
-    setSelectedIds((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id)
-      if (prev.length >= MAX_FEATURED) return prev
-      return [...prev, id]
-    })
-  }
-
-  const handleSave = () => {
-    onSaveFeatured(selectedIds)
-    setShowSelectDialog(false)
-  }
-
-  const handleCardClick = (project: Project) => {
-    setDetailProject(project)
-    setShowDetail(true)
-  }
-
   return (
     <>
       <AnimatedItem>
-        <div className="flex flex-col gap-4 px-6 py-8 bg-muted">
+        <div className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}>
           <div className="flex flex-row items-end justify-between">
             <div>
               <div className="flex items-center gap-2 text-3xl font-bold text-foreground">
@@ -84,7 +73,7 @@ export function FeaturedProjectsSection({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={handleOpenSelectDialog}
+                  onClick={onOpenSelectDialog}
                 >
                   <Settings2Icon className="w-4 h-4" />
                 </Button>
@@ -102,7 +91,7 @@ export function FeaturedProjectsSection({
             {featuredProjects.length > 0 ? (
               featuredProjects.map((project, i) => (
                 <AnimatedItem key={project.id} index={i}>
-                  <ProjectPreviewCard data={project} onClick={handleCardClick} />
+                  <ProjectPreviewCard data={project} onClick={onCardClick} />
                 </AnimatedItem>
               ))
             ) : (
@@ -122,9 +111,9 @@ export function FeaturedProjectsSection({
           <DialogHeader>
             <DialogTitle>Select Featured Projects</DialogTitle>
             <p className="text-sm text-muted-foreground">
-              Select up to {MAX_FEATURED} projects to feature on the home page.{' '}
+              Select up to {maxFeatured} projects to feature on the home page.{' '}
               <span className="font-medium text-foreground">
-                {selectedIds.length}/{MAX_FEATURED}
+                {featuredSelectedIds.length}/{maxFeatured}
               </span>{' '}
               selected.
             </p>
@@ -145,63 +134,63 @@ export function FeaturedProjectsSection({
                       new Date(a.startDate).getTime(),
                   )
                   .map((project) => {
-                  const isSelected = selectedIds.includes(project.id)
-                  const isDisabled = !isSelected && selectedIds.length >= MAX_FEATURED
-                  const thumbnail = project.images[0]?.url
+                    const isSelected = featuredSelectedIds.includes(project.id)
+                    const isDisabled = !isSelected && featuredSelectedIds.length >= maxFeatured
+                    const thumbnail = project.images[0]?.url
 
-                  return (
-                    <button
-                      key={project.id}
-                      type="button"
-                      onClick={() => handleToggle(project.id)}
-                      disabled={isDisabled}
-                      className={`flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
-                        isSelected
-                          ? 'border-primary bg-primary/5'
-                          : isDisabled
-                            ? 'opacity-40 cursor-not-allowed border-border'
-                            : 'border-border hover:border-primary/50 hover:bg-muted/50'
-                      }`}
-                    >
-                      <div className="w-14 h-14 rounded-md bg-muted overflow-hidden shrink-0">
-                        {thumbnail ? (
-                          <img
-                            src={thumbnail}
-                            alt={project.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                            <ImagesIcon className="w-5 h-5" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm line-clamp-1">
-                          {project.title}
-                        </div>
-                        {project.techStack.length > 0 && (
-                          <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                            {project.techStack
-                              .slice(0, 3)
-                              .map((t) => t.name)
-                              .join(', ')}
-                            {project.techStack.length > 3 && ` +${project.techStack.length - 3}`}
-                          </div>
-                        )}
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                    return (
+                      <button
+                        key={project.id}
+                        type="button"
+                        onClick={() => onToggle(project.id)}
+                        disabled={isDisabled}
+                        className={`flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
                           isSelected
-                            ? 'border-primary bg-primary text-primary-foreground'
-                            : 'border-muted-foreground'
+                            ? 'border-primary bg-primary/5'
+                            : isDisabled
+                              ? 'opacity-40 cursor-not-allowed border-border'
+                              : 'border-border hover:border-primary/50 hover:bg-muted/50'
                         }`}
                       >
-                        {isSelected && <CheckIcon className="w-3 h-3" />}
-                      </div>
-                    </button>
-                  )
-                })}
+                        <div className="w-14 h-14 rounded-md bg-muted overflow-hidden shrink-0">
+                          {thumbnail ? (
+                            <img
+                              src={thumbnail}
+                              alt={project.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                              <ImagesIcon className="w-5 h-5" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm line-clamp-1">
+                            {project.title}
+                          </div>
+                          {project.techStack.length > 0 && (
+                            <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                              {project.techStack
+                                .slice(0, 3)
+                                .map((t) => t.name)
+                                .join(', ')}
+                              {project.techStack.length > 3 && ` +${project.techStack.length - 3}`}
+                            </div>
+                          )}
+                        </div>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                            isSelected
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-muted-foreground'
+                          }`}
+                        >
+                          {isSelected && <CheckIcon className="w-3 h-3" />}
+                        </div>
+                      </button>
+                    )
+                  })}
               </div>
             )}
           </div>
@@ -210,7 +199,7 @@ export function FeaturedProjectsSection({
             <Button variant="outline" onClick={() => setShowSelectDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={isSavingFeatured}>
+            <Button onClick={onSave} disabled={isSavingFeatured}>
               Save
             </Button>
           </DialogFooter>

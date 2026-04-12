@@ -43,6 +43,7 @@ interface SocialLinksSectionProps {
   isAddingSocialLink: boolean
   addSocialLink: (form: SocialLinkRequest) => void
   removeSocialLink: (id: string) => void
+  muted?: boolean
 }
 
 export function SocialLinksSection({
@@ -56,11 +57,12 @@ export function SocialLinksSection({
   isAddingSocialLink,
   addSocialLink,
   removeSocialLink,
+  muted = false,
 }: SocialLinksSectionProps) {
   return (
     <>
       <AnimatedItem>
-        <div className="flex flex-col gap-6 px-6 py-10">
+        <div className={`flex flex-col gap-6 px-6 py-10${muted ? ' bg-muted' : ''}`}>
           <div className="flex flex-row items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-foreground">

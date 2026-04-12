@@ -1,15 +1,22 @@
 import {
+  DEFAULT_SECTION_ORDER,
+  DEFAULT_SECTION_VISIBILITY,
   fetchBannerImage,
   fetchBannerText,
   fetchFeaturedProjectIds,
   fetchHomeDescription,
   fetchProfileImage,
+  fetchSectionOrder,
+  fetchSectionVisibility,
   updateBannerText,
   updateFeaturedProjectIds,
   updateHomeDescription,
+  updateSectionOrder,
+  updateSectionVisibility,
   uploadBannerImage,
   uploadProfileImage,
 } from '#/api/banner/banner'
+import type { SectionId, SectionVisibility } from '#/api/banner/banner'
 import { fetchEducation } from '#/api/education/education'
 import { fetchExperience } from '#/api/experience/experience'
 import { fetchGalleries } from '#/api/gallery/gallery'
@@ -31,13 +38,17 @@ import { storage } from '#/lib/firebase'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { SocialLinkRequest, SocialPlatform } from '#/types/sociallink'
 import type {
+  TechStack,
   TechStackCategory,
   TechStackIconType,
   TechStackRequest,
 } from '#/types/techstack'
+import type { Project } from '#/types/project'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+
+const MAX_FEATURED = 10
 
 const useHomeViewController = () => {
   const queryClient = useQueryClient()
@@ -72,6 +83,11 @@ const useHomeViewController = () => {
     url: '',
     label: '',
   })
+
+  const [showFeaturedSelectDialog, setShowFeaturedSelectDialog] = useState(false)
+  const [featuredSelectedIds, setFeaturedSelectedIds] = useState<string[]>([])
+  const [detailProject, setDetailProject] = useState<Project | null>(null)
+  const [showProjectDetail, setShowProjectDetail] = useState(false)
 
   const { data: bannerImage, isSuccess } = useQuery({
     queryKey: ['bannerImage'],
@@ -155,7 +171,9 @@ const useHomeViewController = () => {
     staleTime: 1000 * 60 * 10,
     select: (data) =>
       [...data]
-        .sort((a, b) => b.startYear - a.startYear || b.startMonth - a.startMonth)
+        .sort(
+          (a, b) => b.startYear - a.startYear || b.startMonth - a.startMonth,
+        )
         .slice(0, 5),
   })
 
@@ -165,8 +183,45 @@ const useHomeViewController = () => {
     staleTime: 1000 * 60 * 10,
     select: (data) =>
       [...data]
-        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+        )
         .slice(0, 5),
+  })
+
+  const { data: sectionVisibility = { ...DEFAULT_SECTION_VISIBILITY } } =
+    useQuery({
+      queryKey: ['sectionVisibility'],
+      queryFn: fetchSectionVisibility,
+      staleTime: 1000 * 60 * 10,
+    })
+
+  const { mutate: saveSectionVisibility } = useMutation({
+    mutationFn: (visibility: SectionVisibility) =>
+      updateSectionVisibility(visibility),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sectionVisibility'] })
+    },
+    onError: (e: any) => {
+      toast.error(`Failed to update section visibility: ${e.message}`)
+    },
+  })
+
+  const { data: sectionOrder = [...DEFAULT_SECTION_ORDER] } = useQuery({
+    queryKey: ['sectionOrder'],
+    queryFn: fetchSectionOrder,
+    staleTime: 1000 * 60 * 10,
+  })
+
+  const { mutate: saveSectionOrder } = useMutation({
+    mutationFn: (order: SectionId[]) => updateSectionOrder(order),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sectionOrder'] })
+    },
+    onError: (e: any) => {
+      toast.error(`Failed to update section order: ${e.message}`)
+    },
   })
 
   const { data: featuredProjectIds = [] } = useQuery({
@@ -293,6 +348,29 @@ const useHomeViewController = () => {
       },
     })
 
+  const handleOpenFeaturedSelectDialog = () => {
+    setFeaturedSelectedIds([...featuredProjectIds])
+    setShowFeaturedSelectDialog(true)
+  }
+
+  const handleFeaturedToggle = (id: string) => {
+    setFeaturedSelectedIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id)
+      if (prev.length >= MAX_FEATURED) return prev
+      return [...prev, id]
+    })
+  }
+
+  const handleFeaturedSave = () => {
+    saveFeaturedProjectIds(featuredSelectedIds)
+    setShowFeaturedSelectDialog(false)
+  }
+
+  const handleProjectCardClick = (project: Project) => {
+    setDetailProject(project)
+    setShowProjectDetail(true)
+  }
+
   const handleBannerEditStart = () => {
     setBannerTextInput(bannerText)
     setIsEditingBanner(true)
@@ -321,6 +399,7 @@ const useHomeViewController = () => {
     setDescriptionInput(homeDescription)
     setIsEditingDescription(true)
   }
+
   const handleDescriptionSave = () => {
     if (descriptionInput.trim()) saveHomeDescription(descriptionInput.trim())
   }
@@ -328,6 +407,28 @@ const useHomeViewController = () => {
     setIsEditingDescription(false)
     setDescriptionInput('')
   }
+
+  const [showSectionSettings, setShowSectionSettings] = useState(false)
+
+  const handleToggleSection = (id: SectionId, value: boolean) => {
+    saveSectionVisibility({ ...sectionVisibility, [id]: value })
+  }
+
+  const handleResetSections = () => {
+    saveSectionOrder([...DEFAULT_SECTION_ORDER])
+    saveSectionVisibility({ ...DEFAULT_SECTION_VISIBILITY })
+  }
+
+  const groupedTechStacks = techStacks.reduce<
+    Record<TechStackCategory, TechStack[]>
+  >(
+    (acc, item) => {
+      if (!acc[item.category]) acc[item.category] = []
+      acc[item.category].push(item)
+      return acc
+    },
+    {} as Record<TechStackCategory, TechStack[]>,
+  )
 
   useEffect(() => {
     if (isSuccess) {
@@ -390,8 +491,28 @@ const useHomeViewController = () => {
     featuredProjectIds,
     isSavingFeatured,
     saveFeaturedProjectIds,
+    showFeaturedSelectDialog,
+    setShowFeaturedSelectDialog,
+    featuredSelectedIds,
+    handleOpenFeaturedSelectDialog,
+    handleFeaturedToggle,
+    handleFeaturedSave,
+    detailProject,
+    showProjectDetail,
+    setShowProjectDetail,
+    handleProjectCardClick,
+    maxFeatured: MAX_FEATURED,
     recentEducation,
     recentExperience,
+    sectionVisibility,
+    saveSectionVisibility,
+    sectionOrder,
+    saveSectionOrder,
+    showSectionSettings,
+    setShowSectionSettings,
+    handleToggleSection,
+    handleResetSections,
+    groupedTechStacks,
   }
 }
 
