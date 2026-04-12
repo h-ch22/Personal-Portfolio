@@ -15,7 +15,7 @@ const educationSchema = z.object({
     startYear: z.number().min(2000, "Start year must be after your birth year"),
     startMonth: z.number().min(1, "Start month must be between 1 and 12").max(12, "Start month must be between 1 and 12"),
     endYear: z.number(),
-    endMonth: z.number().min(1, "End Month must be between 1 and 12").max(12, "End Month must be between 1 and 12"),
+    endMonth: z.number(),
     inProgress: z.boolean(),
     type: z.enum(["DEGREE", "BOOTCAMP", "CERTIFICATE", "COURSE"]),
 });
@@ -26,6 +26,7 @@ const useEducationPageController = () => {
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [selectedData, setSelectedData] = useState<Education | null>(null);
     const [searchText, setSearchText] = useState("");
+    const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
 
     const { openDialog } = useAlertDialogStore();
 
@@ -75,18 +76,27 @@ const useEducationPageController = () => {
         queryFn: async () => fetchEducation()
     });
 
-    const isSearching = searchText.trim() !== "";
-
-    const filteredData = isSearching
-        ? data.filter((e) => {
+    const filteredData = data.filter((e) => {
+        if (searchText.trim()) {
             const q = searchText.toLowerCase();
-            return (
+            const matches =
                 e.title.toLowerCase().includes(q) ||
                 e.organization.toLowerCase().includes(q) ||
-                e.description?.toLowerCase().includes(q)
-            );
-        })
-        : data;
+                e.description?.toLowerCase().includes(q);
+            if (!matches) return false;
+        }
+
+        if (dateRangeFilter.from) {
+            const eduStart = new Date(e.startYear, e.startMonth - 1, 1);
+            const eduEnd = e.inProgress || !e.endYear
+                ? new Date()
+                : new Date(e.endYear, (e.endMonth ?? 12) - 1, 1);
+            const filterTo = dateRangeFilter.to ?? new Date();
+            if (!(eduStart <= filterTo && eduEnd >= dateRangeFilter.from)) return false;
+        }
+
+        return true;
+    });
 
     const currentItems = filteredData.filter((e) => e.inProgress);
     const nonCurrentItems = filteredData.filter((e) => !e.inProgress);
@@ -114,8 +124,8 @@ const useEducationPageController = () => {
         form.setFieldValue("organization", education.organization);
         form.setFieldValue("startYear", education.startYear);
         form.setFieldValue("startMonth", education.startMonth);
-        form.setFieldValue("endYear", education.endYear ?? new Date().getFullYear());
-        form.setFieldValue("endMonth", education.endMonth ?? new Date().getMonth() + 1);
+        form.setFieldValue("endYear", education.endYear || new Date().getFullYear());
+        form.setFieldValue("endMonth", education.endMonth || new Date().getMonth() + 1);
         form.setFieldValue("inProgress", education.inProgress);
         form.setFieldValue("type", education.type);
         setShowAddDialog(true);
@@ -158,6 +168,8 @@ const useEducationPageController = () => {
         groupedData: sortedGroupedData,
         searchText,
         setSearchText,
+        dateRangeFilter,
+        setDateRangeFilter,
         onModifyButtonClick,
         onDeleteButtonClick
     }

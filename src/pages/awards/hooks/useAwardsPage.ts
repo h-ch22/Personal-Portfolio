@@ -23,6 +23,7 @@ const useAwardsPageController = () => {
     const [selectedData, setSelectedData] = useState<Award | null>(null);
     const [searchText, setSearchText] = useState("");
     const [typeFilter, setTypeFilter] = useState<AwardType[]>([]);
+    const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
 
     const { openDialog } = useAlertDialogStore();
 
@@ -74,6 +75,11 @@ const useAwardsPageController = () => {
         }
 
         if (typeFilter.length > 0 && !typeFilter.includes(a.type)) return false;
+
+        if (dateRangeFilter.from) {
+            const filterTo = dateRangeFilter.to ?? new Date();
+            if (a.date < dateRangeFilter.from || a.date > filterTo) return false;
+        }
 
         return true;
     });
@@ -133,6 +139,8 @@ const useAwardsPageController = () => {
         setSearchText,
         typeFilter,
         setTypeFilter,
+        dateRangeFilter,
+        setDateRangeFilter,
         onModifyButtonClick,
         onDeleteButtonClick,
     };

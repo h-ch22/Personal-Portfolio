@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -33,6 +34,67 @@ import {
 import { CpuIcon, PlusIcon } from 'lucide-react'
 import type { User } from 'firebase/auth'
 import { TechStackCard } from './TechStackCard'
+
+function GroupSelector({
+  form,
+  setForm,
+}: {
+  form: TechStackRequest
+  setForm: React.Dispatch<React.SetStateAction<TechStackRequest>>
+}) {
+  const [groupSearch, setGroupSearch] = useState('')
+
+  const visibleGroups = groupSearch.trim()
+    ? TECH_STACK_GROUPS.filter((g) =>
+        g.toLowerCase().includes(groupSearch.toLowerCase()),
+      )
+    : TECH_STACK_GROUPS
+
+  const currentGroups = form.groups ?? []
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-sm font-medium">Group</label>
+      <Input
+        placeholder="Search groups..."
+        value={groupSearch}
+        onChange={(e) => setGroupSearch(e.target.value)}
+      />
+      <div className="flex flex-wrap gap-1.5">
+        {visibleGroups.map((g) => {
+          const isSelected = currentGroups.includes(g)
+          return (
+            <button
+              key={g}
+              type="button"
+              onClick={() =>
+                setForm((prev) => {
+                  const groups = prev.groups ?? []
+                  return {
+                    ...prev,
+                    groups: isSelected
+                      ? groups.filter((x) => x !== g)
+                      : [...groups, g as TechStackGroup],
+                  }
+                })
+              }
+              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${
+                isSelected
+                  ? `${TECH_STACK_GROUP_COLORS[g]} border-transparent`
+                  : 'border-border text-muted-foreground hover:bg-muted'
+              }`}
+            >
+              {g}
+            </button>
+          )
+        })}
+        {visibleGroups.length === 0 && (
+          <span className="text-xs text-muted-foreground py-1">No groups found.</span>
+        )}
+      </div>
+    </div>
+  )
+}
 
 function TechStackFormFields({
   form,
@@ -157,39 +219,7 @@ function TechStackFormFields({
         </Select>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium">Group</label>
-        <div className="flex flex-wrap gap-1.5">
-          {TECH_STACK_GROUPS.map((g) => {
-            const currentGroups = form.groups ?? []
-            const isSelected = currentGroups.includes(g)
-            return (
-              <button
-                key={g}
-                type="button"
-                onClick={() =>
-                  setForm((prev) => {
-                    const groups = prev.groups ?? []
-                    return {
-                      ...prev,
-                      groups: isSelected
-                        ? groups.filter((x) => x !== g)
-                        : [...groups, g as TechStackGroup],
-                    }
-                  })
-                }
-                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${
-                  isSelected
-                    ? `${TECH_STACK_GROUP_COLORS[g]} border-transparent`
-                    : 'border-border text-muted-foreground hover:bg-muted'
-                }`}
-              >
-                {g}
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      <GroupSelector form={form} setForm={setForm} />
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">

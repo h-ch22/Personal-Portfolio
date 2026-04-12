@@ -1,5 +1,8 @@
+import { useState } from 'react'
+import { format } from 'date-fns'
 import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
+import { MonthRangePicker } from '#/components/common/MonthRangePicker'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import {
@@ -9,8 +12,14 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { Input } from '#/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '#/components/ui/popover'
+import { cn } from '#/lib/utils'
 import type { AwardType } from '#/types/award'
-import { FrownIcon, SearchIcon, Trophy } from 'lucide-react'
+import { CalendarIcon, FrownIcon, SearchIcon, Trophy, XIcon } from 'lucide-react'
 import { AddAward } from './components/AddAward'
 import { AwardListItem } from './components/AwardListItem'
 import { useAwardsPageController } from './hooks/useAwardsPage'
@@ -34,16 +43,22 @@ const AwardsPage = () => {
     setSearchText,
     typeFilter,
     setTypeFilter,
+    dateRangeFilter,
+    setDateRangeFilter,
     onModifyButtonClick,
     onDeleteButtonClick,
   } = useAwardsPageController()
+
+  const [datePickerOpen, setDatePickerOpen] = useState(false)
 
   const toggleType = (type: AwardType) =>
     setTypeFilter((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     )
 
-  const hasFilters = searchText.trim() || typeFilter.length > 0
+  const clearDateRange = () => setDateRangeFilter({ from: null, to: null })
+
+  const hasFilters = searchText.trim() || typeFilter.length > 0 || dateRangeFilter.from
 
   return (
     <div className="w-full flex flex-1 flex-col px-4">
@@ -55,6 +70,46 @@ const AwardsPage = () => {
       />
 
       <div className="flex flex-row justify-end items-center gap-2 mt-2">
+        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn('gap-2', dateRangeFilter.from && 'border-primary text-primary')}
+            >
+              <CalendarIcon className="h-4 w-4" />
+              {dateRangeFilter.from
+                ? dateRangeFilter.to
+                  ? `${format(dateRangeFilter.from, 'MMM yyyy')} – ${format(dateRangeFilter.to, 'MMM yyyy')}`
+                  : `${format(dateRangeFilter.from, 'MMM yyyy')} – …`
+                : 'Period'}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <MonthRangePicker
+              from={dateRangeFilter.from}
+              to={dateRangeFilter.to}
+              onSelect={({ from, to }) => {
+                setDateRangeFilter({ from, to })
+                if (to !== null) setDatePickerOpen(false)
+              }}
+            />
+            {dateRangeFilter.from && (
+              <div className="px-3 pb-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-muted-foreground"
+                  onClick={() => {
+                    clearDateRange()
+                    setDatePickerOpen(false)
+                  }}
+                >
+                  Clear
+                </Button>
+              </div>
+            )}
+          </PopoverContent>
+        </Popover>
         <Input
           className="flex-1 max-w-96"
           placeholder="Search awards..."
@@ -87,12 +142,14 @@ const AwardsPage = () => {
           <span>Filters active</span>
           <button
             type="button"
-            className="underline hover:text-foreground transition-colors"
+            className="flex items-center gap-0.5 hover:text-foreground transition-colors"
             onClick={() => {
               setSearchText('')
               setTypeFilter([])
+              clearDateRange()
             }}
           >
+            <XIcon className="h-3 w-3" />
             Clear all
           </button>
         </div>
