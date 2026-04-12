@@ -16,6 +16,7 @@ import { Button } from '#/components/ui/button'
 const EducationPage = () => {
   const {
     form,
+    currentItems,
     groupedData,
     showAddDialog,
     handleDialogClose,
@@ -49,22 +50,40 @@ const EducationPage = () => {
         </Button>
       </div>
 
-      {Object.keys(groupedData).length === 0 ? (
+      {currentItems.length === 0 && Object.keys(groupedData).length === 0 ? (
         <div className="flex flex-1 flex-col justify-center items-center min-h-0 text-zinc-500">
           <FrownIcon />
           {'No education content found.'}
         </div>
       ) : (
         <div className="w-full">
+          {currentItems.length > 0 && (
+            <div className="mb-8">
+              <AnimatedItem>
+                <div className="text-3xl font-semibold my-2">Current</div>
+              </AnimatedItem>
+              {[...currentItems]
+                .sort((a, b) => b.startYear - a.startYear || b.startMonth - a.startMonth)
+                .map((d, i) => (
+                  <AnimatedItem key={d.id} index={i + 1}>
+                    <EducationListItem
+                      data={d}
+                      onModifyButtonClick={onModifyButtonClick}
+                      onDeleteButtonClick={onDeleteButtonClick}
+                    />
+                  </AnimatedItem>
+                ))}
+            </div>
+          )}
           {Object.entries(groupedData)
-            .reverse()
+            .sort(([a], [b]) => Number(b) - Number(a))
             .map(([year, educations]) => (
               <div key={year} className="mb-8">
                 <AnimatedItem>
                   <div className="text-3xl font-semibold my-2">{year}</div>
                 </AnimatedItem>
                 {[...educations]
-                  .sort((a, b) => b.startMonth - a.startMonth)
+                  .sort((a, b) => b.endYear - a.endYear || b.endMonth - a.endMonth)
                   .map((d, i) => (
                     <AnimatedItem key={d.id} index={i + 1}>
                       <EducationListItem

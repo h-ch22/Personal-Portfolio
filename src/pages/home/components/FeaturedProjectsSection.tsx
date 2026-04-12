@@ -138,7 +138,13 @@ export function FeaturedProjectsSection({
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1">
-                {allProjects.map((project) => {
+                {[...allProjects]
+                  .sort(
+                    (a, b) =>
+                      new Date(b.startDate).getTime() -
+                      new Date(a.startDate).getTime(),
+                  )
+                  .map((project) => {
                   const isSelected = selectedIds.includes(project.id)
                   const isDisabled = !isSelected && selectedIds.length >= MAX_FEATURED
                   const thumbnail = project.images[0]?.url

@@ -88,18 +88,20 @@ const useEducationPageController = () => {
         })
         : data;
 
-    const groupedData = filteredData
-        .reduce((acc: Record<number, Education[]>, current) => {
-            const key = current.startYear;
+    const currentItems = filteredData.filter((e) => e.inProgress);
+    const nonCurrentItems = filteredData.filter((e) => !e.inProgress);
 
-            if(!acc[key]) {
-                acc[key] = [];
-            }
+    const groupedData = nonCurrentItems.reduce((acc: Record<number, Education[]>, current) => {
+        const key = current.endYear ?? current.startYear;
 
-            acc[key].push(current);
+        if (!acc[key]) {
+            acc[key] = [];
+        }
 
-            return acc;
-        }, {});
+        acc[key].push(current);
+
+        return acc;
+    }, {});
 
     const sortedGroupedData = Object.fromEntries(
         Object.entries(groupedData).sort(([a], [b]) => Number(b) - Number(a))
@@ -152,6 +154,7 @@ const useEducationPageController = () => {
         showAddDialog,
         handleDialogClose,
         selectedData,
+        currentItems,
         groupedData: sortedGroupedData,
         searchText,
         setSearchText,

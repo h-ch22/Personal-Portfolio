@@ -10,6 +10,8 @@ import {
   uploadBannerImage,
   uploadProfileImage,
 } from '#/api/banner/banner'
+import { fetchEducation } from '#/api/education/education'
+import { fetchExperience } from '#/api/experience/experience'
 import { fetchGalleries } from '#/api/gallery/gallery'
 import { fetchNews } from '#/api/news/news'
 import { fetchProjects } from '#/api/projects/projects'
@@ -145,6 +147,26 @@ const useHomeViewController = () => {
     queryKey: ['projects'],
     queryFn: fetchProjects,
     staleTime: 1000 * 60 * 10,
+  })
+
+  const { data: recentEducation = [] } = useQuery({
+    queryKey: ['education'],
+    queryFn: fetchEducation,
+    staleTime: 1000 * 60 * 10,
+    select: (data) =>
+      [...data]
+        .sort((a, b) => b.startYear - a.startYear || b.startMonth - a.startMonth)
+        .slice(0, 5),
+  })
+
+  const { data: recentExperience = [] } = useQuery({
+    queryKey: ['experience'],
+    queryFn: fetchExperience,
+    staleTime: 1000 * 60 * 10,
+    select: (data) =>
+      [...data]
+        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        .slice(0, 5),
   })
 
   const { data: featuredProjectIds = [] } = useQuery({
@@ -368,6 +390,8 @@ const useHomeViewController = () => {
     featuredProjectIds,
     isSavingFeatured,
     saveFeaturedProjectIds,
+    recentEducation,
+    recentExperience,
   }
 }
 

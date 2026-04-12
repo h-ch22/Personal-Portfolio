@@ -127,17 +127,19 @@ const useExperiencePageController = () => {
         return true;
     });
 
-    const groupedData = filteredData
-        .reduce((acc: Record<number, Experience[]>, current) => {
-            const key = current.startDate.getFullYear();
+    const currentItems = filteredData.filter((e) => e.isCurrentlyWorking);
+    const nonCurrentItems = filteredData.filter((e) => !e.isCurrentlyWorking);
 
-            if(!acc[key]) {
-                acc[key] = [];
-            }
+    const groupedData = nonCurrentItems.reduce((acc: Record<number, Experience[]>, current) => {
+        const key = (current.endDate ?? current.startDate).getFullYear();
 
-            acc[key].push(current);
-            return acc;
-        }, {});
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+
+        acc[key].push(current);
+        return acc;
+    }, {});
     
     const onModifyButtonClick = (data: Experience) => {
         setSelectedData(data);
@@ -187,6 +189,7 @@ const useExperiencePageController = () => {
         showAddDialog,
         handleDialogClose,
         selectedData,
+        currentItems,
         groupedData,
         searchText,
         setSearchText,

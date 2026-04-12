@@ -60,7 +60,7 @@ export function SocialLinksSection({
   return (
     <>
       <AnimatedItem>
-        <div className="flex flex-col gap-6 bg-secondary px-6 py-10">
+        <div className="flex flex-col gap-6 px-6 py-10">
           <div className="flex flex-row items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-foreground">

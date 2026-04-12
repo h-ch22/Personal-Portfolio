@@ -6,12 +6,14 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev:changjin": "VITE_TARGET_USER=changjin VITE_SITE_TITLE=\"Changjin Ha\" vite dev --port 3000",
-    "dev:yujee": "VITE_TARGET_USER=yujee VITE_SITE_TITLE=\"Yujee Catherine\" vite dev --port 3001",
-    "build:changjin": "VITE_TARGET_USER=changjin VITE_SITE_TITLE=\"Changjin Ha\" vite build",
-    "build:yujee": "VITE_TARGET_USER=yujee VITE_SITE_TITLE=\"Yujee Catherine\" vite build",
+    "dev:changjin": "vite --mode changjin dev --port 3000",
+    "dev:yujee": "vite --mode yujee dev --port 3001",
+    "build:changjin": "vite build --mode changjin",
+    "build:yujee": "vite build --mode yujee",
     "deploy:changjin": "pnpm run build:changjin && firebase use changjin && firebase deploy",
     "deploy:yujee": "pnpm run build:yujee && firebase use default && firebase deploy",
+    "deploy:hosting:changjin": "pnpm run build:changjin && firebase use changjin && firebase deploy --only hosting",
+    "deploy:hosting:yujee": "pnpm run build:yujee && firebase use default && firebase deploy --only hosting",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
@@ -64,6 +66,8 @@
     "tailwindcss": "^4.1.18",
     "tw-animate-css": "^1.3.6",
     "vaul": "^1.1.2",
+    "vite-plugin-pwa": "^1.2.0",
+    "workbox-window": "^7.4.0",
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
   },

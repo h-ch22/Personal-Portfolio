@@ -40,6 +40,7 @@ const EXPERIENCE_TYPES = [
 const ExperiencePage = () => {
   const {
     form,
+    currentItems,
     groupedData,
     showAddDialog,
     handleDialogClose,
@@ -194,13 +195,35 @@ const ExperiencePage = () => {
         </div>
       )}
 
-      {Object.keys(groupedData).length === 0 ? (
+      {currentItems.length === 0 && Object.keys(groupedData).length === 0 ? (
         <div className="flex flex-1 flex-col justify-center items-center min-h-0 text-zinc-500">
           <FrownIcon />
           {'No experience content found.'}
         </div>
       ) : (
         <div className="w-full mt-4">
+          {currentItems.length > 0 && (
+            <div className="mb-8">
+              <AnimatedItem>
+                <div className="text-3xl font-semibold my-2">Current</div>
+              </AnimatedItem>
+              {[...currentItems]
+                .sort(
+                  (a, b) =>
+                    new Date(b.startDate).getTime() -
+                    new Date(a.startDate).getTime(),
+                )
+                .map((d, i) => (
+                  <AnimatedItem key={d.id} index={i + 1}>
+                    <ExperienceListItem
+                      data={d}
+                      onModifyButtonClick={onModifyButtonClick}
+                      onDeleteButtonClick={onDeleteButtonClick}
+                    />
+                  </AnimatedItem>
+                ))}
+            </div>
+          )}
           {Object.entries(groupedData)
             .sort(([a], [b]) => Number(b) - Number(a))
             .map(([year, experiences]) => (
@@ -211,8 +234,8 @@ const ExperiencePage = () => {
                 {[...experiences]
                   .sort(
                     (a, b) =>
-                      new Date(b.startDate).getTime() -
-                      new Date(a.startDate).getTime(),
+                      new Date(b.endDate!).getTime() -
+                      new Date(a.endDate!).getTime(),
                   )
                   .map((d, i) => (
                     <AnimatedItem key={d.id} index={i + 1}>

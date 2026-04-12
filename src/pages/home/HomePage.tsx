@@ -15,6 +15,7 @@ import { PublicationPreviewCard } from './components/PublicationPreviewCard'
 import { NewsPreviewCard } from './components/NewsPreviewCard'
 import { GalleryPreviewCard } from './components/GalleryPreviewCrad'
 import { FeaturedProjectsSection } from './components/FeaturedProjectsSection'
+import { EducationExperienceSection } from './components/EducationExperienceSection'
 
 export default function HomePage() {
   const {
@@ -70,6 +71,8 @@ export default function HomePage() {
     featuredProjectIds,
     isSavingFeatured,
     saveFeaturedProjectIds,
+    recentEducation,
+    recentExperience,
   } = useHomeViewController()
 
   const groupedTechStacks = techStacks.reduce<
@@ -146,7 +149,13 @@ export default function HomePage() {
           onSaveFeatured={saveFeaturedProjectIds}
         />
 
+        <EducationExperienceSection
+          recentEducation={recentEducation}
+          recentExperience={recentExperience}
+        />
+
         <LatestSection
+          muted
           icon={BookOpenIcon}
           title="Latest Publications"
           description="Recent research papers and conference proceedings"
@@ -156,7 +165,6 @@ export default function HomePage() {
         />
 
         <LatestSection
-          muted
           icon={NewspaperIcon}
           title="Latest News"
           description="Recent activities, awards, and updates"
@@ -167,6 +175,7 @@ export default function HomePage() {
         />
 
         <LatestSection
+          muted
           icon={GalleryHorizontalEndIcon}
           title="Latest Gallery"
           description="Photos and moments from recent events"
