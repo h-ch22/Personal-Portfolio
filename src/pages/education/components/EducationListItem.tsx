@@ -84,7 +84,9 @@ const EducationListItem = ({
 
             <div className="flex flex-row gap-1 items-center">
               <CalendarIcon className="w-4 h-4" />
-              {`${data.startYear}.${data.startMonth.toString().padStart(2, '0')} - ${data.inProgress ? 'Present' : `${data.endYear}.${data.endMonth.toString().padStart(2, '0')}`}`}
+              {data.type === 'CERTIFICATE'
+                ? `${data.endYear}.${data.endMonth.toString().padStart(2, '0')}`
+                : `${data.startYear}.${data.startMonth.toString().padStart(2, '0')} - ${data.inProgress ? 'Present' : `${data.endYear}.${data.endMonth.toString().padStart(2, '0')}`}`}
             </div>
           </div>
         </CardDescription>

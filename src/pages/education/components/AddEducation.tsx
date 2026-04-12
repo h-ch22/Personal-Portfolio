@@ -142,6 +142,10 @@ const AddEducation = ({
               )}
             </form.Field>
 
+            <form.Subscribe selector={(s) => s.values.type}>
+              {(type) => {
+                const isCertificate = type === 'CERTIFICATE'
+                return (
             <form.Field name="inProgress">
               {(inProgressField) => (
                 <form.Field name="startYear">
@@ -170,7 +174,7 @@ const AddEducation = ({
                                 return (
                                   <Field>
                                     <FieldLabel>
-                                      Period{' '}
+                                      {isCertificate ? 'Issued Date' : 'Period'}{' '}
                                       <span className="text-destructive">
                                         *
                                       </span>
@@ -190,7 +194,9 @@ const AddEducation = ({
                                         >
                                           <CalendarIcon className="mr-2 h-4 w-4" />
                                           {startDate ? (
-                                            inProgressField.state.value ? (
+                                            isCertificate ? (
+                                              format(startDate, 'MMM yyyy')
+                                            ) : inProgressField.state.value ? (
                                               `${format(startDate, 'MMM yyyy')} – Present`
                                             ) : endDate ? (
                                               `${format(startDate, 'MMM yyyy')} – ${format(endDate, 'MMM yyyy')}`
@@ -198,7 +204,7 @@ const AddEducation = ({
                                               `${format(startDate, 'MMM yyyy')} – …`
                                             )
                                           ) : (
-                                            <span>Select period</span>
+                                            <span>{isCertificate ? 'Select issued date' : 'Select period'}</span>
                                           )}
                                         </Button>
                                       </PopoverTrigger>
@@ -208,56 +214,67 @@ const AddEducation = ({
                                       >
                                         <MonthRangePicker
                                           from={startDate}
-                                          to={endDate}
+                                          to={isCertificate ? startDate : endDate}
                                           isCurrentlyWorking={
-                                            inProgressField.state.value
+                                            !isCertificate && inProgressField.state.value
                                           }
                                           onSelect={({ from, to }) => {
-                                            startYearField.handleChange(
-                                              from.getFullYear(),
-                                            )
-                                            startMonthField.handleChange(
-                                              from.getMonth() + 1,
-                                            )
-                                            if (to) {
-                                              endYearField.handleChange(
-                                                to.getFullYear(),
-                                              )
-                                              endMonthField.handleChange(
-                                                to.getMonth() + 1,
-                                              )
-                                            } else {
-                                              endYearField.handleChange(0)
-                                              endMonthField.handleChange(0)
-                                            }
-                                            if (
-                                              to !== null ||
-                                              inProgressField.state.value
-                                            ) {
+                                            if (isCertificate) {
+                                              startYearField.handleChange(from.getFullYear())
+                                              startMonthField.handleChange(from.getMonth() + 1)
+                                              endYearField.handleChange(from.getFullYear())
+                                              endMonthField.handleChange(from.getMonth() + 1)
+                                              inProgressField.handleChange(false)
                                               setDatePickerOpen(false)
+                                            } else {
+                                              startYearField.handleChange(
+                                                from.getFullYear(),
+                                              )
+                                              startMonthField.handleChange(
+                                                from.getMonth() + 1,
+                                              )
+                                              if (to) {
+                                                endYearField.handleChange(
+                                                  to.getFullYear(),
+                                                )
+                                                endMonthField.handleChange(
+                                                  to.getMonth() + 1,
+                                                )
+                                              } else {
+                                                endYearField.handleChange(0)
+                                                endMonthField.handleChange(0)
+                                              }
+                                              if (
+                                                to !== null ||
+                                                inProgressField.state.value
+                                              ) {
+                                                setDatePickerOpen(false)
+                                              }
                                             }
                                           }}
                                         />
                                       </PopoverContent>
                                     </Popover>
 
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <Checkbox
-                                        id="checkbox-in-progress"
-                                        checked={inProgressField.state.value}
-                                        onCheckedChange={(checked) =>
-                                          inProgressField.handleChange(
-                                            checked === true,
-                                          )
-                                        }
-                                      />
-                                      <label
-                                        htmlFor="checkbox-in-progress"
-                                        className="text-sm cursor-pointer"
-                                      >
-                                        It is currently in progress
-                                      </label>
-                                    </div>
+                                    {!isCertificate && (
+                                      <div className="flex items-center gap-2 mt-1">
+                                        <Checkbox
+                                          id="checkbox-in-progress"
+                                          checked={inProgressField.state.value}
+                                          onCheckedChange={(checked) =>
+                                            inProgressField.handleChange(
+                                              checked === true,
+                                            )
+                                          }
+                                        />
+                                        <label
+                                          htmlFor="checkbox-in-progress"
+                                          className="text-sm cursor-pointer"
+                                        >
+                                          It is currently in progress
+                                        </label>
+                                      </div>
+                                    )}
                                   </Field>
                                 )
                               }}
@@ -270,6 +287,9 @@ const AddEducation = ({
                 </form.Field>
               )}
             </form.Field>
+                )
+              }}
+            </form.Subscribe>
           </FieldGroup>
         </div>
       </form>

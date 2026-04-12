@@ -32,11 +32,11 @@ const EDU_TYPE_ICON: Record<Education['type'], React.ReactNode> = {
 }
 
 function EducationCard({ data }: { data: Education }) {
-  const period = `${data.startYear}.${String(data.startMonth).padStart(2, '0')} – ${
-    data.inProgress
-      ? 'Present'
-      : `${data.endYear}.${String(data.endMonth).padStart(2, '0')}`
-  }`
+  const period = data.type === 'CERTIFICATE'
+    ? `${data.endYear}.${String(data.endMonth).padStart(2, '0')}`
+    : `${data.startYear}.${String(data.startMonth).padStart(2, '0')} – ${
+        data.inProgress ? 'Present' : `${data.endYear}.${String(data.endMonth).padStart(2, '0')}`
+      }`
 
   return (
     <div className="flex flex-col gap-1 rounded-lg border bg-card px-4 py-3">
