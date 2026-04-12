@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '#/components/ui/select'
 import {
+  PROFICIENCY_EXCLUDED_CATEGORIES,
   TECH_CATEGORIES,
   TECH_PROFICIENCY_COLORS,
   TECH_PROFICIENCY_LEVELS,
@@ -27,18 +28,11 @@ import {
   type TechStackGroup,
   type TechStackProficiency,
   type TechStackRequest,
+  type TechStackViewMode,
 } from '#/types/techstack'
 import { CpuIcon, PlusIcon } from 'lucide-react'
 import type { User } from 'firebase/auth'
 import { TechStackCard } from './TechStackCard'
-
-type TechStackViewMode = 'category' | 'proficiency' | 'group'
-
-const VIEW_MODES: { value: TechStackViewMode; label: string }[] = [
-  { value: 'category', label: 'Category' },
-  { value: 'proficiency', label: 'Proficiency' },
-  { value: 'group', label: 'Group' },
-]
 
 function TechStackFormFields({
   form,
@@ -47,6 +41,10 @@ function TechStackFormFields({
   form: TechStackRequest
   setForm: React.Dispatch<React.SetStateAction<TechStackRequest>>
 }) {
+  const isProficiencyExcluded = PROFICIENCY_EXCLUDED_CATEGORIES.includes(
+    form.category,
+  )
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
@@ -135,7 +133,15 @@ function TechStackFormFields({
         <Select
           value={form.category}
           onValueChange={(val) =>
-            setForm((prev) => ({ ...prev, category: val as TechStackCategory }))
+            setForm((prev) => ({
+              ...prev,
+              category: val as TechStackCategory,
+              proficiency: PROFICIENCY_EXCLUDED_CATEGORIES.includes(
+                val as TechStackCategory,
+              )
+                ? undefined
+                : prev.proficiency,
+            }))
           }
         >
           <SelectTrigger>
@@ -155,16 +161,22 @@ function TechStackFormFields({
         <label className="text-sm font-medium">Group</label>
         <div className="flex flex-wrap gap-1.5">
           {TECH_STACK_GROUPS.map((g) => {
-            const isSelected = form.group === g
+            const currentGroups = form.groups ?? []
+            const isSelected = currentGroups.includes(g)
             return (
               <button
                 key={g}
                 type="button"
                 onClick={() =>
-                  setForm((prev) => ({
-                    ...prev,
-                    group: isSelected ? undefined : (g as TechStackGroup),
-                  }))
+                  setForm((prev) => {
+                    const groups = prev.groups ?? []
+                    return {
+                      ...prev,
+                      groups: isSelected
+                        ? groups.filter((x) => x !== g)
+                        : [...groups, g as TechStackGroup],
+                    }
+                  })
                 }
                 className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all border ${
                   isSelected
@@ -180,12 +192,20 @@ function TechStackFormFields({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium">Proficiency</label>
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Proficiency</label>
+          {isProficiencyExcluded && (
+            <span className="text-xs text-muted-foreground">
+              (not available for {form.category})
+            </span>
+          )}
+        </div>
         <div className="flex rounded-md border overflow-hidden">
           {TECH_PROFICIENCY_LEVELS.map((level) => (
             <button
               key={level}
               type="button"
+              disabled={isProficiencyExcluded}
               onClick={() =>
                 setForm((prev) => ({
                   ...prev,
@@ -195,7 +215,7 @@ function TechStackFormFields({
                       : (level as TechStackProficiency),
                 }))
               }
-              className={`flex-1 py-1.5 text-sm transition-colors ${
+              className={`flex-1 py-1.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                 form.proficiency === level
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-background text-muted-foreground hover:bg-muted'
@@ -224,14 +244,15 @@ function TechStackFormFields({
               <Badge variant="outline" className="text-xs">
                 {form.category}
               </Badge>
-              {form.group && (
+              {(form.groups ?? []).map((g) => (
                 <Badge
+                  key={g}
                   variant="outline"
-                  className={`text-xs border-0 ${TECH_STACK_GROUP_COLORS[form.group]}`}
+                  className={`text-xs border-0 ${TECH_STACK_GROUP_COLORS[g]}`}
                 >
-                  {form.group}
+                  {g}
                 </Badge>
-              )}
+              ))}
               {form.proficiency && (
                 <Badge
                   variant="outline"
@@ -272,6 +293,12 @@ interface TechStackSectionProps {
   muted?: boolean
 }
 
+const VIEW_MODES: { value: TechStackViewMode; label: string }[] = [
+  { value: 'category', label: 'Category' },
+  { value: 'proficiency', label: 'Proficiency' },
+  { value: 'group', label: 'Group' },
+]
+
 export function TechStackSection({
   techStacks,
   user,
@@ -295,28 +322,43 @@ export function TechStackSection({
   setTechStackViewMode,
   muted = false,
 }: TechStackSectionProps) {
+  const displayedStacks =
+    techStackViewMode === 'proficiency'
+      ? techStacks.filter(
+          (t) => !PROFICIENCY_EXCLUDED_CATEGORIES.includes(t.category),
+        )
+      : techStacks
+
   const grouped = (() => {
     if (techStackViewMode === 'category') {
-      return techStacks.reduce<Record<string, TechStack[]>>((acc, item) => {
-        const key = item.category
-        if (!acc[key]) acc[key] = []
-        acc[key].push(item)
-        return acc
-      }, {})
+      return displayedStacks.reduce<Record<string, TechStack[]>>(
+        (acc, item) => {
+          const key = item.category
+          if (!acc[key]) acc[key] = []
+          acc[key].push(item)
+          return acc
+        },
+        {},
+      )
     }
     if (techStackViewMode === 'proficiency') {
-      return techStacks.reduce<Record<string, TechStack[]>>((acc, item) => {
-        const key = item.proficiency ?? 'Unset'
-        if (!acc[key]) acc[key] = []
-        acc[key].push(item)
-        return acc
-      }, {})
+      return displayedStacks.reduce<Record<string, TechStack[]>>(
+        (acc, item) => {
+          const key = item.proficiency ?? 'Unset'
+          if (!acc[key]) acc[key] = []
+          acc[key].push(item)
+          return acc
+        },
+        {},
+      )
     }
-
-    return techStacks.reduce<Record<string, TechStack[]>>((acc, item) => {
-      const key = item.group ?? 'Unset'
-      if (!acc[key]) acc[key] = []
-      acc[key].push(item)
+    return displayedStacks.reduce<Record<string, TechStack[]>>((acc, item) => {
+      const itemGroups =
+        item.groups && item.groups.length > 0 ? item.groups : ['Unset']
+      itemGroups.forEach((g) => {
+        if (!acc[g]) acc[g] = []
+        acc[g].push(item)
+      })
       return acc
     }, {})
   })()
@@ -414,6 +456,7 @@ export function TechStackSection({
                           <AnimatedItem key={item.id} index={i}>
                             <TechStackCard
                               data={item}
+                              viewMode={techStackViewMode}
                               isAdmin={!!(user && isAdmin)}
                               onDelete={removeTechStack}
                               onEdit={handleEditTechStackOpen}

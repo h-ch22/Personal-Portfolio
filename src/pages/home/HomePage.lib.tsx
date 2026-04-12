@@ -43,9 +43,8 @@ import type {
   TechStackCategory,
   TechStackIconType,
   TechStackRequest,
+  TechStackViewMode,
 } from '#/types/techstack'
-
-type TechStackViewMode = 'category' | 'proficiency' | 'group'
 import type { Project } from '#/types/project'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
@@ -346,7 +345,7 @@ const useHomeViewController = () => {
       icon: item.icon,
       category: item.category,
       proficiency: item.proficiency,
-      group: item.group,
+      groups: item.groups ?? (item.group ? [item.group] : []),
     })
     setShowEditTechStack(true)
   }

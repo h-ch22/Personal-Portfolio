@@ -31,6 +31,7 @@ export type TechStackGroup =
   | 'Engine'
   | 'VCS'
   | 'Management'
+  | 'IDE & Editor'
   | 'Other'
 
 export const TECH_STACK_GROUPS: TechStackGroup[] = [
@@ -52,6 +53,7 @@ export const TECH_STACK_GROUPS: TechStackGroup[] = [
   'Engine',
   'VCS',
   'Management',
+  'IDE & Editor',
   'Other',
 ]
 
@@ -74,8 +76,13 @@ export const TECH_STACK_GROUP_COLORS: Record<TechStackGroup, string> = {
   'Engine': 'bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-200',
   VCS: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200',
   Management: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+  'IDE & Editor': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200',
   Other: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
 }
+
+export type TechStackViewMode = 'category' | 'proficiency' | 'group'
+
+export const PROFICIENCY_EXCLUDED_CATEGORIES: TechStackCategory[] = ['Tool', 'Platform', 'Other']
 
 export type TechStack = {
     id: string
@@ -85,7 +92,9 @@ export type TechStack = {
     iconPath?: string
     category: TechStackCategory
     proficiency?: TechStackProficiency
+
     group?: TechStackGroup
+    groups?: TechStackGroup[]
 }
 
 export const TECH_CATEGORIES: TechStackCategory[] = [

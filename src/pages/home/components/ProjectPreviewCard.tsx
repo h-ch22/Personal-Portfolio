@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '#/components/ui/card'
+import { TECH_STACK_GROUP_COLORS, type TechStackGroup } from '#/types/techstack'
 import type { Project } from '#/types/project'
 
 const ProjectPreviewCard = ({
@@ -71,22 +72,27 @@ const ProjectPreviewCard = ({
 
         {data.techStack.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {data.techStack.slice(0, 5).map((tech, i) => (
-              <Badge
-                key={i}
-                variant="secondary"
-                className="flex items-center gap-1 px-1.5 py-0.5 h-auto text-xs"
-              >
-                {tech.iconUrl && (
-                  <img
-                    src={tech.iconUrl}
-                    alt={tech.name}
-                    className="w-3 h-3 object-contain"
-                  />
-                )}
-                {tech.name}
-              </Badge>
-            ))}
+            {data.techStack.slice(0, 5).map((tech, i) => {
+              const groupColor =
+                TECH_STACK_GROUP_COLORS[(tech.group ?? 'Other') as TechStackGroup] ??
+                TECH_STACK_GROUP_COLORS.Other
+              return (
+                <Badge
+                  key={i}
+                  variant="outline"
+                  className={`flex items-center gap-1 px-1.5 py-0.5 h-auto text-xs border-0 ${groupColor}`}
+                >
+                  {tech.iconUrl && (
+                    <img
+                      src={tech.iconUrl}
+                      alt={tech.name}
+                      className="w-3 h-3 object-contain"
+                    />
+                  )}
+                  {tech.name}
+                </Badge>
+              )
+            })}
             {data.techStack.length > 5 && (
               <Badge variant="outline" className="text-xs px-1.5 py-0.5 h-auto">
                 +{data.techStack.length - 5}

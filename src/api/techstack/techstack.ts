@@ -11,10 +11,14 @@ export const fetchTechStacks = async (): Promise<TechStack[]> => {
         const colRef = collection(db, 'TechStack')
         const snapshot = await getDocs(colRef)
 
-        return snapshot.docs.map((d) => ({
-            id: d.id,
-            ...d.data(),
-        })) as TechStack[]
+        return snapshot.docs.map((d) => {
+            const data = d.data()
+
+            if (!data.groups && data.group) {
+                data.groups = [data.group]
+            }
+            return { id: d.id, ...data } as TechStack
+        })
     } catch (e: any) {
         throw e
     }

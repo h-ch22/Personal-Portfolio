@@ -3,30 +3,81 @@ import {
   TECH_PROFICIENCY_COLORS,
   TECH_STACK_GROUP_COLORS,
   type TechStack,
+  type TechStackGroup,
+  type TechStackViewMode,
 } from '#/types/techstack'
 import { PencilIcon, XIcon } from 'lucide-react'
+
+function CategoryBadge({ category }: { category: string }) {
+  return (
+    <Badge variant="outline" className="text-xs h-5 px-1.5">
+      {category}
+    </Badge>
+  )
+}
+
+function ProficiencyBadge({ proficiency }: { proficiency?: string }) {
+  if (!proficiency) return null
+  return (
+    <Badge
+      variant="outline"
+      className={`text-xs h-5 px-1.5 border-0 ${TECH_PROFICIENCY_COLORS[proficiency as keyof typeof TECH_PROFICIENCY_COLORS]}`}
+    >
+      {proficiency}
+    </Badge>
+  )
+}
+
+function GroupBadges({ groups }: { groups?: TechStackGroup[] }) {
+  if (!groups || groups.length === 0) return null
+  const visible = groups.slice(0, 1)
+  const rest = groups.length - 1
+  return (
+    <>
+      {visible.map((g) => (
+        <Badge
+          key={g}
+          variant="outline"
+          className={`text-xs h-5 px-1.5 border-0 ${TECH_STACK_GROUP_COLORS[g]}`}
+        >
+          {g}
+        </Badge>
+      ))}
+      {rest > 0 && (
+        <Badge variant="outline" className="text-xs h-5 px-1.5">
+          +{rest}
+        </Badge>
+      )}
+    </>
+  )
+}
 
 export const TechStackCard = ({
   data,
   isAdmin,
+  viewMode = 'category',
   onDelete,
   onEdit,
 }: {
   data: TechStack
   isAdmin: boolean
+  viewMode?: TechStackViewMode
   onDelete: (id: string) => void
   onEdit: (data: TechStack) => void
 }) => {
-  const proficiencyColor = data.proficiency
-    ? TECH_PROFICIENCY_COLORS[data.proficiency]
-    : undefined
+  const groups = data.groups ?? []
 
-  const groupColor = data.group
-    ? TECH_STACK_GROUP_COLORS[data.group]
-    : undefined
+  const showProficiency = viewMode === 'category' || viewMode === 'group'
+  const showGroups = viewMode === 'category' || viewMode === 'proficiency'
+  const showCategory = viewMode === 'proficiency' || viewMode === 'group'
+
+  const hasBadges =
+    (showProficiency && !!data.proficiency) ||
+    (showGroups && groups.length > 0) ||
+    showCategory
 
   return (
-    <div className="relative group flex flex-col items-center gap-2 p-4 rounded-xl border bg-card hover:shadow-md transition-shadow">
+    <div className="relative group flex flex-col items-center gap-2 p-3 rounded-xl border bg-card hover:shadow-md transition-shadow">
       {isAdmin && (
         <div className="absolute top-1.5 right-1.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
@@ -45,38 +96,40 @@ export const TechStackCard = ({
           </button>
         </div>
       )}
+
       {data.iconType === 'image' ? (
         <img
           src={data.icon}
           alt={data.name}
-          className="w-10 h-10 object-contain"
+          className="w-9 h-9 object-contain mt-1"
         />
       ) : (
-        <span className="text-4xl">{data.icon}</span>
+        <span className="text-3xl mt-1">{data.icon}</span>
       )}
-      <span className="text-sm font-medium text-center leading-tight">
-        <div className="flex flex-row items-center gap-1">
-          {data.proficiency && (
-            <div
-              className={`rounded-full h-2 w-2 border-0 ${proficiencyColor}`}
-            ></div>
-          )}
 
-          {data.name}
-        </div>
+      <span className="text-xs font-semibold text-center leading-tight line-clamp-2 w-full">
+        {data.name}
       </span>
-      <div className="flex flex-col items-center gap-1">
-        {data.group && (
-          <Badge variant="outline" className={`text-xs border-0 ${groupColor}`}>
-            {data.group}
-          </Badge>
-        )}
-        {!data.group && (
-          <Badge variant="outline" className="text-xs">
-            {data.category}
-          </Badge>
-        )}
-      </div>
+
+      {hasBadges && (
+        <div className="w-full border-t border-border/50 pt-2 flex flex-col gap-1">
+          {showCategory && (
+            <div className="flex flex-wrap justify-center gap-1">
+              <CategoryBadge category={data.category} />
+            </div>
+          )}
+          {showProficiency && data.proficiency && (
+            <div className="flex flex-wrap justify-center gap-1">
+              <ProficiencyBadge proficiency={data.proficiency} />
+            </div>
+          )}
+          {showGroups && groups.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-1">
+              <GroupBadges groups={groups} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
