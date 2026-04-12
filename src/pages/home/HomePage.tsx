@@ -1,6 +1,10 @@
 import { ScrollArea } from '#/components/ui/scroll-area'
 import { useHomeViewController } from './HomePage.lib'
-import { BookOpenIcon, GalleryHorizontalEndIcon, NewspaperIcon } from 'lucide-react'
+import {
+  BookOpenIcon,
+  GalleryHorizontalEndIcon,
+  NewspaperIcon,
+} from 'lucide-react'
 import { type TechStack, type TechStackCategory } from '#/types/techstack'
 import { BannerSection } from './components/BannerSection'
 import { ProfileSection } from './components/ProfileSection'
@@ -10,6 +14,7 @@ import { LatestSection } from './components/LatestSection'
 import { PublicationPreviewCard } from './components/PublicationPreviewCard'
 import { NewsPreviewCard } from './components/NewsPreviewCard'
 import { GalleryPreviewCard } from './components/GalleryPreviewCrad'
+import { FeaturedProjectsSection } from './components/FeaturedProjectsSection'
 
 export default function HomePage() {
   const {
@@ -60,9 +65,16 @@ export default function HomePage() {
     isAddingSocialLink,
     addSocialLink,
     removeSocialLink,
+    allProjects,
+    featuredProjects,
+    featuredProjectIds,
+    isSavingFeatured,
+    saveFeaturedProjectIds,
   } = useHomeViewController()
 
-  const groupedTechStacks = techStacks.reduce<Record<TechStackCategory, TechStack[]>>(
+  const groupedTechStacks = techStacks.reduce<
+    Record<TechStackCategory, TechStack[]>
+  >(
     (acc, item) => {
       if (!acc[item.category]) acc[item.category] = []
       acc[item.category].push(item)
@@ -124,17 +136,27 @@ export default function HomePage() {
           removeTechStack={removeTechStack}
         />
 
+        <FeaturedProjectsSection
+          featuredProjects={featuredProjects}
+          allProjects={allProjects}
+          featuredProjectIds={featuredProjectIds}
+          user={user}
+          isAdmin={isAdmin}
+          isSavingFeatured={isSavingFeatured}
+          onSaveFeatured={saveFeaturedProjectIds}
+        />
+
         <LatestSection
           icon={BookOpenIcon}
           title="Latest Publications"
           description="Recent research papers and conference proceedings"
           viewAllTo="/publications"
           items={publications}
-          muted
           renderItem={(pub) => <PublicationPreviewCard data={pub} />}
         />
 
         <LatestSection
+          muted
           icon={NewspaperIcon}
           title="Latest News"
           description="Recent activities, awards, and updates"
@@ -151,7 +173,6 @@ export default function HomePage() {
           viewAllTo="/gallery"
           items={galleries}
           gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-          muted
           renderItem={(item) => <GalleryPreviewCard data={item} />}
         />
 

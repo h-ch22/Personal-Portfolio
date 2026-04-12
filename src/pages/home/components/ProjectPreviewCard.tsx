@@ -1,0 +1,102 @@
+import { format } from 'date-fns'
+import { CalendarIcon, ExternalLinkIcon, GithubIcon, ImagesIcon } from 'lucide-react'
+import { Badge } from '#/components/ui/badge'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '#/components/ui/card'
+import type { Project } from '#/types/project'
+
+const ProjectPreviewCard = ({
+  data,
+  onClick,
+}: {
+  data: Project
+  onClick: (data: Project) => void
+}) => {
+  const thumbnail = data.images[0]?.url
+
+  return (
+    <Card
+      className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow gap-0 flex flex-col"
+      onClick={() => onClick(data)}
+    >
+      <div className="w-full h-48 bg-muted overflow-hidden shrink-0">
+        {thumbnail ? (
+          <img
+            src={thumbnail}
+            alt={data.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            <ImagesIcon className="w-8 h-8" />
+          </div>
+        )}
+      </div>
+
+      <CardHeader className="pt-3 pb-1">
+        <CardTitle className="text-base line-clamp-1">{data.title}</CardTitle>
+      </CardHeader>
+
+      <CardContent className="pb-3 flex flex-col gap-2 flex-1">
+        <div className="flex flex-row items-center gap-3 text-xs text-muted-foreground flex-wrap">
+          <div className="flex items-center gap-1">
+            <CalendarIcon className="w-3.5 h-3.5" />
+            <span>
+              {format(data.startDate, 'MMM yyyy')}
+              {' – '}
+              {data.isOngoing
+                ? 'Present'
+                : data.endDate
+                  ? format(data.endDate, 'MMM yyyy')
+                  : '…'}
+            </span>
+          </div>
+          {data.link && (
+            <div className="flex items-center gap-1">
+              <ExternalLinkIcon className="w-3.5 h-3.5" />
+              <span>Link</span>
+            </div>
+          )}
+          {data.githubUrl && (
+            <div className="flex items-center gap-1">
+              <GithubIcon className="w-3.5 h-3.5" />
+              <span>GitHub</span>
+            </div>
+          )}
+        </div>
+
+        {data.techStack.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {data.techStack.slice(0, 5).map((tech, i) => (
+              <Badge
+                key={i}
+                variant="secondary"
+                className="flex items-center gap-1 px-1.5 py-0.5 h-auto text-xs"
+              >
+                {tech.iconUrl && (
+                  <img
+                    src={tech.iconUrl}
+                    alt={tech.name}
+                    className="w-3 h-3 object-contain"
+                  />
+                )}
+                {tech.name}
+              </Badge>
+            ))}
+            {data.techStack.length > 5 && (
+              <Badge variant="outline" className="text-xs px-1.5 py-0.5 h-auto">
+                +{data.techStack.length - 5}
+              </Badge>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+export { ProjectPreviewCard }

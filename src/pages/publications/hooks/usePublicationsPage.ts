@@ -31,7 +31,7 @@ const usePublicationsPageController = () => {
         defaultValues: {
             title: "",
             journal: "",
-            authors: ["Yujee Chang"] as string[],
+            authors: [] as string[],
             publicationYear: new Date().getFullYear(),
             publicationMonth: new Date().getMonth() + 1,
             type: "International Journal" as Publication["type"],

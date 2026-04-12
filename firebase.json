@@ -42,11 +42,7 @@
   },
   "auth": {
     "providers": {
-      "emailPassword": true,
-      "googleSignIn": {
-        "oAuthBrandDisplayName": "Yujee Catherine",
-        "supportEmail": "yujeecc@gmail.com"
-      }
+      "emailPassword": true
     }
   }
 }

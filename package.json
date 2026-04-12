@@ -6,8 +6,12 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vite dev --port 3000",
-    "build": "vite build",
+    "dev:changjin": "VITE_TARGET_USER=changjin VITE_SITE_TITLE=\"Changjin Ha\" vite dev --port 3000",
+    "dev:yujee": "VITE_TARGET_USER=yujee VITE_SITE_TITLE=\"Yujee Catherine\" vite dev --port 3001",
+    "build:changjin": "VITE_TARGET_USER=changjin VITE_SITE_TITLE=\"Changjin Ha\" vite build",
+    "build:yujee": "VITE_TARGET_USER=yujee VITE_SITE_TITLE=\"Yujee Catherine\" vite build",
+    "deploy:changjin": "pnpm run build:changjin && firebase use changjin && firebase deploy",
+    "deploy:yujee": "pnpm run build:yujee && firebase use default && firebase deploy",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",

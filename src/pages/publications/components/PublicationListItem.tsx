@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '#/components/ui/card'
+import { CONFIG } from '#/config'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { Publication } from '#/types/publication'
 import {
@@ -58,7 +59,7 @@ const PublicationListItem = ({
                 {data.authors.map((a, i) => (
                   <div
                     key={i}
-                    className={`${a === 'Yujee Chang' ? 'font-semibold' : ''}`}
+                    className={`${a === CONFIG.publications.nameToBold ? 'font-semibold' : ''}`}
                   >
                     {`${a}${i !== data.authors.length - 1 ? ',' : ''}`}
                   </div>

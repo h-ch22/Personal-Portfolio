@@ -1,13 +1,15 @@
 import yujee from '@/assets/images/yujee.png'
+import changjin from '@/assets/images/changjin.png'
 
 import { Link } from '@tanstack/react-router'
 import { Button } from '../ui/button'
-import { LogOutIcon, MenuIcon, SearchIcon, UserIcon, XIcon } from 'lucide-react'
+import { LogOutIcon, MenuIcon, UserIcon, XIcon } from 'lucide-react'
 import type { Theme } from '#/types/theme'
 import { useState } from 'react'
 import AuthDialog from '../auth/AuthDialog'
 import { useAuthStore } from '#/stores/use-auth-store'
 import MenuDialog from './MenuDialog'
+import { CONFIG } from '#/config'
 
 export default function Header({
   theme,
@@ -30,10 +32,17 @@ export default function Header({
       <div className="flex flex-row justify-between items-center w-full">
         <Link to="/">
           <div className="flex flex-row tracking-widest items-center font-semibold">
-            <img src={yujee} alt="Yujee Catherine" className="h-16 w-16" />
+            <img
+              src={
+                import.meta.env.VITE_TARGET_USER === 'changjin'
+                  ? changjin
+                  : yujee
+              }
+              className="h-16 w-16"
+            />
 
             <div className="hidden font-great-vibes text-xl sm:inline-flex">
-              {'Yujee Catherine'}
+              {CONFIG.meta.title}
             </div>
           </div>
         </Link>

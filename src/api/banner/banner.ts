@@ -2,6 +2,8 @@ import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import { storage, firestore as db } from "#/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
+import { CONFIG } from "#/config";
+
 export const fetchBannerImage = async () => {
     if(!storage) {
         return null;
@@ -29,7 +31,7 @@ export const uploadBannerImage = async (file: File): Promise<string> => {
 
 export const fetchBannerText = async (): Promise<string> => {
     if (!db) {
-        return 'Yujee Chang'
+        return CONFIG.banner.bannerTextPlaceholder;
     }
 
     try {
@@ -37,12 +39,12 @@ export const fetchBannerText = async (): Promise<string> => {
         const snapshot = await getDoc(docRef)
 
         if (snapshot.exists()) {
-            return (snapshot.data().text as string) ?? 'Yujee Chang'
+            return (snapshot.data().text as string) ?? CONFIG.banner.bannerTextPlaceholder;
         }
 
-        return 'Yujee Chang'
+        return CONFIG.banner.bannerTextPlaceholder;
     } catch {
-        return 'Yujee Chang'
+        return CONFIG.banner.bannerTextPlaceholder;
     }
 }
 
@@ -55,7 +57,7 @@ export const updateBannerText = async (text: string): Promise<void> => {
     await setDoc(docRef, { text }, { merge: true })
 }
 
-const HOME_DESCRIPTION_DEFAULT = "Welcome to my personal website! I'm Yujee, a passionate software developer with a love for creating innovative solutions. This website serves as a portfolio of my projects, a blog where I share my thoughts on technology and programming, and a space to connect with like-minded individuals. Feel free to explore and reach out if you'd like to collaborate or just say hi!"
+const HOME_DESCRIPTION_DEFAULT = CONFIG.banner.defaultDescriptionText;
 
 export const fetchProfileImage = async (): Promise<string | null> => {
     if (!storage) return null
@@ -104,4 +106,30 @@ export const updateHomeDescription = async (description: string): Promise<void> 
 
     const docRef = doc(db, 'Settings', 'home')
     await setDoc(docRef, { description }, { merge: true })
+}
+
+export const fetchFeaturedProjectIds = async (): Promise<string[]> => {
+    if (!db) return []
+
+    try {
+        const docRef = doc(db, 'Settings', 'home')
+        const snapshot = await getDoc(docRef)
+
+        if (snapshot.exists()) {
+            return (snapshot.data().featuredProjectIds as string[]) ?? []
+        }
+
+        return []
+    } catch {
+        return []
+    }
+}
+
+export const updateFeaturedProjectIds = async (ids: string[]): Promise<void> => {
+    if (!db) {
+        throw new Error('Cannot update featured projects: database is not initialized.')
+    }
+
+    const docRef = doc(db, 'Settings', 'home')
+    await setDoc(docRef, { featuredProjectIds: ids }, { merge: true })
 }

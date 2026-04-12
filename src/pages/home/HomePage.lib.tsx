@@ -1,15 +1,18 @@
 import {
   fetchBannerImage,
   fetchBannerText,
+  fetchFeaturedProjectIds,
   fetchHomeDescription,
   fetchProfileImage,
   updateBannerText,
+  updateFeaturedProjectIds,
   updateHomeDescription,
   uploadBannerImage,
   uploadProfileImage,
 } from '#/api/banner/banner'
 import { fetchGalleries } from '#/api/gallery/gallery'
 import { fetchNews } from '#/api/news/news'
+import { fetchProjects } from '#/api/projects/projects'
 import { fetchPublications } from '#/api/publications/publications'
 import {
   createSocialLink,
@@ -21,6 +24,7 @@ import {
   deleteTechStack,
   fetchTechStacks,
 } from '#/api/techstack/techstack'
+import { CONFIG } from '#/config'
 import { storage } from '#/lib/firebase'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { SocialLinkRequest, SocialPlatform } from '#/types/sociallink'
@@ -75,7 +79,7 @@ const useHomeViewController = () => {
     enabled: !!storage,
   })
 
-  const { data: bannerText = 'Yujee Chang' } = useQuery({
+  const { data: bannerText = CONFIG.banner.bannerTextPlaceholder } = useQuery({
     queryKey: ['bannerText'],
     queryFn: fetchBannerText,
     staleTime: 1000 * 60 * 30,
@@ -136,6 +140,22 @@ const useHomeViewController = () => {
     queryFn: fetchSocialLinks,
     staleTime: 1000 * 60 * 10,
   })
+
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: fetchProjects,
+    staleTime: 1000 * 60 * 10,
+  })
+
+  const { data: featuredProjectIds = [] } = useQuery({
+    queryKey: ['featuredProjectIds'],
+    queryFn: fetchFeaturedProjectIds,
+    staleTime: 1000 * 60 * 10,
+  })
+
+  const featuredProjects = featuredProjectIds
+    .map((id) => allProjects.find((p) => p.id === id))
+    .filter((p): p is NonNullable<typeof p> => p !== undefined)
 
   const { mutate: saveBannerText, isPending: isSavingBanner } = useMutation({
     mutationFn: (text: string) => updateBannerText(text),
@@ -239,6 +259,18 @@ const useHomeViewController = () => {
     },
   })
 
+  const { mutate: saveFeaturedProjectIds, isPending: isSavingFeatured } =
+    useMutation({
+      mutationFn: (ids: string[]) => updateFeaturedProjectIds(ids),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['featuredProjectIds'] })
+        toast.success('Featured projects updated!')
+      },
+      onError: (e: any) => {
+        toast.error(`Failed to update featured projects: ${e.message}`)
+      },
+    })
+
   const handleBannerEditStart = () => {
     setBannerTextInput(bannerText)
     setIsEditingBanner(true)
@@ -331,6 +363,11 @@ const useHomeViewController = () => {
     isAddingSocialLink,
     addSocialLink,
     removeSocialLink,
+    allProjects,
+    featuredProjects,
+    featuredProjectIds,
+    isSavingFeatured,
+    saveFeaturedProjectIds,
   }
 }
 

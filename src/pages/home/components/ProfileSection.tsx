@@ -1,7 +1,14 @@
 import yujee from '#/assets/images/yujee.png'
+import changjin from '#/assets/images/changjin.png'
 import { Button } from '#/components/ui/button'
 import { Textarea } from '#/components/ui/textarea'
-import { CameraIcon, CheckIcon, LoaderCircleIcon, PencilIcon, XIcon } from 'lucide-react'
+import {
+  CameraIcon,
+  CheckIcon,
+  LoaderCircleIcon,
+  PencilIcon,
+  XIcon,
+} from 'lucide-react'
 import type { RefObject } from 'react'
 import type { User } from 'firebase/auth'
 
@@ -46,7 +53,15 @@ export function ProfileSection({
 
       <div className="flex flex-row items-center justify-center">
         <div className="relative group/profile">
-          <img src={profileImage ?? yujee} className="w-64" />
+          <img
+            src={
+              profileImage ??
+              (import.meta.env.VITE_TARGET_USER === 'changjin'
+                ? changjin
+                : yujee)
+            }
+            className="w-64"
+          />
           {user && isAdmin && (
             <>
               <button
@@ -83,11 +98,19 @@ export function ProfileSection({
             autoFocus
           />
           <div className="flex flex-row gap-2">
-            <Button size="sm" onClick={handleDescriptionSave} disabled={isSavingDescription}>
+            <Button
+              size="sm"
+              onClick={handleDescriptionSave}
+              disabled={isSavingDescription}
+            >
               <CheckIcon className="w-4 h-4" />
               Save
             </Button>
-            <Button size="sm" variant="outline" onClick={handleDescriptionCancel}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleDescriptionCancel}
+            >
               <XIcon className="w-4 h-4" />
               Cancel
             </Button>

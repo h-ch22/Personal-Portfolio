@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import type { User } from 'firebase/auth'
 import { SocialPlatformIcon } from './SocialPlatformIcon'
+import { CONFIG } from '#/config'
 
 interface SocialLinksSectionProps {
   socialLinks: SocialLink[]
@@ -181,7 +182,10 @@ export function SocialLinksSection({
                 }
                 value={socialLinkForm.url}
                 onChange={(e) =>
-                  setSocialLinkForm((prev) => ({ ...prev, url: e.target.value }))
+                  setSocialLinkForm((prev) => ({
+                    ...prev,
+                    url: e.target.value,
+                  }))
                 }
               />
             </div>
@@ -194,7 +198,7 @@ export function SocialLinksSection({
                 </span>
               </label>
               <Input
-                placeholder="e.g. @yujee_chang"
+                placeholder={CONFIG.socialLinks.placeholder}
                 value={socialLinkForm.label ?? ''}
                 onChange={(e) =>
                   setSocialLinkForm((prev) => ({

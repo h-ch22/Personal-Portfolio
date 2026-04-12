@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "yujee-catherine"
-  }
+    "default": "yujee-catherine",
+    "changjin": "changjin-ha"
+  },
+  "targets": {},
+  "etags": {}
 }

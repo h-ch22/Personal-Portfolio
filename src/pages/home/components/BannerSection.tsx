@@ -1,4 +1,5 @@
 import yujee from '#/assets/images/yujee.png'
+import changjin from '#/assets/images/changjin.png'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Spinner } from '#/components/ui/spinner'
@@ -59,7 +60,12 @@ export function BannerSection({
         >
           <div className="relative group/img">
             <img
-              src={bannerImage || yujee}
+              src={
+                bannerImage ||
+                (import.meta.env.VITE_TARGET_USER === 'changjin'
+                  ? changjin
+                  : yujee)
+              }
               className="object-contain w-96 h-96"
             />
             {user && isAdmin && (

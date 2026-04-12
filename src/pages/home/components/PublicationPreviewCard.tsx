@@ -1,5 +1,6 @@
 import { Badge } from '#/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
+import { CONFIG } from '#/config'
 import type { Publication } from '#/types/publication'
 import { CalendarIcon, UsersIcon } from 'lucide-react'
 
@@ -21,7 +22,9 @@ const PublicationPreviewCard = ({ data }: { data: Publication }) => {
           {data.authors.map((a, i) => (
             <span
               key={i}
-              className={a === 'Yujee Chang' ? 'font-semibold' : ''}
+              className={
+                a === CONFIG.publications.nameToBold ? 'font-semibold' : ''
+              }
             >
               {`${a}${i !== data.authors.length - 1 ? ',' : ''}`}
             </span>
