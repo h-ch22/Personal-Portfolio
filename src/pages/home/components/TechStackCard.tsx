@@ -1,5 +1,9 @@
 import { Badge } from '#/components/ui/badge'
-import { TECH_PROFICIENCY_COLORS, TECH_STACK_GROUP_COLORS, type TechStack } from '#/types/techstack'
+import {
+  TECH_PROFICIENCY_COLORS,
+  TECH_STACK_GROUP_COLORS,
+  type TechStack,
+} from '#/types/techstack'
 import { PencilIcon, XIcon } from 'lucide-react'
 
 export const TechStackCard = ({
@@ -50,19 +54,24 @@ export const TechStackCard = ({
       ) : (
         <span className="text-4xl">{data.icon}</span>
       )}
-      <span className="text-sm font-medium text-center leading-tight">{data.name}</span>
+      <span className="text-sm font-medium text-center leading-tight">
+        <div className="flex flex-row items-center gap-1">
+          {data.proficiency && (
+            <div
+              className={`rounded-full h-2 w-2 border-0 ${proficiencyColor}`}
+            ></div>
+          )}
+
+          {data.name}
+        </div>
+      </span>
       <div className="flex flex-col items-center gap-1">
-        {data.proficiency && (
-          <Badge variant="outline" className={`text-xs border-0 ${proficiencyColor}`}>
-            {data.proficiency}
-          </Badge>
-        )}
         {data.group && (
           <Badge variant="outline" className={`text-xs border-0 ${groupColor}`}>
             {data.group}
           </Badge>
         )}
-        {!data.proficiency && !data.group && (
+        {!data.group && (
           <Badge variant="outline" className="text-xs">
             {data.category}
           </Badge>
