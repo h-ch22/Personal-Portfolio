@@ -58,16 +58,15 @@ export default function HomePage() {
     techStackForm,
     setTechStackForm,
     isAddingTechStack,
-    addTechStack,
     removeTechStack,
-    editingTechStack,
     showEditTechStack,
     setShowEditTechStack,
     editTechStackForm,
     setEditTechStackForm,
     isEditingTechStack,
-    editTechStack,
     handleEditTechStackOpen,
+    handleAddTechStack,
+    handleEditTechStackSave,
     techStackViewMode,
     setTechStackViewMode,
     socialLinks,
@@ -177,15 +176,14 @@ export default function HomePage() {
                     techStackForm={techStackForm}
                     setTechStackForm={setTechStackForm}
                     isAddingTechStack={isAddingTechStack}
-                    addTechStack={addTechStack}
+                    addTechStack={handleAddTechStack}
                     removeTechStack={removeTechStack}
                     showEditTechStack={showEditTechStack}
                     setShowEditTechStack={setShowEditTechStack}
                     editTechStackForm={editTechStackForm}
                     setEditTechStackForm={setEditTechStackForm}
                     isEditingTechStack={isEditingTechStack}
-                    editTechStack={editTechStack}
-                    editingTechStack={editingTechStack}
+                    editTechStack={handleEditTechStackSave}
                     handleEditTechStackOpen={handleEditTechStackOpen}
                     techStackViewMode={techStackViewMode}
                     setTechStackViewMode={setTechStackViewMode}

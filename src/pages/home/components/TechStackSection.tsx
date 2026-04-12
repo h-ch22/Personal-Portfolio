@@ -285,8 +285,7 @@ interface TechStackSectionProps {
   editTechStackForm: TechStackRequest
   setEditTechStackForm: React.Dispatch<React.SetStateAction<TechStackRequest>>
   isEditingTechStack: boolean
-  editTechStack: (args: { id: string; data: Partial<TechStackRequest> }) => void
-  editingTechStack: TechStack | null
+  editTechStack: (form: TechStackRequest) => void
   handleEditTechStackOpen: (item: TechStack) => void
   techStackViewMode: TechStackViewMode
   setTechStackViewMode: (v: TechStackViewMode) => void
@@ -316,7 +315,6 @@ export function TechStackSection({
   setEditTechStackForm,
   isEditingTechStack,
   editTechStack,
-  editingTechStack,
   handleEditTechStackOpen,
   techStackViewMode,
   setTechStackViewMode,
@@ -519,13 +517,7 @@ export function TechStackSection({
               Cancel
             </Button>
             <Button
-              onClick={() => {
-                if (!editingTechStack) return
-                editTechStack({
-                  id: editingTechStack.id,
-                  data: editTechStackForm,
-                })
-              }}
+              onClick={() => editTechStack(editTechStackForm)}
               disabled={
                 !editTechStackForm.name.trim() ||
                 !editTechStackForm.icon.trim() ||

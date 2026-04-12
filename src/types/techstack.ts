@@ -91,7 +91,7 @@ export type TechStack = {
     icon: string
     iconPath?: string
     category: TechStackCategory
-    proficiency?: TechStackProficiency
+    proficiency?: TechStackProficiency | null
 
     group?: TechStackGroup
     groups?: TechStackGroup[]

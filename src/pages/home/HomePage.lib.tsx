@@ -38,12 +38,13 @@ import { CONFIG } from '#/config'
 import { storage } from '#/lib/firebase'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { SocialLinkRequest, SocialPlatform } from '#/types/sociallink'
-import type {
-  TechStack,
-  TechStackCategory,
-  TechStackIconType,
-  TechStackRequest,
-  TechStackViewMode,
+import {
+  PROFICIENCY_EXCLUDED_CATEGORIES,
+  type TechStack,
+  type TechStackCategory,
+  type TechStackIconType,
+  type TechStackRequest,
+  type TechStackViewMode,
 } from '#/types/techstack'
 import type { Project } from '#/types/project'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -78,7 +79,9 @@ const useHomeViewController = () => {
     icon: '',
     category: 'Language' as TechStackCategory,
   })
-  const [editingTechStack, setEditingTechStack] = useState<TechStack | null>(null)
+  const [editingTechStack, setEditingTechStack] = useState<TechStack | null>(
+    null,
+  )
   const [showEditTechStack, setShowEditTechStack] = useState(false)
   const [editTechStackForm, setEditTechStackForm] = useState<TechStackRequest>({
     name: '',
@@ -86,7 +89,8 @@ const useHomeViewController = () => {
     icon: '',
     category: 'Language' as TechStackCategory,
   })
-  const [techStackViewMode, setTechStackViewMode] = useState<TechStackViewMode>('category')
+  const [techStackViewMode, setTechStackViewMode] =
+    useState<TechStackViewMode>('category')
 
   const [showAddSocialLink, setShowAddSocialLink] = useState(false)
   const [socialLinkForm, setSocialLinkForm] = useState<SocialLinkRequest>({
@@ -95,7 +99,8 @@ const useHomeViewController = () => {
     label: '',
   })
 
-  const [showFeaturedSelectDialog, setShowFeaturedSelectDialog] = useState(false)
+  const [showFeaturedSelectDialog, setShowFeaturedSelectDialog] =
+    useState(false)
   const [featuredSelectedIds, setFeaturedSelectedIds] = useState<string[]>([])
   const [detailProject, setDetailProject] = useState<Project | null>(null)
   const [showProjectDetail, setShowProjectDetail] = useState(false)
@@ -324,8 +329,13 @@ const useHomeViewController = () => {
   })
 
   const { mutate: editTechStack, isPending: isEditingTechStack } = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<TechStackRequest> }) =>
-      updateTechStack(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string
+      data: Partial<TechStackRequest>
+    }) => updateTechStack(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['techStacks'] })
       setShowEditTechStack(false)
@@ -348,6 +358,25 @@ const useHomeViewController = () => {
       groups: item.groups ?? (item.group ? [item.group] : []),
     })
     setShowEditTechStack(true)
+  }
+
+  const handleAddTechStack = (form: TechStackRequest) => {
+    const needsProficiency = !PROFICIENCY_EXCLUDED_CATEGORIES.includes(form.category)
+    if (needsProficiency && !form.proficiency) {
+      toast.error('Please select a proficiency level (Proficient / Experienced / Basic).')
+      return
+    }
+    addTechStack(form)
+  }
+
+  const handleEditTechStackSave = (form: TechStackRequest) => {
+    if (!editingTechStack) return
+    const needsProficiency = !PROFICIENCY_EXCLUDED_CATEGORIES.includes(form.category)
+    if (needsProficiency && !form.proficiency) {
+      toast.error('Please select a proficiency level (Proficient / Experienced / Basic).')
+      return
+    }
+    editTechStack({ id: editingTechStack.id, data: form })
   }
 
   const { mutate: addSocialLink, isPending: isAddingSocialLink } = useMutation({
@@ -457,7 +486,6 @@ const useHomeViewController = () => {
     saveSectionVisibility({ ...DEFAULT_SECTION_VISIBILITY })
   }
 
-
   useEffect(() => {
     if (isSuccess) {
       setIsLoaded(true)
@@ -514,6 +542,8 @@ const useHomeViewController = () => {
     isEditingTechStack,
     editTechStack,
     handleEditTechStackOpen,
+    handleAddTechStack,
+    handleEditTechStackSave,
     techStackViewMode,
     setTechStackViewMode,
     socialLinks,

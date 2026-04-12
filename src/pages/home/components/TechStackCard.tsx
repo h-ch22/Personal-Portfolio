@@ -1,4 +1,5 @@
 import { Badge } from '#/components/ui/badge'
+import { useAlertDialogStore } from '#/stores/use-alert-dialog-store'
 import {
   TECH_PROFICIENCY_COLORS,
   TECH_STACK_GROUP_COLORS,
@@ -65,6 +66,8 @@ export const TechStackCard = ({
   onDelete: (id: string) => void
   onEdit: (data: TechStack) => void
 }) => {
+  const openDialog = useAlertDialogStore((state) => state.openDialog)
+
   const groups = data.groups ?? []
 
   const showProficiency = viewMode === 'category' || viewMode === 'group'
@@ -75,6 +78,17 @@ export const TechStackCard = ({
     (showProficiency && !!data.proficiency) ||
     (showGroups && groups.length > 0) ||
     showCategory
+
+  const handleDeleteClick = () => {
+    openDialog({
+      title: 'Delete Tech Stack',
+      description: `"Are you sure to delete "${data.name}"? This action cannot be undone.`,
+      confirmButtonText: 'Delete',
+      dismissButtonText: 'Cancel',
+      isDestructive: true,
+      onConfirm: () => onDelete(data.id),
+    })
+  }
 
   return (
     <div className="relative group flex flex-col items-center gap-2 p-3 rounded-xl border bg-card hover:shadow-md transition-shadow">
@@ -89,7 +103,7 @@ export const TechStackCard = ({
           </button>
           <button
             type="button"
-            onClick={() => onDelete(data.id)}
+            onClick={handleDeleteClick}
             className="p-0.5 rounded-full bg-destructive text-destructive-foreground"
           >
             <XIcon className="w-3 h-3" />

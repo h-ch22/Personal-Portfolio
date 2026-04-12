@@ -31,9 +31,10 @@ export const createTechStack = async (data: TechStackRequest): Promise<TechStack
 
     try {
         const colRef = collection(db, 'TechStack')
-        const docRef = await addDoc(colRef, data)
+        const clean = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined))
+        const docRef = await addDoc(colRef, clean)
 
-        return { id: docRef.id, ...data }
+        return { id: docRef.id, ...clean } as TechStack
     } catch (e: any) {
         throw e
     }
