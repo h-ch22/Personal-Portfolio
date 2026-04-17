@@ -87,7 +87,7 @@ export function AdminPage() {
               onClick={() => setShowChangeDisplayNameDialog(true)}
             >
               <PenLineIcon className="w-4 h-4" />
-              Change Name
+              <span className="hidden sm:inline">Change Name</span>
             </Button>
             <Button
               variant="outline"
@@ -96,7 +96,7 @@ export function AdminPage() {
               onClick={() => setShowChangePasswordDialog(true)}
             >
               <KeyRoundIcon className="w-4 h-4" />
-              Change Password
+              <span className="hidden sm:inline">Change Password</span>
             </Button>
 
             <Button
@@ -171,7 +171,7 @@ export function AdminPage() {
                         onClick={() => handleSendPasswordReset(user)}
                       >
                         <MailIcon className="w-4 h-4" />
-                        Send Password Reset Link
+                        <span className="hidden md:inline">Send Reset Link</span>
                       </Button>
                       {user.isAdmin ? (
                         <Button
@@ -182,7 +182,7 @@ export function AdminPage() {
                           onClick={() => handleRevokeAdmin(user)}
                         >
                           <ShieldOffIcon className="w-4 h-4" />
-                          Revoke Admin
+                          <span className="hidden md:inline">Revoke Admin</span>
                         </Button>
                       ) : (
                         <Button
@@ -193,7 +193,7 @@ export function AdminPage() {
                           onClick={() => handleGrantAdmin(user)}
                         >
                           <ShieldCheckIcon className="w-4 h-4" />
-                          Grant Admin
+                          <span className="hidden md:inline">Grant Admin</span>
                         </Button>
                       )}
                     </div>
