@@ -16,8 +16,9 @@ import { GalleryPreviewCard } from './components/GalleryPreviewCrad'
 import { FeaturedProjectsSection } from './components/FeaturedProjectsSection'
 import { EducationExperienceSection } from './components/EducationExperienceSection'
 import { SectionSettingsDialog } from './components/SectionSettingsDialog'
-import { LayoutDashboardIcon } from 'lucide-react'
+import { LayoutDashboardIcon, ShieldIcon } from 'lucide-react'
 import { Button } from '#/components/ui/button'
+import { Link } from '@tanstack/react-router'
 
 export default function HomePage() {
   const {
@@ -142,7 +143,13 @@ export default function HomePage() {
         />
 
         {user && isAdmin && (
-          <div className="flex justify-end px-6 -mt-2">
+          <div className="flex justify-end gap-2 px-6 -mt-2">
+            <Link to="/admin">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ShieldIcon className="w-4 h-4" />
+                Admin Page
+              </Button>
+            </Link>
             <Button
               variant="outline"
               size="sm"
