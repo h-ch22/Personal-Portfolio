@@ -6,8 +6,8 @@ export function GlobalAlertDialog() {
     const { isOpen, title, description, isDestructive, confirmButtonText, dismissButtonText, onConfirm, closeDialog } = useAlertDialogStore();
 
     const handleConfirm = async () => {
-        await onConfirm();
         closeDialog();
+        await onConfirm();
     }
 
     return (

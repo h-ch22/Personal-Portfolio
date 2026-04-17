@@ -83,8 +83,6 @@ export const TechStackCard = ({
     openDialog({
       title: 'Delete Tech Stack',
       description: `"Are you sure to delete "${data.name}"? This action cannot be undone.`,
-      confirmButtonText: 'Delete',
-      dismissButtonText: 'Cancel',
       isDestructive: true,
       onConfirm: () => onDelete(data.id),
     })

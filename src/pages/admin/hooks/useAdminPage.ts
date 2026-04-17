@@ -11,11 +11,13 @@ import { useAlertDialogStore } from '#/stores/use-alert-dialog-store'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { AdminUser } from '#/types/admin'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 export const useAdminPageController = () => {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const { openDialog } = useAlertDialogStore()
   const currentUser = useAuthStore((s) => s.user)
 
@@ -28,24 +30,19 @@ export const useAdminPageController = () => {
     queryFn: getAllUsers,
   })
 
-  const { mutate: sendReset, isPending: isSendingReset } = useMutation({
+  const { mutate: doSendReset, isPending: isSendingReset } = useMutation({
     mutationFn: (email: string) => sendPasswordReset(email),
-    onSuccess: () => {
-      toast.success('Password reset email sent.')
-    },
-    onError: (e: any) => {
-      toast.error('Failed to send email: ' + e.message)
-    },
   })
 
   const { mutate: doRevokeAdmin, isPending: isRevokingAdmin } = useMutation({
-    mutationFn: (uid: string) => revokeAdmin(uid),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
-      toast.success('Admin access revoked.')
-    },
-    onError: (e: any) => {
-      toast.error('Failed to revoke admin: ' + e.message)
+    mutationFn: ({ uid }: { uid: string; isSelf: boolean }) => revokeAdmin(uid),
+    onSuccess: (_, { isSelf }) => {
+      if (isSelf) {
+        useAuthStore.setState({ isAdmin: false })
+        navigate({ to: '/' })
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
+      }
     },
   })
 
@@ -53,10 +50,6 @@ export const useAdminPageController = () => {
     mutationFn: (uid: string) => grantAdmin(uid),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
-      toast.success('Admin access granted.')
-    },
-    onError: (e: any) => {
-      toast.error('Failed to grant admin: ' + e.message)
     },
   })
 
@@ -72,11 +65,7 @@ export const useAdminPageController = () => {
     }) => createAdminUser(email, password, displayName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
-      toast.success('Admin account created.')
       setShowAddUserDialog(false)
-    },
-    onError: (e: any) => {
-      toast.error('Failed to create account: ' + e.message)
     },
   })
 
@@ -86,36 +75,46 @@ export const useAdminPageController = () => {
     onSuccess: (_, { displayName }) => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
       useAuthStore.setState({ userName: displayName })
-      toast.success('Display name updated.')
       setShowChangeDisplayNameDialog(false)
-    },
-    onError: (e: any) => {
-      toast.error('Failed to update display name: ' + e.message)
     },
   })
 
   const { mutate: doChangePassword, isPending: isChangingPassword } = useMutation({
     mutationFn: (newPassword: string) => changeCurrentUserPassword(newPassword),
     onSuccess: () => {
-      toast.success('Password changed successfully.')
       setShowChangePasswordDialog(false)
     },
-    onError: (e: any) => {
-      if (e.code === 'auth/requires-recent-login') {
-        toast.error('Please sign in again before changing your password.')
-      } else {
-        toast.error('Failed to change password: ' + e.message)
-      }
-    },
   })
+
+  const wrapMutationPromise = <T>(
+    mutate: (vars: T, callbacks: { onSuccess: () => void; onError: (e: any) => void }) => void,
+    vars: T,
+  ) =>
+    new Promise<void>((resolve, reject) => {
+      mutate(vars, { onSuccess: resolve, onError: reject })
+    })
 
   const handleSendPasswordReset = (user: AdminUser) => {
     openDialog({
       title: 'Send Password Reset Email',
       description: `Send a password reset link to ${user.Email}?`,
-      confirmButtonText: 'Send',
-      dismissButtonText: 'Cancel',
-      onConfirm: () => sendReset(user.Email),
+      onConfirm: () => {
+        toast.promise(wrapMutationPromise(doSendReset, user.Email), {
+          loading: 'Sending reset email...',
+          success: 'Password reset email sent.',
+          error: (e) => `Failed to send email: ${e.message}`,
+        })
+      },
+    })
+  }
+
+  const executeRevoke = (uid: string, isSelf: boolean) => {
+    toast.promise(wrapMutationPromise(doRevokeAdmin, { uid, isSelf }), {
+      loading: 'Revoking admin access...',
+      success: isSelf
+        ? 'Your admin access has been revoked.'
+        : 'Admin access revoked.',
+      error: (e) => `Failed to revoke admin: ${e.message}`,
     })
   }
 
@@ -126,13 +125,16 @@ export const useAdminPageController = () => {
       toast.error('At least one admin must remain.')
       return
     }
+
+    const isSelf = user.uid === currentUser?.uid
+
     openDialog({
-      title: 'Revoke Admin Access',
-      description: `Remove admin access for ${user.displayName}?`,
-      confirmButtonText: 'Revoke',
-      dismissButtonText: 'Cancel',
+      title: isSelf ? 'Revoke Your Own Admin Access' : 'Revoke Admin Access',
+      description: isSelf
+        ? 'You are about to remove your own admin privileges. You will be redirected to the home page immediately.'
+        : `Remove admin access for ${user.displayName}?`,
       isDestructive: true,
-      onConfirm: () => doRevokeAdmin(user.uid),
+      onConfirm: () => executeRevoke(user.uid, isSelf),
     })
   }
 
@@ -140,9 +142,13 @@ export const useAdminPageController = () => {
     openDialog({
       title: 'Grant Admin Access',
       description: `Grant admin access to ${user.displayName}?`,
-      confirmButtonText: 'Grant',
-      dismissButtonText: 'Cancel',
-      onConfirm: () => doGrantAdmin(user.uid),
+      onConfirm: () => {
+        toast.promise(wrapMutationPromise(doGrantAdmin, user.uid), {
+          loading: 'Granting admin access...',
+          success: 'Admin access granted.',
+          error: (e) => `Failed to grant admin: ${e.message}`,
+        })
+      },
     })
   }
 
@@ -154,16 +160,40 @@ export const useAdminPageController = () => {
   }
 
   const handleAddUser = (email: string, displayName: string, password: string) => {
-    doCreateUser({ email, password, displayName })
+    toast.promise(
+      wrapMutationPromise(doCreateUser, { email, password, displayName }),
+      {
+        loading: 'Creating account...',
+        success: 'Admin account created.',
+        error: (e) => `Failed to create account: ${e.message}`,
+      },
+    )
   }
 
   const handleChangePassword = (newPassword: string) => {
-    doChangePassword(newPassword)
+    toast.promise(wrapMutationPromise(doChangePassword, newPassword), {
+      loading: 'Changing password...',
+      success: 'Password changed successfully.',
+      error: (e) =>
+        e.code === 'auth/requires-recent-login'
+          ? 'Please sign in again before changing your password.'
+          : `Failed to change password: ${e.message}`,
+    })
   }
 
   const handleChangeDisplayName = (displayName: string) => {
     if (!currentUser) return
-    doChangeDisplayName({ uid: currentUser.uid, displayName })
+    toast.promise(
+      wrapMutationPromise(doChangeDisplayName, {
+        uid: currentUser.uid,
+        displayName,
+      }),
+      {
+        loading: 'Updating display name...',
+        success: 'Display name updated.',
+        error: (e) => `Failed to update display name: ${e.message}`,
+      },
+    )
   }
 
   return {

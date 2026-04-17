@@ -9,10 +9,12 @@ import { Button } from '../ui/button'
 import { useAuthStore } from '#/stores/use-auth-store'
 import { useAlertDialogStore } from '#/stores/use-alert-dialog-store'
 import { logIn, logOut } from '#/api/auth/auth'
+import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export default function AuthDialog() {
   const { openDialog } = useAlertDialogStore()
+  const navigate = useNavigate()
   const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   const logInSchema = z.object({
@@ -56,11 +58,16 @@ export default function AuthDialog() {
       title: 'Confirm Logout',
       description: 'Are you sure you want to log out?',
       onConfirm: async () => {
-        toast.promise(logOut(), {
-          loading: 'Logging out...',
-          success: (result) => result,
-          error: (err) => `Logout failed: ${err.message}`,
-        })
+        try {
+          await toast.promise(logOut(), {
+            loading: 'Logging out...',
+            success: (result) => result,
+            error: (err) => `Logout failed: ${err.message}`,
+          })
+          navigate({ to: '/' })
+        } catch {
+          // error already shown by toast.promise
+        }
       },
       isDestructive: true,
     })
