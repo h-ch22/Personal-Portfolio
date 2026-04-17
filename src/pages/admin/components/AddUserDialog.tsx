@@ -10,6 +10,7 @@ import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { validatePassword } from '#/api/admin/admin'
 import { useState, useEffect } from 'react'
+import { CONFIG } from '#/config'
 
 interface AddUserDialogProps {
   open: boolean
@@ -20,7 +21,8 @@ interface AddUserDialogProps {
 
 function getEmailError(value: string): string {
   if (!value) return 'Email is required.'
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Enter a valid email address.'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+    return 'Enter a valid email address.'
   return ''
 }
 
@@ -59,13 +61,22 @@ export function AddUserDialog({
       setDisplayName('')
       setPassword('')
       setConfirmPassword('')
-      setTouched({ email: false, displayName: false, password: false, confirmPassword: false })
+      setTouched({
+        email: false,
+        displayName: false,
+        password: false,
+        confirmPassword: false,
+      })
     }
   }, [open])
 
   const emailError = touched.email ? getEmailError(email) : ''
-  const displayNameError = touched.displayName ? getDisplayNameError(displayName) : ''
-  const passwordError = touched.password ? (validatePassword(password) ?? '') : ''
+  const displayNameError = touched.displayName
+    ? getDisplayNameError(displayName)
+    : ''
+  const passwordError = touched.password
+    ? (validatePassword(password) ?? '')
+    : ''
   const confirmPasswordError = touched.confirmPassword
     ? getConfirmPasswordError(password, confirmPassword)
     : ''
@@ -73,11 +84,16 @@ export function AddUserDialog({
   const isValid =
     !getEmailError(email) &&
     !getDisplayNameError(displayName) &&
-    !(validatePassword(password)) &&
+    !validatePassword(password) &&
     !getConfirmPasswordError(password, confirmPassword)
 
   const handleSubmit = () => {
-    setTouched({ email: true, displayName: true, password: true, confirmPassword: true })
+    setTouched({
+      email: true,
+      displayName: true,
+      password: true,
+      confirmPassword: true,
+    })
     if (!isValid) return
     onSubmit(email.trim(), displayName.trim(), password)
   }
@@ -101,7 +117,11 @@ export function AddUserDialog({
                 setEmail(e.target.value)
                 setTouched((t) => ({ ...t, email: true }))
               }}
-              className={emailError ? 'border-destructive focus-visible:ring-destructive' : ''}
+              className={
+                emailError
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : ''
+              }
             />
             {emailError && (
               <p className="text-xs text-destructive">{emailError}</p>
@@ -112,13 +132,17 @@ export function AddUserDialog({
             <Label htmlFor="add-displayName">Display Name</Label>
             <Input
               id="add-displayName"
-              placeholder="John Doe"
+              placeholder={CONFIG.meta.title}
               value={displayName}
               onChange={(e) => {
                 setDisplayName(e.target.value)
                 setTouched((t) => ({ ...t, displayName: true }))
               }}
-              className={displayNameError ? 'border-destructive focus-visible:ring-destructive' : ''}
+              className={
+                displayNameError
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : ''
+              }
             />
             {displayNameError && (
               <p className="text-xs text-destructive">{displayNameError}</p>
@@ -136,7 +160,11 @@ export function AddUserDialog({
                 setPassword(e.target.value)
                 setTouched((t) => ({ ...t, password: true }))
               }}
-              className={passwordError ? 'border-destructive focus-visible:ring-destructive' : ''}
+              className={
+                passwordError
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : ''
+              }
             />
             {passwordError && (
               <p className="text-xs text-destructive">{passwordError}</p>
@@ -154,7 +182,11 @@ export function AddUserDialog({
                 setConfirmPassword(e.target.value)
                 setTouched((t) => ({ ...t, confirmPassword: true }))
               }}
-              className={confirmPasswordError ? 'border-destructive focus-visible:ring-destructive' : ''}
+              className={
+                confirmPasswordError
+                  ? 'border-destructive focus-visible:ring-destructive'
+                  : ''
+              }
             />
             {confirmPasswordError && (
               <p className="text-xs text-destructive">{confirmPasswordError}</p>
