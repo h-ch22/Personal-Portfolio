@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { useExperiencePageController } from './hooks/useExperiencePage'
 import { AddExperience } from './components/AddExperience'
+import { ExperienceDetailDialog } from './components/ExperienceDetailDialog'
 import { ExperienceListItem } from './components/ExperienceListItem'
 import type { ExperienceType } from '#/types/experience'
 
@@ -56,6 +57,15 @@ const ExperiencePage = () => {
     setDateRangeFilter,
     onModifyButtonClick,
     onDeleteButtonClick,
+    onCardClick,
+    showDetailDialog,
+    setShowDetailDialog,
+    detailData,
+    richDescription,
+    setRichDescription,
+    logoFile,
+    setLogoFile,
+    existingLogoUrl,
   } = useExperiencePageController()
 
   const [datePickerOpen, setDatePickerOpen] = useState(false)
@@ -217,6 +227,7 @@ const ExperiencePage = () => {
                   <AnimatedItem key={d.id} index={i + 1}>
                     <ExperienceListItem
                       data={d}
+                      onCardClick={onCardClick}
                       onModifyButtonClick={onModifyButtonClick}
                       onDeleteButtonClick={onDeleteButtonClick}
                     />
@@ -241,6 +252,7 @@ const ExperiencePage = () => {
                     <AnimatedItem key={d.id} index={i + 1}>
                       <ExperienceListItem
                         data={d}
+                        onCardClick={onCardClick}
                         onModifyButtonClick={onModifyButtonClick}
                         onDeleteButtonClick={onDeleteButtonClick}
                       />
@@ -258,9 +270,23 @@ const ExperiencePage = () => {
               {selectedData ? 'Edit Experience' : 'Add Experience'}
             </DialogTitle>
           </DialogHeader>
-          <AddExperience form={form} isEditMode={selectedData !== null} />
+          <AddExperience
+            form={form}
+            isEditMode={selectedData !== null}
+            richDescription={richDescription}
+            setRichDescription={setRichDescription}
+            logoFile={logoFile}
+            setLogoFile={setLogoFile}
+            existingLogoUrl={existingLogoUrl}
+          />
         </DialogContent>
       </Dialog>
+
+      <ExperienceDetailDialog
+        experience={detailData}
+        open={showDetailDialog}
+        onOpenChange={setShowDetailDialog}
+      />
     </div>
   )
 }

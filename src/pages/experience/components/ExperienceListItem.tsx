@@ -36,10 +36,12 @@ const TYPE_ICON = {
 
 const ExperienceListItem = ({
   data,
+  onCardClick,
   onModifyButtonClick,
   onDeleteButtonClick,
 }: {
   data: Experience
+  onCardClick: (data: Experience) => void
   onModifyButtonClick: (data: Experience) => void
   onDeleteButtonClick: (data: Experience) => void
 }) => {
@@ -53,11 +55,23 @@ const ExperienceListItem = ({
   }`
 
   return (
-    <Card className="mb-2 gap-2">
+    <Card
+      className="mb-2 gap-2 cursor-pointer hover:bg-accent/50 transition-colors"
+      onClick={() => onCardClick(data)}
+    >
       <CardHeader>
         <CardTitle>
           <div className="flex flex-row items-center justify-between gap-2">
-            <span className="text-xl">{data.title}</span>
+            <div className="flex items-center gap-3">
+              {data.logoUrl && (
+                <img
+                  src={data.logoUrl}
+                  alt={data.title}
+                  className="w-10 h-10 rounded-md object-contain shrink-0 bg-muted p-1"
+                />
+              )}
+              <span className="text-xl">{data.title}</span>
+            </div>
             <Badge>
               {TYPE_ICON[data.type]}
               {data.type}
@@ -86,12 +100,6 @@ const ExperienceListItem = ({
                 <span>{periodLabel}</span>
               </div>
             </div>
-
-            {data.description && (
-              <p className="text-sm text-muted-foreground">
-                {data.description}
-              </p>
-            )}
 
             {data.techStack.length > 0 && (() => {
               const grouped = data.techStack.reduce<Record<string, typeof data.techStack>>((acc, tech) => {
@@ -139,14 +147,20 @@ const ExperienceListItem = ({
             <ButtonGroup>
               <Button
                 variant="outline"
-                onClick={() => onModifyButtonClick(data)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onModifyButtonClick(data)
+                }}
               >
                 <EditIcon />
                 Modify
               </Button>
               <Button
                 variant="destructive"
-                onClick={() => onDeleteButtonClick(data)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDeleteButtonClick(data)
+                }}
               >
                 <TrashIcon />
                 Delete

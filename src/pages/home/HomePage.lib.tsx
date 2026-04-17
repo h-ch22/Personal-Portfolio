@@ -104,6 +104,8 @@ const useHomeViewController = () => {
   const [featuredSelectedIds, setFeaturedSelectedIds] = useState<string[]>([])
   const [detailProject, setDetailProject] = useState<Project | null>(null)
   const [showProjectDetail, setShowProjectDetail] = useState(false)
+  const [detailExperience, setDetailExperience] = useState<import('#/types/experience').Experience | null>(null)
+  const [showExperienceDetail, setShowExperienceDetail] = useState(false)
 
   const { data: bannerImage, isSuccess } = useQuery({
     queryKey: ['bannerImage'],
@@ -438,6 +440,11 @@ const useHomeViewController = () => {
     setShowProjectDetail(true)
   }
 
+  const handleExperienceCardClick = (experience: import('#/types/experience').Experience) => {
+    setDetailExperience(experience)
+    setShowExperienceDetail(true)
+  }
+
   const handleBannerEditStart = () => {
     setBannerTextInput(bannerText)
     setIsEditingBanner(true)
@@ -569,6 +576,10 @@ const useHomeViewController = () => {
     showProjectDetail,
     setShowProjectDetail,
     handleProjectCardClick,
+    detailExperience,
+    showExperienceDetail,
+    setShowExperienceDetail,
+    handleExperienceCardClick,
     maxFeatured: MAX_FEATURED,
     recentEducation,
     recentExperience,

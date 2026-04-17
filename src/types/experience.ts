@@ -19,6 +19,7 @@ export type Experience = {
     techStack: TechStackItem[];
     company: string;
     type: ExperienceType;
+    logoUrl?: string;
 }
 
 export type ExperienceRequest = Omit<Experience, 'id'>;

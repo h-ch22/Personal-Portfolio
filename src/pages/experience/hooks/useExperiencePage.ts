@@ -1,4 +1,4 @@
-import { deleteExperience, fetchExperience, modifyExperience, uploadExperience } from "#/api/experience/experience";
+import { deleteExperience, fetchExperience, modifyExperience, uploadExperience, uploadExperienceLogo } from "#/api/experience/experience";
 import { useAlertDialogStore } from "#/stores/use-alert-dialog-store";
 import type { Experience } from "#/types/experience";
 import { useForm } from "@tanstack/react-form";
@@ -15,7 +15,6 @@ const techStackItemSchema = z.object({
 const experienceSchema = z.object({
     title: z.string().min(1, "Title is required"),
     type: z.enum(["Work", "Project", "Activity", "Open Source"]),
-    description: z.string().min(1, "Description is required"),
     company: z.string().min(1, "Company is required"),
     techStack: z.array(techStackItemSchema),
     role: z.string().min(1, "Role is required"),
@@ -28,11 +27,17 @@ const useExperiencePageController = () => {
     const queryClient = useQueryClient();
 
     const [showAddDialog, setShowAddDialog] = useState(false);
+    const [showDetailDialog, setShowDetailDialog] = useState(false);
     const [selectedData, setSelectedData] = useState<Experience | null>(null);
+    const [detailData, setDetailData] = useState<Experience | null>(null);
     const [searchText, setSearchText] = useState("");
     const [techStackFilter, setTechStackFilter] = useState<string[]>([]);
     const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
     const [typeFilter, setTypeFilter] = useState<Experience["type"][]>([]);
+
+    const [richDescription, setRichDescription] = useState("");
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [existingLogoUrl, setExistingLogoUrl] = useState<string | undefined>(undefined);
 
     const { openDialog } = useAlertDialogStore();
 
@@ -40,7 +45,6 @@ const useExperiencePageController = () => {
         defaultValues: {
             title: "",
             type: "Work" as Experience["type"],
-            description: "",
             company: "",
             role: "",
             techStack: [] as { name: string; iconUrl?: string }[],
@@ -52,6 +56,11 @@ const useExperiencePageController = () => {
             onSubmit: experienceSchema
         },
         onSubmit: async ({ value }) => {
+            if (!richDescription || richDescription === '<p></p>') {
+                toast.error("Description is required.");
+                return;
+            }
+
             if(!value.isCurrentlyWorking && !value.endDate) {
                 toast.error("Please provide an end date or mark as currently working.");
                 return;
@@ -67,21 +76,53 @@ const useExperiencePageController = () => {
                 return;
             }
 
-            const operation = selectedData
-                ? modifyExperience(value, selectedData.id)
-                : uploadExperience(value);
+            const operation = async () => {
+                let logoUrl = existingLogoUrl;
+
+                if (selectedData) {
+                    const docRef = await modifyExperience(
+                        { ...value, description: richDescription, logoUrl },
+                        selectedData.id
+                    );
+
+                    if (logoFile) {
+                        logoUrl = await uploadExperienceLogo(selectedData.id, logoFile);
+                        await modifyExperience(
+                            { ...value, description: richDescription, logoUrl },
+                            selectedData.id
+                        );
+                    }
+
+                    return docRef;
+                } else {
+                    const created = await uploadExperience({ ...value, description: richDescription });
+
+                    if (logoFile && created.id) {
+                        logoUrl = await uploadExperienceLogo(created.id, logoFile);
+                        await modifyExperience(
+                            { ...value, description: richDescription, logoUrl },
+                            created.id
+                        );
+                    }
+
+                    return created;
+                }
+            };
 
             toast.promise(
-                operation.then(async () => {
+                operation().then(async () => {
                     await queryClient.invalidateQueries({ queryKey: ["experience"] });
                     setSelectedData(null);
+                    setRichDescription("");
+                    setLogoFile(null);
+                    setExistingLogoUrl(undefined);
                     form.reset();
                     setShowAddDialog(false);
                 }),
                 {
                     loading: selectedData ? "Modifying experience..." : "Uploading experience...",
                     success: selectedData ? "Experience modified successfully!" : "Experience uploaded successfully!",
-                    error: selectedData ? "Failed to modify experience." : "Failed to upload experience."
+                    error: (e) => selectedData ? `Failed to modify experience: ${e.message}` : `Failed to upload experience: ${e.message}`
                 }
             )
         }
@@ -132,26 +173,29 @@ const useExperiencePageController = () => {
 
     const groupedData = nonCurrentItems.reduce((acc: Record<number, Experience[]>, current) => {
         const key = (current.endDate ?? current.startDate).getFullYear();
-
-        if (!acc[key]) {
-            acc[key] = [];
-        }
-
+        if (!acc[key]) acc[key] = [];
         acc[key].push(current);
         return acc;
     }, {});
-    
+
+    const onCardClick = (data: Experience) => {
+        setDetailData(data);
+        setShowDetailDialog(true);
+    };
+
     const onModifyButtonClick = (data: Experience) => {
         setSelectedData(data);
         form.setFieldValue("title", data.title);
         form.setFieldValue("type", data.type);
-        form.setFieldValue("description", data.description);
         form.setFieldValue("company", data.company);
         form.setFieldValue("role", data.role);
         form.setFieldValue("techStack", data.techStack);
         form.setFieldValue("startDate", new Date(data.startDate));
         form.setFieldValue("endDate", data.endDate ? new Date(data.endDate) : null);
         form.setFieldValue("isCurrentlyWorking", data.isCurrentlyWorking);
+        setRichDescription(data.description);
+        setExistingLogoUrl(data.logoUrl);
+        setLogoFile(null);
         setShowAddDialog(true);
     };
 
@@ -178,17 +222,22 @@ const useExperiencePageController = () => {
     const handleDialogClose = (open: boolean) => {
         if(!open) {
             setSelectedData(null);
+            setRichDescription("");
+            setLogoFile(null);
+            setExistingLogoUrl(undefined);
             form.reset();
         }
-
         setShowAddDialog(open);
     }
 
     return {
         form,
         showAddDialog,
+        showDetailDialog,
+        setShowDetailDialog,
         handleDialogClose,
         selectedData,
+        detailData,
         currentItems,
         groupedData,
         searchText,
@@ -200,6 +249,12 @@ const useExperiencePageController = () => {
         setTypeFilter,
         dateRangeFilter,
         setDateRangeFilter,
+        richDescription,
+        setRichDescription,
+        logoFile,
+        setLogoFile,
+        existingLogoUrl,
+        onCardClick,
         onModifyButtonClick,
         onDeleteButtonClick
     }

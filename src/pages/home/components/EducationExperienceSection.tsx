@@ -4,6 +4,7 @@ import { Button } from '#/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
 import type { Education } from '#/types/education'
 import type { Experience } from '#/types/experience'
+import { ExperienceDetailDialog } from '#/pages/experience/components/ExperienceDetailDialog'
 import { format } from 'date-fns'
 import {
   ActivityIcon,
@@ -75,7 +76,7 @@ const EXP_TYPE_ICON: Record<Experience['type'], React.ReactNode> = {
   'Open Source': <GitBranchIcon className="w-3 h-3" />,
 }
 
-function ExperienceCard({ data }: { data: Experience }) {
+function ExperienceCard({ data, onClick }: { data: Experience; onClick?: (d: Experience) => void }) {
   const period = `${format(data.startDate, 'MMM yyyy')} – ${
     data.isCurrentlyWorking || !data.endDate
       ? 'Present'
@@ -83,9 +84,21 @@ function ExperienceCard({ data }: { data: Experience }) {
   }`
 
   return (
-    <div className="flex flex-col gap-1 rounded-lg border bg-card px-4 py-3">
+    <div
+      className="flex flex-col gap-1 rounded-lg border bg-card px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors"
+      onClick={() => onClick?.(data)}
+    >
       <div className="flex items-start justify-between gap-2">
-        <span className="font-medium leading-snug">{data.title}</span>
+        <div className="flex items-center gap-2">
+          {data.logoUrl && (
+            <img
+              src={data.logoUrl}
+              alt={data.title}
+              className="w-8 h-8 rounded-md object-contain shrink-0 bg-muted p-0.5"
+            />
+          )}
+          <span className="font-medium leading-snug">{data.title}</span>
+        </div>
         <Badge variant="secondary" className="shrink-0 gap-1 text-xs">
           {EXP_TYPE_ICON[data.type]}
           {data.type}
@@ -207,15 +220,24 @@ function GroupedList<
 interface EducationExperienceSectionProps {
   recentEducation: Education[]
   recentExperience: Experience[]
+  detailExperience: Experience | null
+  showExperienceDetail: boolean
+  setShowExperienceDetail: (open: boolean) => void
+  onExperienceCardClick: (experience: Experience) => void
   muted?: boolean
 }
 
 export function EducationExperienceSection({
   recentEducation,
   recentExperience,
+  detailExperience,
+  showExperienceDetail,
+  setShowExperienceDetail,
+  onExperienceCardClick,
   muted = false,
 }: EducationExperienceSectionProps) {
   return (
+    <>
     <AnimatedItem>
       <div
         className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}
@@ -238,7 +260,7 @@ export function EducationExperienceSection({
             <GroupedList
               items={recentExperience}
               groupKey={(e) => (e.endDate ?? e.startDate).getFullYear()}
-              renderCard={(e) => <ExperienceCard data={e} />}
+              renderCard={(e) => <ExperienceCard data={e} onClick={onExperienceCardClick} />}
             />
             <Button variant="ghost" asChild className="mt-4 w-full">
               <Link to="/experience">
@@ -264,5 +286,12 @@ export function EducationExperienceSection({
         </Tabs>
       </div>
     </AnimatedItem>
+
+    <ExperienceDetailDialog
+      experience={detailExperience}
+      open={showExperienceDetail}
+      onOpenChange={setShowExperienceDetail}
+    />
+  </>
   )
 }

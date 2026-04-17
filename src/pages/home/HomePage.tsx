@@ -91,6 +91,10 @@ export default function HomePage() {
     showProjectDetail,
     setShowProjectDetail,
     handleProjectCardClick,
+    detailExperience,
+    showExperienceDetail,
+    setShowExperienceDetail,
+    handleExperienceCardClick,
     maxFeatured,
     recentEducation,
     recentExperience,
@@ -226,6 +230,10 @@ export default function HomePage() {
                     muted={muted}
                     recentEducation={recentEducation}
                     recentExperience={recentExperience}
+                    detailExperience={detailExperience}
+                    showExperienceDetail={showExperienceDetail}
+                    setShowExperienceDetail={setShowExperienceDetail}
+                    onExperienceCardClick={handleExperienceCardClick}
                   />
                 )
               case 'publications':

@@ -1,6 +1,15 @@
 import type { Experience, ExperienceRequest } from "#/types/experience";
 import { collection, getDocs, addDoc, doc, setDoc, deleteDoc } from "firebase/firestore"
-import { firestore as db } from "#/lib/firebase"
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
+import { firestore as db, storage } from "#/lib/firebase"
+
+export const uploadExperienceLogo = async (experienceId: string, file: File): Promise<string> => {
+    if (!storage) throw new Error("Storage not initialized.")
+    const path = `experience/${experienceId}/logo`
+    const storageRef = ref(storage, path)
+    await uploadBytes(storageRef, file)
+    return await getDownloadURL(storageRef)
+}
 
 export const fetchExperience = async (): Promise<Experience[]> => {
     if(!db) {
@@ -25,6 +34,9 @@ export const fetchExperience = async (): Promise<Experience[]> => {
     }
 }
 
+const stripUndefined = <T extends object>(obj: T): T =>
+    Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as T
+
 export const uploadExperience = async (experienceData: ExperienceRequest) => {
     if(!db) {
         throw new Error("Cannot upload experience data: database is not initialized.");
@@ -32,7 +44,7 @@ export const uploadExperience = async (experienceData: ExperienceRequest) => {
 
     try {
         const experienceRef = collection(db, "Experience");
-        const docRef = await addDoc(experienceRef, experienceData);
+        const docRef = await addDoc(experienceRef, stripUndefined(experienceData));
 
         return {
             ...experienceData,
@@ -50,7 +62,7 @@ export const modifyExperience = async (experienceData: ExperienceRequest, id: st
 
     try {
         const experienceRef = doc(db, "Experience", id);
-        await setDoc(experienceRef, experienceData);
+        await setDoc(experienceRef, stripUndefined(experienceData));
 
         return experienceData
     } catch(e: any) {

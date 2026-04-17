@@ -17,6 +17,11 @@ service firebase.storage {
       allow write, delete, update, create: if isAdmin();
     }
     
+    match /experience/{id}/{fileName} {
+      allow read: if true;
+      allow write, delete, update, create: if isAdmin();
+    }
+    
     match /gallery/{id}/{fileName} {
     	allow read: if true;
       allow write, delete, update, create: if isAdmin();

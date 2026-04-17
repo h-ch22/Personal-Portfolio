@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { format } from 'date-fns'
-import { CalendarIcon, PlusIcon, XIcon } from 'lucide-react'
+import { CalendarIcon, ImagePlusIcon, PlusIcon, XIcon } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '#/components/ui/select'
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
+import { RichTextEditor } from '#/components/common/RichTextEditor'
 import { cn } from '#/lib/utils'
 import type { ExperienceRequest } from '#/types/experience'
 import { TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
@@ -29,12 +30,33 @@ import type { ExperienceFormInstance } from '../hooks/useExperiencePage'
 const AddExperience = ({
   form,
   isEditMode,
+  richDescription,
+  setRichDescription,
+  logoFile,
+  setLogoFile,
+  existingLogoUrl,
 }: {
   form: ExperienceFormInstance
   isEditMode: boolean
+  richDescription: string
+  setRichDescription: (v: string) => void
+  logoFile: File | null
+  setLogoFile: (file: File | null) => void
+  existingLogoUrl?: string
 }) => {
   const [techInput, setTechInput] = useState({ name: '', iconUrl: '', group: 'Other' as TechStackGroup })
   const [datePickerOpen, setDatePickerOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const logoPreview = logoFile
+    ? URL.createObjectURL(logoFile)
+    : existingLogoUrl
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null
+    setLogoFile(file)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -47,6 +69,48 @@ const AddExperience = ({
       >
         <div className="w-full flex flex-col gap-4">
           <FieldGroup>
+            {/* Logo upload */}
+            <Field>
+              <FieldLabel>Logo / Icon</FieldLabel>
+              <div className="flex items-center gap-3">
+                {logoPreview ? (
+                  <div className="relative w-16 h-16 rounded-lg border overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                    <img
+                      src={logoPreview}
+                      alt="logo preview"
+                      className="w-full h-full object-contain"
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-0.5 right-0.5 bg-background/80 rounded-full p-0.5 hover:bg-background transition-colors"
+                      onClick={() => setLogoFile(null)}
+                    >
+                      <XIcon className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-lg border border-dashed bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
+                    <ImagePlusIcon className="w-6 h-6" />
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {logoPreview ? 'Change' : 'Select Image'}
+                </Button>
+              </div>
+            </Field>
+
             <form.Field name="title">
               {(field) => (
                 <Field>
@@ -69,27 +133,16 @@ const AddExperience = ({
               )}
             </form.Field>
 
-            <form.Field name="description">
-              {(field) => (
-                <Field>
-                  <FieldLabel htmlFor="input-description">
-                    Description <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <Input
-                    id="input-description"
-                    placeholder="Description"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {field.state.meta.errors[0]?.message}
-                    </p>
-                  )}
-                </Field>
-              )}
-            </form.Field>
+            <Field>
+              <FieldLabel>
+                Description <span className="text-destructive">*</span>
+              </FieldLabel>
+              <RichTextEditor
+                value={richDescription}
+                onChange={setRichDescription}
+                placeholder="Describe your experience..."
+              />
+            </Field>
 
             <form.Field name="company">
               {(field) => (
