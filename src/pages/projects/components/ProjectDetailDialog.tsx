@@ -81,13 +81,20 @@ const ProjectDetailDialog = ({
         <ScrollArea className="flex-1 overflow-y-auto">
           <div className="px-6 py-5 flex flex-col gap-5">
             <DialogHeader>
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-3">
                 {project.logoUrl && (
                   <img src={project.logoUrl} alt={project.title} className="w-10 h-10 rounded-lg object-contain shrink-0 bg-muted p-1" />
                 )}
-                <DialogTitle className="text-2xl font-bold leading-tight">
-                  {project.title}
-                </DialogTitle>
+                <div className="flex flex-col gap-1">
+                  <DialogTitle className="text-2xl font-bold leading-tight">
+                    {project.title}
+                  </DialogTitle>
+                  {project.isExperimental && (
+                    <Badge variant="outline" className="w-fit text-xs border-amber-400 text-amber-600 dark:text-amber-400">
+                      Experimental
+                    </Badge>
+                  )}
+                </div>
               </div>
             </DialogHeader>
 

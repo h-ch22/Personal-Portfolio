@@ -221,6 +221,23 @@ const AddProject = ({
             )}
           </form.Field>
 
+          <form.Field name="isExperimental">
+            {(field) => (
+              <Field>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="checkbox-experimental"
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked === true)}
+                  />
+                  <label htmlFor="checkbox-experimental" className="text-sm cursor-pointer">
+                    Conceptual or abandoned project
+                  </label>
+                </div>
+              </Field>
+            )}
+          </form.Field>
+
           <form.Field name="members">
             {(field) => (
               <Field>

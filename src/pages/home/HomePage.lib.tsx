@@ -418,7 +418,8 @@ const useHomeViewController = () => {
     })
 
   const handleOpenFeaturedSelectDialog = () => {
-    setFeaturedSelectedIds([...featuredProjectIds])
+    const validIds = featuredProjectIds.filter((id) => allProjects.some((p) => p.id === id))
+    setFeaturedSelectedIds(validIds)
     setShowFeaturedSelectDialog(true)
   }
 

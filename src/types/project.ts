@@ -19,6 +19,7 @@ export type Project = {
     startDate: Date
     endDate: Date | null
     isOngoing: boolean
+    isExperimental?: boolean
 }
 
 export type ProjectRequest = Omit<Project, 'id'>

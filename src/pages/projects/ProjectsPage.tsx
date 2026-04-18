@@ -19,6 +19,7 @@ import {
 } from '#/components/ui/popover'
 import { cn } from '#/lib/utils'
 import { CalendarIcon, FrownIcon, LaptopMinimalCheckIcon, SearchIcon, XIcon } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
 import { AddProject } from './components/AddProject'
 import { ProjectCard } from './components/ProjectCard'
 import { ProjectDetailDialog } from './components/ProjectDetailDialog'
@@ -60,6 +61,13 @@ const ProjectsPage = () => {
 
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const clearDateRange = () => setDateRangeFilter({ from: null, to: null })
+
+  const isSearching = searchText.trim() !== '' || techFilter.length > 0 || dateRangeFilter.from !== null
+  const normalProjects = filteredData.filter((p) => !p.isExperimental)
+  const experimentalProjects = filteredData.filter((p) => p.isExperimental)
+
+  const sortByDate = (arr: typeof filteredData) =>
+    [...arr].sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
 
   return (
     <div className="w-full flex flex-1 flex-col px-4">
@@ -159,21 +167,16 @@ const ProjectsPage = () => {
         </div>
       )}
 
-      {filteredData.length === 0 ? (
-        <div className="flex flex-1 flex-col justify-center items-center min-h-0 text-zinc-500">
-          <FrownIcon />
-          <span>No projects found.</span>
-        </div>
-      ) : (
-        <div className="w-full mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4">
-            {[...filteredData]
-              .sort(
-                (a, b) =>
-                  new Date(b.startDate).getTime() -
-                  new Date(a.startDate).getTime(),
-              )
-              .map((project, i) => (
+      {isSearching ? (
+        filteredData.length === 0 ? (
+          <div className="flex flex-1 flex-col justify-center items-center min-h-0 text-zinc-500 mt-8">
+            <FrownIcon />
+            <span>No projects found.</span>
+          </div>
+        ) : (
+          <div className="w-full mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4">
+              {sortByDate(filteredData).map((project, i) => (
                 <AnimatedItem key={project.id} index={i}>
                   <ProjectCard
                     data={project}
@@ -183,8 +186,60 @@ const ProjectsPage = () => {
                   />
                 </AnimatedItem>
               ))}
+            </div>
           </div>
-        </div>
+        )
+      ) : (
+        <Tabs defaultValue="projects" className="mt-4">
+          <TabsList>
+            <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="experimental">Experimental</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="projects">
+            {normalProjects.length === 0 ? (
+              <div className="flex flex-col justify-center items-center py-16 text-zinc-500">
+                <FrownIcon />
+                <span>No projects found.</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4 mt-4">
+                {sortByDate(normalProjects).map((project, i) => (
+                  <AnimatedItem key={project.id} index={i}>
+                    <ProjectCard
+                      data={project}
+                      onCardClick={onCardClick}
+                      onModifyButtonClick={onModifyButtonClick}
+                      onDeleteButtonClick={onDeleteButtonClick}
+                    />
+                  </AnimatedItem>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="experimental">
+            {experimentalProjects.length === 0 ? (
+              <div className="flex flex-col justify-center items-center py-16 text-zinc-500">
+                <FrownIcon />
+                <span>No experimental projects found.</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4 mt-4">
+                {sortByDate(experimentalProjects).map((project, i) => (
+                  <AnimatedItem key={project.id} index={i}>
+                    <ProjectCard
+                      data={project}
+                      onCardClick={onCardClick}
+                      onModifyButtonClick={onModifyButtonClick}
+                      onDeleteButtonClick={onDeleteButtonClick}
+                    />
+                  </AnimatedItem>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       )}
 
       <Dialog open={showAddDialog} onOpenChange={handleAddDialogClose}>

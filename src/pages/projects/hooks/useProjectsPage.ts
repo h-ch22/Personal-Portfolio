@@ -45,6 +45,7 @@ const useProjectsPageController = () => {
             startDate: new Date(),
             endDate: null as Date | null,
             isOngoing: true,
+            isExperimental: false,
         },
         onSubmit: async ({ value }) => {
             if (!value.title.trim()) {
@@ -74,6 +75,7 @@ const useProjectsPageController = () => {
                 startDate: value.startDate,
                 endDate: value.isOngoing ? null : value.endDate,
                 isOngoing: value.isOngoing,
+                isExperimental: value.isExperimental,
                 logoUrl: existingLogoUrl,
             }
 
@@ -152,7 +154,7 @@ const useProjectsPageController = () => {
 
     const resetForm = () => {
         setSelectedData(null)
-        form.reset({ title: '', techStack: [], members: [], link: '', githubUrl: '', startDate: new Date(), endDate: null, isOngoing: true })
+        form.reset({ title: '', techStack: [], members: [], link: '', githubUrl: '', startDate: new Date(), endDate: null, isOngoing: true, isExperimental: false })
         setRichDescription('')
         setPendingFiles([])
         setExistingImages([])
@@ -180,6 +182,7 @@ const useProjectsPageController = () => {
             project.endDate ? new Date(project.endDate) : null,
         )
         form.setFieldValue('isOngoing', project.isOngoing)
+        form.setFieldValue('isExperimental', project.isExperimental ?? false)
         setRichDescription(project.description)
         setExistingImages(project.images)
         setDeletedImagePaths([])

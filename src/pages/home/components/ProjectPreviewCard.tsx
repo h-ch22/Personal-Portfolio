@@ -44,7 +44,12 @@ const ProjectPreviewCard = ({
             {data.logoUrl && (
               <img src={data.logoUrl} alt={data.title} className="w-7 h-7 rounded-md object-contain shrink-0 bg-muted p-0.5" />
             )}
-            <span className="line-clamp-1">{data.title}</span>
+            <span className="line-clamp-1 flex-1">{data.title}</span>
+            {data.isExperimental && (
+              <Badge variant="outline" className="shrink-0 text-xs border-amber-400 text-amber-600 dark:text-amber-400">
+                Experimental
+              </Badge>
+            )}
           </div>
         </CardTitle>
       </CardHeader>
