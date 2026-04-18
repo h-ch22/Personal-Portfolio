@@ -81,9 +81,14 @@ const ProjectDetailDialog = ({
         <ScrollArea className="flex-1 overflow-y-auto">
           <div className="px-6 py-5 flex flex-col gap-5">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold leading-tight">
-                {project.title}
-              </DialogTitle>
+              <div className="flex items-center gap-3">
+                {project.logoUrl && (
+                  <img src={project.logoUrl} alt={project.title} className="w-10 h-10 rounded-lg object-contain shrink-0 bg-muted p-1" />
+                )}
+                <DialogTitle className="text-2xl font-bold leading-tight">
+                  {project.title}
+                </DialogTitle>
+              </div>
             </DialogHeader>
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">

@@ -66,6 +66,7 @@ const ExperiencePage = () => {
     logoFile,
     setLogoFile,
     existingLogoUrl,
+    setExistingLogoUrl,
   } = useExperiencePageController()
 
   const [datePickerOpen, setDatePickerOpen] = useState(false)
@@ -278,6 +279,7 @@ const ExperiencePage = () => {
             logoFile={logoFile}
             setLogoFile={setLogoFile}
             existingLogoUrl={existingLogoUrl}
+            setExistingLogoUrl={setExistingLogoUrl}
           />
         </DialogContent>
       </Dialog>

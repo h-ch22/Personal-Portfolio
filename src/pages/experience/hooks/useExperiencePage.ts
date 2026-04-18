@@ -254,6 +254,7 @@ const useExperiencePageController = () => {
         logoFile,
         setLogoFile,
         existingLogoUrl,
+        setExistingLogoUrl,
         onCardClick,
         onModifyButtonClick,
         onDeleteButtonClick

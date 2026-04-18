@@ -12,6 +12,7 @@ import {
 } from '#/components/ui/card'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { Education } from '#/types/education'
+import { format } from 'date-fns'
 import {
   BuildingIcon,
   CalendarIcon,
@@ -56,7 +57,12 @@ const EducationListItem = ({
       <CardHeader>
         <CardTitle>
           <div className="flex flex-row items-center justify-between">
-            <div className="text-xl">{data.title}</div>
+            <div className="flex items-center gap-2">
+              {data.logoUrl && (
+                <img src={data.logoUrl} alt={data.title} className="w-8 h-8 rounded-md object-contain shrink-0 bg-muted p-0.5" />
+              )}
+              <div className="text-xl">{data.title}</div>
+            </div>
 
             <Badge>
               {getIcon()}
@@ -85,8 +91,8 @@ const EducationListItem = ({
             <div className="flex flex-row gap-1 items-center">
               <CalendarIcon className="w-4 h-4" />
               {data.type === 'CERTIFICATE'
-                ? `${data.endYear}.${data.endMonth.toString().padStart(2, '0')}`
-                : `${data.startYear}.${data.startMonth.toString().padStart(2, '0')} - ${data.inProgress ? 'Present' : `${data.endYear}.${data.endMonth.toString().padStart(2, '0')}`}`}
+                ? format(new Date(data.endYear, data.endMonth - 1, 1), 'MMM yyyy')
+                : `${format(new Date(data.startYear, data.startMonth - 1, 1), 'MMM yyyy')} – ${data.inProgress ? 'Present' : format(new Date(data.endYear, data.endMonth - 1, 1), 'MMM yyyy')}`}
             </div>
           </div>
         </CardDescription>

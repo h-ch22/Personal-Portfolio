@@ -126,7 +126,7 @@ export function SocialLinksSection({
                         <button
                           type="button"
                           onClick={() => removeSocialLink(link.id)}
-                          className="absolute -top-1.5 -right-1.5 opacity-0 group-hover/link:opacity-100 transition-opacity p-0.5 rounded-full bg-destructive text-destructive-foreground"
+                          className="absolute -top-1.5 -right-1.5 opacity-0 group-hover/link:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity p-0.5 rounded-full bg-destructive text-destructive-foreground"
                         >
                           <XIcon className="w-3 h-3" />
                         </button>

@@ -5,6 +5,7 @@ import { CalendarIcon } from 'lucide-react'
 import type { EducationFormInstance } from '../hooks/useEducationPage'
 import type { EducationRequest } from '#/types/education'
 
+import { LogoUploadField } from '#/components/common/LogoUploadField'
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
 import { Button } from '#/components/ui/button'
 import { Checkbox } from '#/components/ui/checkbox'
@@ -28,9 +29,17 @@ import { cn } from '#/lib/utils'
 const AddEducation = ({
   form,
   isEditMode,
+  logoFile,
+  setLogoFile,
+  existingLogoUrl,
+  setExistingLogoUrl,
 }: {
   form: EducationFormInstance
   isEditMode: boolean
+  logoFile: File | null
+  setLogoFile: (f: File | null) => void
+  existingLogoUrl?: string
+  setExistingLogoUrl: (url: string | undefined) => void
 }) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false)
 
@@ -45,6 +54,13 @@ const AddEducation = ({
       >
         <div className="w-full flex flex-col gap-4">
           <FieldGroup>
+            <LogoUploadField
+              logoFile={logoFile}
+              setLogoFile={setLogoFile}
+              existingLogoUrl={existingLogoUrl}
+              setExistingLogoUrl={setExistingLogoUrl}
+            />
+
             <form.Field name="title">
               {(field) => (
                 <Field>

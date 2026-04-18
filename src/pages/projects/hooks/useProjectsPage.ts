@@ -3,6 +3,8 @@ import {
     deleteProject,
     fetchProjects,
     modifyProject,
+    uploadProjectLogo,
+    updateProjectLogoUrl,
 } from '#/api/projects/projects'
 import { useAlertDialogStore } from '#/stores/use-alert-dialog-store'
 import type { Project, ProjectMember } from '#/types/project'
@@ -27,6 +29,8 @@ const useProjectsPageController = () => {
     const [existingImages, setExistingImages] = useState<GalleryImage[]>([])
     const [deletedImagePaths, setDeletedImagePaths] = useState<string[]>([])
     const [richDescription, setRichDescription] = useState('')
+    const [logoFile, setLogoFile] = useState<File | null>(null)
+    const [existingLogoUrl, setExistingLogoUrl] = useState<string | undefined>(undefined)
 
     const { openDialog } = useAlertDialogStore()
 
@@ -69,20 +73,34 @@ const useProjectsPageController = () => {
                 startDate: value.startDate,
                 endDate: value.isOngoing ? null : value.endDate,
                 isOngoing: value.isOngoing,
+                logoUrl: existingLogoUrl,
             }
 
-            const operation = selectedData
-                ? modifyProject(
-                      payload,
-                      selectedData.id,
-                      existingImages,
-                      pendingFiles,
-                      deletedImagePaths,
-                  )
-                : createProject(payload, pendingFiles)
+            const operation = async () => {
+                if (selectedData) {
+                    let logoUrl = existingLogoUrl
+                    if (logoFile) {
+                        logoUrl = await uploadProjectLogo(selectedData.id, logoFile)
+                    }
+                    return modifyProject(
+                        { ...payload, logoUrl },
+                        selectedData.id,
+                        existingImages,
+                        pendingFiles,
+                        deletedImagePaths,
+                    )
+                } else {
+                    const created = await createProject(payload, pendingFiles)
+                    if (logoFile) {
+                        const logoUrl = await uploadProjectLogo(created.id, logoFile)
+                        await updateProjectLogoUrl(created.id, logoUrl)
+                    }
+                    return created
+                }
+            }
 
             toast.promise(
-                operation.then(async () => {
+                operation().then(async () => {
                     await queryClient.invalidateQueries({
                         queryKey: ['projects'],
                     })
@@ -132,6 +150,8 @@ const useProjectsPageController = () => {
         setPendingFiles([])
         setExistingImages([])
         setDeletedImagePaths([])
+        setLogoFile(null)
+        setExistingLogoUrl(undefined)
         setShowAddDialog(false)
     }
 
@@ -157,6 +177,8 @@ const useProjectsPageController = () => {
         setExistingImages(project.images)
         setDeletedImagePaths([])
         setPendingFiles([])
+        setExistingLogoUrl(project.logoUrl)
+        setLogoFile(null)
         setShowAddDialog(true)
     }
 
@@ -220,6 +242,10 @@ const useProjectsPageController = () => {
         deletedImagePaths,
         onMarkImageForDeletion,
         onUnmarkImageForDeletion,
+        logoFile,
+        setLogoFile,
+        existingLogoUrl,
+        setExistingLogoUrl,
         onCardClick,
         onModifyButtonClick,
         onDeleteButtonClick,

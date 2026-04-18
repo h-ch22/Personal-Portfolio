@@ -135,7 +135,7 @@ export function BannerSection({
                 <button
                   type="button"
                   onClick={handleBannerEditStart}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                  className="opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white"
                 >
                   <PencilIcon className="w-4 h-4" />
                 </button>

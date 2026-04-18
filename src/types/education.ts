@@ -11,6 +11,7 @@ export type Education = {
     endMonth: number;
     inProgress: boolean;
     type: EducationType;
+    logoUrl?: string;
 }
 
 export type EducationRequest = Omit<Education, "id">

@@ -34,6 +34,10 @@ const EducationPage = () => {
     setSearchText,
     dateRangeFilter,
     setDateRangeFilter,
+    logoFile,
+    setLogoFile,
+    existingLogoUrl,
+    setExistingLogoUrl,
     onModifyButtonClick,
     onDeleteButtonClick,
   } = useEducationPageController()
@@ -182,7 +186,14 @@ const EducationPage = () => {
             </DialogTitle>
           </DialogHeader>
 
-          <AddEducation form={form} isEditMode={selectedData !== null} />
+          <AddEducation
+            form={form}
+            isEditMode={selectedData !== null}
+            logoFile={logoFile}
+            setLogoFile={setLogoFile}
+            existingLogoUrl={existingLogoUrl}
+            setExistingLogoUrl={setExistingLogoUrl}
+          />
         </DialogContent>
       </Dialog>
     </div>

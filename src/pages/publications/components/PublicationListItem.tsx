@@ -13,6 +13,7 @@ import {
 import { CONFIG } from '#/config'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { Publication } from '#/types/publication'
+import { format } from 'date-fns'
 import {
   CalendarIcon,
   EditIcon,
@@ -68,7 +69,7 @@ const PublicationListItem = ({
 
               <div className="flex flex-row items-center gap-1">
                 <CalendarIcon className="w-4 h-4 shrink-0" />
-                {`${data.publicationYear}.${String(data.publicationMonth).padStart(2, '0')}`}
+                {format(new Date(data.publicationYear, data.publicationMonth - 1, 1), 'MMM yyyy')}
               </div>
             </div>
 

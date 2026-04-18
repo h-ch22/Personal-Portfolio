@@ -91,7 +91,7 @@ export const TechStackCard = ({
   return (
     <div className="relative group flex flex-col items-center gap-2 p-3 rounded-xl border bg-card hover:shadow-md transition-shadow">
       {isAdmin && (
-        <div className="absolute top-1.5 right-1.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-1.5 right-1.5 flex gap-0.5 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
           <button
             type="button"
             onClick={() => onEdit(data)}

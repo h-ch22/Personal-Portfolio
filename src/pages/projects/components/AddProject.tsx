@@ -2,9 +2,10 @@ import { useRef, useState } from 'react'
 import { format } from 'date-fns'
 import { CalendarIcon, ImagePlusIcon, PlusIcon, XIcon } from 'lucide-react'
 
+import { LogoUploadField } from '#/components/common/LogoUploadField'
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
 import { RichTextEditor } from '#/components/common/RichTextEditor'
-import { Badge } from '#/components/ui/badge'
+import { TechStackInput } from '#/components/common/TechStackInput'
 import { Button } from '#/components/ui/button'
 import { Checkbox } from '#/components/ui/checkbox'
 import { Field, FieldGroup, FieldLabel } from '#/components/ui/field'
@@ -14,18 +15,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '#/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '#/components/ui/select'
 import { cn } from '#/lib/utils'
 import type { GalleryImage } from '#/types/gallery'
-import type { TechStackItem } from '#/types/experience'
-import { TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
 import type { ProjectMember } from '#/types/project'
 import type { ProjectFormInstance } from '../hooks/useProjectsPage'
 
@@ -40,6 +31,10 @@ const AddProject = ({
   deletedImagePaths,
   onMarkImageForDeletion,
   onUnmarkImageForDeletion,
+  logoFile,
+  setLogoFile,
+  existingLogoUrl,
+  setExistingLogoUrl,
 }: {
   form: ProjectFormInstance
   isEditMode: boolean
@@ -51,9 +46,12 @@ const AddProject = ({
   deletedImagePaths: string[]
   onMarkImageForDeletion: (path: string) => void
   onUnmarkImageForDeletion: (path: string) => void
+  logoFile: File | null
+  setLogoFile: (f: File | null) => void
+  existingLogoUrl?: string
+  setExistingLogoUrl: (url: string | undefined) => void
 }) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false)
-  const [techInput, setTechInput] = useState({ name: '', iconUrl: '', group: 'Other' as TechStackGroup })
   const [memberInput, setMemberInput] = useState({ name: '', role: '' })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -75,22 +73,6 @@ const AddProject = ({
     setMemberInput({ name: '', role: '' })
   }
 
-  const addTech = (
-    techStack: TechStackItem[],
-    handleChange: (v: TechStackItem[]) => void,
-  ) => {
-    if (!techInput.name.trim()) return
-    handleChange([
-      ...techStack,
-      {
-        name: techInput.name.trim(),
-        group: techInput.group,
-        ...(techInput.iconUrl.trim() && { iconUrl: techInput.iconUrl.trim() }),
-      },
-    ])
-    setTechInput({ name: '', iconUrl: '', group: 'Other' })
-  }
-
   const pendingPreviews = pendingFiles.map((f) => URL.createObjectURL(f))
 
   return (
@@ -103,6 +85,13 @@ const AddProject = ({
         }}
       >
         <FieldGroup>
+          <LogoUploadField
+            logoFile={logoFile}
+            setLogoFile={setLogoFile}
+            existingLogoUrl={existingLogoUrl}
+            setExistingLogoUrl={setExistingLogoUrl}
+          />
+
           <form.Field name="title">
             {(field) => (
               <Field>
@@ -319,117 +308,23 @@ const AddProject = ({
                 <div className="flex items-center justify-between">
                   <FieldLabel>Tech Stack</FieldLabel>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>Icon resources:</span>
                     {[
                       { label: 'Devicon', href: 'https://devicon.dev' },
-                      {
-                        label: 'Simple Icons',
-                        href: 'https://simpleicons.org',
-                      },
-                      {
-                        label: 'Shields.io',
-                        href: 'https://shields.io/badges/static-badge',
-                      },
+                      { label: 'Simple Icons', href: 'https://simpleicons.org' },
+                      { label: 'Shields.io', href: 'https://shields.io/badges/static-badge' },
                     ].map(({ label, href }) => (
-                      <a
-                        key={href}
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline underline-offset-2 hover:text-foreground transition-colors"
-                      >
+                      <a key={href} href={href} target="_blank" rel="noopener noreferrer"
+                        className="underline underline-offset-2 hover:text-foreground transition-colors">
                         {label}
                       </a>
                     ))}
                   </div>
                 </div>
-
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Name (e.g. Swift)"
-                    value={techInput.name}
-                    onChange={(e) =>
-                      setTechInput((prev) => ({
-                        ...prev,
-                        name: e.target.value,
-                      }))
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        addTech(field.state.value, field.handleChange)
-                      }
-                    }}
-                  />
-                  <Input
-                    placeholder="Icon URL (optional)"
-                    value={techInput.iconUrl}
-                    onChange={(e) =>
-                      setTechInput((prev) => ({
-                        ...prev,
-                        iconUrl: e.target.value,
-                      }))
-                    }
-                  />
-                  <Select
-                    value={techInput.group}
-                    onValueChange={(v) =>
-                      setTechInput((prev) => ({ ...prev, group: v as TechStackGroup }))
-                    }
-                  >
-                    <SelectTrigger className="w-36 shrink-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {TECH_STACK_GROUPS.map((g) => (
-                          <SelectItem key={g} value={g}>{g}</SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() =>
-                      addTech(field.state.value, field.handleChange)
-                    }
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {field.state.value.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {field.state.value.map((tech, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="flex items-center gap-1.5 pl-1.5 pr-1 py-1 h-auto"
-                      >
-                        {tech.iconUrl && (
-                          <img
-                            src={tech.iconUrl}
-                            alt={tech.name}
-                            className="w-4 h-4 rounded-sm object-contain"
-                          />
-                        )}
-                        <span className="text-xs">{tech.name}</span>
-                        <button
-                          type="button"
-                          className="ml-0.5 rounded-full hover:bg-muted-foreground/20 p-0.5"
-                          onClick={() =>
-                            field.handleChange(
-                              field.state.value.filter((_, i) => i !== index),
-                            )
-                          }
-                        >
-                          <XIcon className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+                <TechStackInput
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                />
               </Field>
             )}
           </form.Field>

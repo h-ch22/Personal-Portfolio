@@ -1,8 +1,7 @@
 import { useRef, useState } from 'react'
 import { format } from 'date-fns'
-import { CalendarIcon, ImagePlusIcon, PlusIcon, XIcon } from 'lucide-react'
+import { CalendarIcon, ImagePlusIcon, XIcon } from 'lucide-react'
 
-import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Checkbox } from '#/components/ui/checkbox'
 import { Field, FieldGroup, FieldLabel } from '#/components/ui/field'
@@ -22,9 +21,9 @@ import {
 } from '#/components/ui/select'
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
 import { RichTextEditor } from '#/components/common/RichTextEditor'
+import { TechStackInput } from '#/components/common/TechStackInput'
 import { cn } from '#/lib/utils'
 import type { ExperienceRequest } from '#/types/experience'
-import { TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
 import type { ExperienceFormInstance } from '../hooks/useExperiencePage'
 
 const AddExperience = ({
@@ -35,6 +34,7 @@ const AddExperience = ({
   logoFile,
   setLogoFile,
   existingLogoUrl,
+  setExistingLogoUrl,
 }: {
   form: ExperienceFormInstance
   isEditMode: boolean
@@ -43,14 +43,12 @@ const AddExperience = ({
   logoFile: File | null
   setLogoFile: (file: File | null) => void
   existingLogoUrl?: string
+  setExistingLogoUrl: (url: string | undefined) => void
 }) => {
-  const [techInput, setTechInput] = useState({ name: '', iconUrl: '', group: 'Other' as TechStackGroup })
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const logoPreview = logoFile
-    ? URL.createObjectURL(logoFile)
-    : existingLogoUrl
+  const logoPreview = logoFile ? URL.createObjectURL(logoFile) : existingLogoUrl
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null
@@ -69,7 +67,6 @@ const AddExperience = ({
       >
         <div className="w-full flex flex-col gap-4">
           <FieldGroup>
-            {/* Logo upload */}
             <Field>
               <FieldLabel>Logo / Icon</FieldLabel>
               <div className="flex items-center gap-3">
@@ -83,7 +80,10 @@ const AddExperience = ({
                     <button
                       type="button"
                       className="absolute top-0.5 right-0.5 bg-background/80 rounded-full p-0.5 hover:bg-background transition-colors"
-                      onClick={() => setLogoFile(null)}
+                      onClick={() => {
+                        setLogoFile(null)
+                        setExistingLogoUrl(undefined)
+                      }}
                     >
                       <XIcon className="w-3 h-3" />
                     </button>
@@ -343,117 +343,10 @@ const AddExperience = ({
                       ))}
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Name (e.g. Swift)"
-                      value={techInput.name}
-                      onChange={(e) =>
-                        setTechInput((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          if (techInput.name.trim()) {
-                            field.handleChange([
-                              ...field.state.value,
-                              {
-                                name: techInput.name.trim(),
-                                group: techInput.group,
-                                ...(techInput.iconUrl.trim() && {
-                                  iconUrl: techInput.iconUrl.trim(),
-                                }),
-                              },
-                            ])
-                            setTechInput({ name: '', iconUrl: '', group: 'Other' })
-                          }
-                        }
-                      }}
-                    />
-                    <Input
-                      placeholder="Icon URL (optional)"
-                      value={techInput.iconUrl}
-                      onChange={(e) =>
-                        setTechInput((prev) => ({
-                          ...prev,
-                          iconUrl: e.target.value,
-                        }))
-                      }
-                    />
-                    <Select
-                      value={techInput.group}
-                      onValueChange={(v) =>
-                        setTechInput((prev) => ({ ...prev, group: v as TechStackGroup }))
-                      }
-                    >
-                      <SelectTrigger className="w-36 shrink-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {TECH_STACK_GROUPS.map((g) => (
-                            <SelectItem key={g} value={g}>{g}</SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        if (techInput.name.trim()) {
-                          field.handleChange([
-                            ...field.state.value,
-                            {
-                              name: techInput.name.trim(),
-                              group: techInput.group,
-                              ...(techInput.iconUrl.trim() && {
-                                iconUrl: techInput.iconUrl.trim(),
-                              }),
-                            },
-                          ])
-                          setTechInput({ name: '', iconUrl: '', group: 'Other' })
-                        }
-                      }}
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {field.state.value.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {field.state.value.map((tech, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className="flex items-center gap-1.5 pl-1.5 pr-1 py-1 h-auto"
-                        >
-                          {tech.iconUrl && (
-                            <img
-                              src={tech.iconUrl}
-                              alt={tech.name}
-                              className="w-4 h-4 rounded-sm object-contain"
-                            />
-                          )}
-                          <span className="text-xs">{tech.name}</span>
-                          <button
-                            type="button"
-                            className="ml-0.5 rounded-full hover:bg-muted-foreground/20 p-0.5"
-                            onClick={() =>
-                              field.handleChange(
-                                field.state.value.filter((_, i) => i !== index),
-                              )
-                            }
-                          >
-                            <XIcon className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
+                  <TechStackInput
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                  />
                 </Field>
               )}
             </form.Field>

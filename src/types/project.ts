@@ -15,6 +15,7 @@ export type Project = {
     images: GalleryImage[]
     link?: string
     githubUrl?: string
+    logoUrl?: string
     startDate: Date
     endDate: Date | null
     isOngoing: boolean

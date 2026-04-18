@@ -38,6 +38,10 @@ const ProjectsPage = () => {
     deletedImagePaths,
     onMarkImageForDeletion,
     onUnmarkImageForDeletion,
+    logoFile,
+    setLogoFile,
+    existingLogoUrl,
+    setExistingLogoUrl,
     onCardClick,
     onModifyButtonClick,
     onDeleteButtonClick,
@@ -152,6 +156,10 @@ const ProjectsPage = () => {
             deletedImagePaths={deletedImagePaths}
             onMarkImageForDeletion={onMarkImageForDeletion}
             onUnmarkImageForDeletion={onUnmarkImageForDeletion}
+            logoFile={logoFile}
+            setLogoFile={setLogoFile}
+            existingLogoUrl={existingLogoUrl}
+            setExistingLogoUrl={setExistingLogoUrl}
           />
         </DialogContent>
       </Dialog>

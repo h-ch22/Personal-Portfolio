@@ -39,7 +39,14 @@ const ProjectPreviewCard = ({
       </div>
 
       <CardHeader className="pt-3 pb-1">
-        <CardTitle className="text-base line-clamp-1">{data.title}</CardTitle>
+        <CardTitle className="text-base">
+          <div className="flex items-center gap-2">
+            {data.logoUrl && (
+              <img src={data.logoUrl} alt={data.title} className="w-7 h-7 rounded-md object-contain shrink-0 bg-muted p-0.5" />
+            )}
+            <span className="line-clamp-1">{data.title}</span>
+          </div>
+        </CardTitle>
       </CardHeader>
 
       <CardContent className="pb-3 flex flex-col gap-2 flex-1">

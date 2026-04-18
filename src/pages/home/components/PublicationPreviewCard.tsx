@@ -2,6 +2,7 @@ import { Badge } from '#/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
 import { CONFIG } from '#/config'
 import type { Publication } from '#/types/publication'
+import { format } from 'date-fns'
 import { CalendarIcon, UsersIcon } from 'lucide-react'
 
 const PublicationPreviewCard = ({ data }: { data: Publication }) => {
@@ -32,7 +33,7 @@ const PublicationPreviewCard = ({ data }: { data: Publication }) => {
         </div>
         <div className="flex flex-row items-center gap-1 text-xs text-muted-foreground">
           <CalendarIcon className="w-3.5 h-3.5" />
-          <span>{`${data.publicationYear}.${String(data.publicationMonth).padStart(2, '0')}`}</span>
+          <span>{format(new Date(data.publicationYear, data.publicationMonth - 1, 1), 'MMM yyyy')}</span>
         </div>
       </CardContent>
     </Card>

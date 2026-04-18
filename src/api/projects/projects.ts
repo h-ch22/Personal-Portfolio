@@ -123,6 +123,20 @@ export const modifyProject = async (
     }
 }
 
+export const uploadProjectLogo = async (projectId: string, file: File): Promise<string> => {
+    if (!storage) throw new Error('Storage not initialized.')
+    const path = `projects/${projectId}/logo`
+    const storageRef = ref(storage, path)
+    await uploadBytes(storageRef, file)
+    return await getDownloadURL(storageRef)
+}
+
+export const updateProjectLogoUrl = async (id: string, logoUrl: string): Promise<void> => {
+    if (!db) throw new Error('Cannot update project: database is not initialized.')
+    const projectDoc = doc(db, 'Projects', id)
+    await updateDoc(projectDoc, { logoUrl })
+}
+
 export const deleteProject = async (
     id: string,
     images: GalleryImage[],

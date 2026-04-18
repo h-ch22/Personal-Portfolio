@@ -1,4 +1,4 @@
-import { deleteEducation, fetchEducation, modifyEducation, uploadEducation } from "#/api/education/education";
+import { deleteEducation, fetchEducation, modifyEducation, uploadEducation, uploadEducationLogo } from "#/api/education/education";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useState } from "react"
@@ -27,6 +27,8 @@ const useEducationPageController = () => {
     const [selectedData, setSelectedData] = useState<Education | null>(null);
     const [searchText, setSearchText] = useState("");
     const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [existingLogoUrl, setExistingLogoUrl] = useState<string | undefined>(undefined);
 
     const { openDialog } = useAlertDialogStore();
 
@@ -51,14 +53,32 @@ const useEducationPageController = () => {
                 return;
             }
 
-            const operation = selectedData
-                ? modifyEducation(value, selectedData.id)
-                : uploadEducation(value);
+            const operation = async () => {
+                let logoUrl = existingLogoUrl;
+
+                if (selectedData) {
+                    const docRef = await modifyEducation({ ...value, logoUrl }, selectedData.id);
+                    if (logoFile) {
+                        logoUrl = await uploadEducationLogo(selectedData.id, logoFile);
+                        await modifyEducation({ ...value, logoUrl }, selectedData.id);
+                    }
+                    return docRef;
+                } else {
+                    const created = await uploadEducation({ ...value });
+                    if (logoFile && created.id) {
+                        logoUrl = await uploadEducationLogo(created.id, logoFile);
+                        await modifyEducation({ ...value, logoUrl }, created.id);
+                    }
+                    return created;
+                }
+            };
 
             toast.promise(
-                operation.then(async () => {
+                operation().then(async () => {
                     await queryClient.invalidateQueries({ queryKey: ["education"] });
                     setSelectedData(null);
+                    setLogoFile(null);
+                    setExistingLogoUrl(undefined);
                     form.reset();
                     setShowAddDialog(false);
                 }),
@@ -128,6 +148,8 @@ const useEducationPageController = () => {
         form.setFieldValue("endMonth", education.endMonth || new Date().getMonth() + 1);
         form.setFieldValue("inProgress", education.inProgress);
         form.setFieldValue("type", education.type);
+        setExistingLogoUrl(education.logoUrl);
+        setLogoFile(null);
         setShowAddDialog(true);
     }
 
@@ -154,6 +176,8 @@ const useEducationPageController = () => {
     const handleDialogClose = (open: boolean) => {
         if (!open) {
             setSelectedData(null);
+            setLogoFile(null);
+            setExistingLogoUrl(undefined);
             form.reset();
         }
         setShowAddDialog(open);
@@ -170,6 +194,10 @@ const useEducationPageController = () => {
         setSearchText,
         dateRangeFilter,
         setDateRangeFilter,
+        logoFile,
+        setLogoFile,
+        existingLogoUrl,
+        setExistingLogoUrl,
         onModifyButtonClick,
         onDeleteButtonClick
     }

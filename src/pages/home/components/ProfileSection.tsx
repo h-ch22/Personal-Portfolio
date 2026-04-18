@@ -123,7 +123,7 @@ export function ProfileSection({
             <button
               type="button"
               onClick={handleDescriptionEditStart}
-              className="shrink-0 mt-0.5 opacity-0 group-hover/desc:opacity-100 transition-opacity p-1 rounded-full hover:bg-muted-foreground/20"
+              className="shrink-0 mt-0.5 opacity-0 group-hover/desc:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity p-1 rounded-full hover:bg-muted-foreground/20"
             >
               <PencilIcon className="w-3.5 h-3.5 text-muted-foreground" />
             </button>

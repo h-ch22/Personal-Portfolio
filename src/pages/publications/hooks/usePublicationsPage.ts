@@ -24,6 +24,7 @@ const usePublicationsPageController = () => {
     const [selectedData, setSelectedData] = useState<Publication | null>(null);
     const [selectedFilter, setSelectedFilter] = useState<PublicationType>("International Journal");
     const [searchText, setSearchText] = useState("");
+    const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
     
     const { openDialog } = useAlertDialogStore();
 
@@ -73,16 +74,26 @@ const usePublicationsPageController = () => {
 
     const isSearching = searchText.trim() !== "";
 
-    const filteredData = isSearching
-        ? data.filter((p) => {
+    const filteredData = data.filter((p) => {
+        if (!isSearching && p.type !== selectedFilter) return false;
+
+        if (isSearching) {
             const q = searchText.toLowerCase();
-            return (
+            const matchesText =
                 p.title.toLowerCase().includes(q) ||
                 p.journal.toLowerCase().includes(q) ||
-                p.authors.some((a) => a.toLowerCase().includes(q))
-            );
-        })
-        : data.filter((p) => p.type === selectedFilter);
+                p.authors.some((a) => a.toLowerCase().includes(q));
+            if (!matchesText) return false;
+        }
+
+        if (dateRangeFilter.from) {
+            const pubDate = new Date(p.publicationYear, p.publicationMonth - 1, 1);
+            const filterTo = dateRangeFilter.to ?? new Date();
+            if (pubDate < dateRangeFilter.from || pubDate > filterTo) return false;
+        }
+
+        return true;
+    });
 
     const groupedData = filteredData
         .reduce((acc: Record<number, Publication[]>, current) => {
@@ -154,6 +165,8 @@ const usePublicationsPageController = () => {
         setSelectedFilter,
         searchText,
         setSearchText,
+        dateRangeFilter,
+        setDateRangeFilter,
     }
 }
 
