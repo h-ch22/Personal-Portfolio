@@ -20,6 +20,7 @@ const useGalleryPageController = () => {
     const [selectedData, setSelectedData] = useState<Gallery | null>(null);
     const [detailData, setDetailData] = useState<Gallery | null>(null);
     const [searchText, setSearchText] = useState("");
+    const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
 
     const [pendingFiles, setPendingFiles] = useState<File[]>([]);
     const [existingImages, setExistingImages] = useState<GalleryImage[]>([]);
@@ -105,11 +106,18 @@ const useGalleryPageController = () => {
     const filteredData = data.filter((g) => {
         if (searchText.trim()) {
             const q = searchText.toLowerCase();
-            return (
+            const matchesText =
                 g.title.toLowerCase().includes(q) ||
-                g.description?.toLowerCase().includes(q)
-            );
+                g.description?.toLowerCase().includes(q);
+            if (!matchesText) return false;
         }
+
+        if (dateRangeFilter.from) {
+            const d = new Date(g.date);
+            const filterTo = dateRangeFilter.to ?? new Date();
+            if (d < dateRangeFilter.from || d > filterTo) return false;
+        }
+
         return true;
     });
 
@@ -186,6 +194,8 @@ const useGalleryPageController = () => {
         filteredData,
         searchText,
         setSearchText,
+        dateRangeFilter,
+        setDateRangeFilter,
         pendingFiles,
         setPendingFiles,
         existingImages,

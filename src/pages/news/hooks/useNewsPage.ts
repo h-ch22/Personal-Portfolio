@@ -22,6 +22,7 @@ const useNewsPageController = () => {
   const [detailData, setDetailData] = useState<News | null>(null)
   const [searchText, setSearchText] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<NewsCategory[]>([])
+  const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null })
 
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [existingImages, setExistingImages] = useState<GalleryImage[]>([])
@@ -119,6 +120,12 @@ const useNewsPageController = () => {
     const matchesCategory =
       categoryFilter.length === 0 || categoryFilter.includes(n.category)
 
+    if (dateRangeFilter.from) {
+      const d = new Date(n.date)
+      const filterTo = dateRangeFilter.to ?? new Date()
+      if (d < dateRangeFilter.from || d > filterTo) return false
+    }
+
     return matchesSearch && matchesCategory
   })
 
@@ -201,6 +208,8 @@ const useNewsPageController = () => {
     setSearchText,
     categoryFilter,
     setCategoryFilter,
+    dateRangeFilter,
+    setDateRangeFilter,
     pendingFiles,
     setPendingFiles,
     existingImages,

@@ -20,7 +20,7 @@ import {
   CardTitle,
 } from '#/components/ui/card'
 import { useAuthStore } from '#/stores/use-auth-store'
-import { TECH_STACK_GROUP_COLORS, type TechStackGroup } from '#/types/techstack'
+import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
 import type { Project } from '#/types/project'
 
 const ProjectCard = ({
@@ -97,34 +97,41 @@ const ProjectCard = ({
           )}
         </div>
 
-        {data.techStack.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {data.techStack.slice(0, 5).map((tech, i) => {
-              const groupColor = TECH_STACK_GROUP_COLORS[(tech.group ?? 'Other') as TechStackGroup] ?? TECH_STACK_GROUP_COLORS.Other
-              return (
-                <Badge
-                  key={i}
-                  variant="outline"
-                  className={`flex items-center gap-1 px-1.5 py-0.5 h-auto text-xs border-0 ${groupColor}`}
-                >
-                  {tech.iconUrl && (
-                    <img
-                      src={tech.iconUrl}
-                      alt={tech.name}
-                      className="w-3 h-3 object-contain"
-                    />
-                  )}
-                  {tech.name}
-                </Badge>
-              )
-            })}
-            {data.techStack.length > 5 && (
-              <Badge variant="outline" className="text-xs px-1.5 py-0.5 h-auto">
-                +{data.techStack.length - 5}
-              </Badge>
-            )}
-          </div>
-        )}
+        {data.techStack.length > 0 && (() => {
+          const grouped = data.techStack.reduce<Record<string, typeof data.techStack>>((acc, tech) => {
+            const g = tech.group ?? 'Other'
+            if (!acc[g]) acc[g] = []
+            acc[g].push(tech)
+            return acc
+          }, {})
+          const orderedGroups = [
+            ...TECH_STACK_GROUPS.filter((g) => grouped[g]),
+            ...Object.keys(grouped).filter((g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup)),
+          ]
+          return (
+            <div className="flex flex-col gap-1.5">
+              {orderedGroups.map((g) => (
+                <div key={g} className="flex flex-wrap items-center gap-1">
+                  <span className="text-xs font-medium text-muted-foreground w-14 shrink-0">{g}</span>
+                  <div className="flex flex-wrap gap-1">
+                    {grouped[g].map((tech, i) => (
+                      <Badge
+                        key={i}
+                        variant="outline"
+                        className={`flex items-center gap-1 px-1.5 py-0.5 h-auto text-xs border-0 ${TECH_STACK_GROUP_COLORS[(g as TechStackGroup)] ?? TECH_STACK_GROUP_COLORS.Other}`}
+                      >
+                        {tech.iconUrl && (
+                          <img src={tech.iconUrl} alt={tech.name} className="w-3 h-3 object-contain" />
+                        )}
+                        {tech.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
       </CardContent>
 
       {user && isAdmin && (

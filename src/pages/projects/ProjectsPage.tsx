@@ -1,5 +1,8 @@
+import { useState } from 'react'
+import { format } from 'date-fns'
 import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
+import { MonthRangePicker } from '#/components/common/MonthRangePicker'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import {
@@ -9,7 +12,13 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { Input } from '#/components/ui/input'
-import { FrownIcon, LaptopMinimalCheckIcon, SearchIcon } from 'lucide-react'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '#/components/ui/popover'
+import { cn } from '#/lib/utils'
+import { CalendarIcon, FrownIcon, LaptopMinimalCheckIcon, SearchIcon, XIcon } from 'lucide-react'
 import { AddProject } from './components/AddProject'
 import { ProjectCard } from './components/ProjectCard'
 import { ProjectDetailDialog } from './components/ProjectDetailDialog'
@@ -30,6 +39,8 @@ const ProjectsPage = () => {
     setSearchText,
     techFilter,
     setTechFilter,
+    dateRangeFilter,
+    setDateRangeFilter,
     richDescription,
     setRichDescription,
     pendingFiles,
@@ -47,6 +58,9 @@ const ProjectsPage = () => {
     onDeleteButtonClick,
   } = useProjectsPageController()
 
+  const [datePickerOpen, setDatePickerOpen] = useState(false)
+  const clearDateRange = () => setDateRangeFilter({ from: null, to: null })
+
   return (
     <div className="w-full flex flex-1 flex-col px-4">
       <BoardHeader
@@ -57,6 +71,43 @@ const ProjectsPage = () => {
       />
 
       <div className="flex flex-row justify-end items-center gap-2 mt-2">
+        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn('gap-2', dateRangeFilter.from && 'border-primary text-primary')}
+            >
+              <CalendarIcon className="h-4 w-4" />
+              {dateRangeFilter.from
+                ? dateRangeFilter.to
+                  ? `${format(dateRangeFilter.from, 'MMM yyyy')} – ${format(dateRangeFilter.to, 'MMM yyyy')}`
+                  : `${format(dateRangeFilter.from, 'MMM yyyy')} – …`
+                : 'Period'}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <MonthRangePicker
+              from={dateRangeFilter.from}
+              to={dateRangeFilter.to}
+              onSelect={({ from, to }) => {
+                setDateRangeFilter({ from, to })
+                if (to !== null) setDatePickerOpen(false)
+              }}
+            />
+            {dateRangeFilter.from && (
+              <div className="px-3 pb-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-muted-foreground"
+                  onClick={() => { clearDateRange(); setDatePickerOpen(false) }}
+                >
+                  Clear
+                </Button>
+              </div>
+            )}
+          </PopoverContent>
+        </Popover>
         <Input
           className="flex-1 max-w-96"
           placeholder="Search by title or tech stack..."
@@ -94,17 +145,15 @@ const ProjectsPage = () => {
         </div>
       )}
 
-      {(searchText.trim() || techFilter.length > 0) && (
+      {(searchText.trim() || techFilter.length > 0 || dateRangeFilter.from) && (
         <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground justify-end">
           <span>Filters active</span>
           <button
             type="button"
-            className="underline hover:text-foreground transition-colors"
-            onClick={() => {
-              setSearchText('')
-              setTechFilter([])
-            }}
+            className="flex items-center gap-0.5 hover:text-foreground transition-colors"
+            onClick={() => { setSearchText(''); setTechFilter([]); clearDateRange() }}
           >
+            <XIcon className="h-3 w-3" />
             Clear all
           </button>
         </div>

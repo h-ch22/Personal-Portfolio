@@ -24,6 +24,7 @@ const useProjectsPageController = () => {
     const [detailData, setDetailData] = useState<Project | null>(null)
     const [searchText, setSearchText] = useState('')
     const [techFilter, setTechFilter] = useState<string[]>([])
+    const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null })
 
     const [pendingFiles, setPendingFiles] = useState<File[]>([])
     const [existingImages, setExistingImages] = useState<GalleryImage[]>([])
@@ -140,6 +141,12 @@ const useProjectsPageController = () => {
         ) {
             return false
         }
+        if (dateRangeFilter.from) {
+            const start = new Date(p.startDate)
+            const end = p.isOngoing || !p.endDate ? new Date() : new Date(p.endDate)
+            const filterTo = dateRangeFilter.to ?? new Date()
+            if (!(start <= filterTo && end >= dateRangeFilter.from)) return false
+        }
         return true
     })
 
@@ -234,6 +241,8 @@ const useProjectsPageController = () => {
         setSearchText,
         techFilter,
         setTechFilter,
+        dateRangeFilter,
+        setDateRangeFilter,
         richDescription,
         setRichDescription,
         pendingFiles,
