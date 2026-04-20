@@ -25,6 +25,8 @@ import {
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { cn } from '#/lib/utils'
+import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS } from '#/types/techstack'
+import type { TechStackGroup } from '#/types/techstack'
 
 const EDU_TYPE_ICON: Record<Education['type'], React.ReactNode> = {
   DEGREE: <GraduationCapIcon className="w-3 h-3" />,
@@ -102,7 +104,7 @@ function ExperienceCard({
 
   return (
     <div
-      className="flex flex-col gap-1 rounded-lg border bg-card px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors"
+      className="flex flex-col gap-1 sm:gap-2 rounded-lg border bg-card px-4 py-3 sm:px-5 sm:py-4 cursor-pointer hover:bg-accent/50 transition-colors"
       onClick={() => onClick?.(data)}
     >
       <div className="flex items-start justify-between gap-2">
@@ -138,29 +140,81 @@ function ExperienceCard({
         </span>
       </div>
       {data.techStack.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-1">
-          {data.techStack.slice(0, 4).map((t, i) => (
-            <Badge
-              key={i}
-              variant="outline"
-              className="text-xs px-1.5 py-0 h-auto gap-1"
-            >
-              {t.iconUrl && (
-                <img
-                  src={t.iconUrl}
-                  alt={t.name}
-                  className="w-3 h-3 object-contain"
-                />
-              )}
-              {t.name}
-            </Badge>
-          ))}
-          {data.techStack.length > 4 && (
-            <Badge variant="outline" className="text-xs px-1.5 py-0 h-auto">
-              +{data.techStack.length - 4}
-            </Badge>
-          )}
-        </div>
+        <>
+          <div className="flex flex-wrap gap-1 mt-1 sm:hidden">
+            {data.techStack.slice(0, 4).map((t, i) => (
+              <Badge
+                key={i}
+                variant="outline"
+                className="text-xs px-1.5 py-0 h-auto gap-1"
+              >
+                {t.iconUrl && (
+                  <img
+                    src={t.iconUrl}
+                    alt={t.name}
+                    className="w-3 h-3 object-contain"
+                  />
+                )}
+                {t.name}
+              </Badge>
+            ))}
+            {data.techStack.length > 4 && (
+              <Badge variant="outline" className="text-xs px-1.5 py-0 h-auto">
+                +{data.techStack.length - 4}
+              </Badge>
+            )}
+          </div>
+
+          {(() => {
+            const grouped = data.techStack.reduce<
+              Record<string, typeof data.techStack>
+            >((acc, tech) => {
+              const g = tech.group ?? 'Other'
+              if (!acc[g]) acc[g] = []
+              acc[g].push(tech)
+              return acc
+            }, {})
+            const orderedGroups = [
+              ...TECH_STACK_GROUPS.filter((g) => grouped[g]),
+              ...Object.keys(grouped).filter(
+                (g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup),
+              ),
+            ]
+            return (
+              <div className="hidden sm:flex flex-col gap-1 mt-1">
+                {orderedGroups.map((g) => (
+                  <div key={g} className="flex flex-wrap items-center gap-1">
+                    <span className="text-xs font-medium text-muted-foreground w-14 shrink-0">
+                      {g}
+                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {grouped[g].map((tech, i) => (
+                        <Badge
+                          key={i}
+                          variant="outline"
+                          className={cn(
+                            'text-xs px-1.5 py-0 h-auto gap-1 border-0',
+                            TECH_STACK_GROUP_COLORS[g as TechStackGroup] ??
+                              TECH_STACK_GROUP_COLORS.Other,
+                          )}
+                        >
+                          {tech.iconUrl && (
+                            <img
+                              src={tech.iconUrl}
+                              alt={tech.name}
+                              className="w-3 h-3 object-contain"
+                            />
+                          )}
+                          {tech.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+        </>
       )}
     </div>
   )
@@ -265,7 +319,9 @@ export function EducationExperienceSection({
   onExperienceCardClick,
   muted = false,
 }: EducationExperienceSectionProps) {
-  const [activeTab, setActiveTab] = useState<'experience' | 'education'>('experience')
+  const [activeTab, setActiveTab] = useState<'experience' | 'education'>(
+    'experience',
+  )
 
   return (
     <>
@@ -284,14 +340,19 @@ export function EducationExperienceSection({
               </p>
             </div>
             <Button variant="ghost" asChild>
-              <Link to={activeTab === 'experience' ? '/experience' : '/education'}>
+              <Link
+                to={activeTab === 'experience' ? '/experience' : '/education'}
+              >
                 View All
                 <ChevronRightIcon className="w-4 h-4" />
               </Link>
             </Button>
           </div>
 
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+          >
             <TabsList className="mb-2">
               <TabsTrigger value="experience">Experience</TabsTrigger>
               <TabsTrigger value="education">Education</TabsTrigger>
