@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { format } from 'date-fns'
 import { CalendarIcon, CheckIcon, GripVerticalIcon, ImagePlusIcon, PencilIcon, PlusIcon, XIcon } from 'lucide-react'
+import { Reorder, useDragControls } from 'framer-motion'
 
 import { LogoUploadField } from '#/components/common/LogoUploadField'
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
@@ -20,25 +21,16 @@ import type { GalleryImage } from '#/types/gallery'
 import type { ProjectMember } from '#/types/project'
 import type { ProjectFormInstance } from '../hooks/useProjectsPage'
 
-function MemberRow({
+function DraggableMemberRow({
   member,
-  isDragOver,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
   onRemove,
   onEdit,
 }: {
   member: ProjectMember
-  isDragOver: boolean
-  onDragStart: () => void
-  onDragOver: (e: React.DragEvent) => void
-  onDrop: (e: React.DragEvent) => void
-  onDragEnd: () => void
   onRemove: () => void
   onEdit: (updated: ProjectMember) => void
 }) {
+  const controls = useDragControls()
   const [isEditing, setIsEditing] = useState(false)
   const [editValues, setEditValues] = useState({ name: member.name, role: member.role })
 
@@ -49,23 +41,22 @@ function MemberRow({
   }
 
   return (
-    <div
-      draggable={!isEditing}
-      onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = 'move'
-        onDragStart()
-      }}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
-      className={cn(
-        'flex items-center gap-2 rounded-md transition-colors',
-        isDragOver && 'outline-2 outline-primary outline-offset-1',
-      )}
+    <Reorder.Item
+      value={member}
+      dragListener={false}
+      dragControls={controls}
+      className="flex items-center gap-2"
     >
-      <span className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none py-1">
+      <button
+        type="button"
+        onPointerDown={(e) => { if (!isEditing) controls.start(e) }}
+        className={cn(
+          'text-muted-foreground hover:text-foreground touch-none',
+          isEditing ? 'cursor-default opacity-30' : 'cursor-grab active:cursor-grabbing',
+        )}
+      >
         <GripVerticalIcon className="w-4 h-4" />
-      </span>
+      </button>
       {isEditing ? (
         <>
           <Input
@@ -113,7 +104,7 @@ function MemberRow({
           </Button>
         </>
       )}
-    </div>
+    </Reorder.Item>
   )
 }
 
@@ -125,8 +116,6 @@ function MembersField({
   onChange: (members: ProjectMember[]) => void
 }) {
   const [memberInput, setMemberInput] = useState({ name: '', role: '' })
-  const [dragFromIndex, setDragFromIndex] = useState<number | null>(null)
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   const addMember = () => {
     if (!memberInput.name.trim() || !memberInput.role.trim()) return
@@ -134,60 +123,49 @@ function MembersField({
     setMemberInput({ name: '', role: '' })
   }
 
-  const commitReorder = () => {
-    if (dragFromIndex === null || dragOverIndex === null || dragFromIndex === dragOverIndex) return
-    const next = [...value]
-    const [removed] = next.splice(dragFromIndex, 1)
-    next.splice(dragOverIndex, 0, removed)
-    onChange(next)
-  }
-
-  const clearDrag = () => {
-    setDragFromIndex(null)
-    setDragOverIndex(null)
-  }
-
   return (
     <Field>
       <FieldLabel>People</FieldLabel>
-      <div className="flex gap-2">
-        <Input
-          placeholder="Name"
-          value={memberInput.name}
-          onChange={(e) => setMemberInput((prev) => ({ ...prev, name: e.target.value }))}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMember() } }}
-        />
-        <Input
-          placeholder="Role (e.g. Backend)"
-          value={memberInput.role}
-          onChange={(e) => setMemberInput((prev) => ({ ...prev, role: e.target.value }))}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMember() } }}
-        />
-        <Button type="button" variant="outline" size="icon" onClick={addMember}>
-          <PlusIcon className="h-4 w-4" />
-        </Button>
-      </div>
-      {value.length > 0 && (
-        <div className="flex flex-col gap-1.5 mt-2">
-          {value.map((member, index) => (
-            <MemberRow
-              key={index}
-              member={member}
-              isDragOver={dragOverIndex === index && dragFromIndex !== index}
-              onDragStart={() => setDragFromIndex(index)}
-              onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index) }}
-              onDrop={(e) => { e.preventDefault(); commitReorder(); clearDrag() }}
-              onDragEnd={clearDrag}
-              onRemove={() => onChange(value.filter((_, i) => i !== index))}
-              onEdit={(updated) => {
-                const next = [...value]
-                next[index] = updated
-                onChange(next)
-              }}
-            />
-          ))}
+      <div className="flex flex-col gap-2">
+        {value.length > 0 && (
+          <Reorder.Group
+            axis="y"
+            values={value}
+            onReorder={onChange}
+            className="flex flex-col gap-1.5"
+          >
+            {value.map((member, index) => (
+              <DraggableMemberRow
+                key={`${member.name}-${member.role}`}
+                member={member}
+                onRemove={() => onChange(value.filter((_, i) => i !== index))}
+                onEdit={(updated) => {
+                  const next = [...value]
+                  next[index] = updated
+                  onChange(next)
+                }}
+              />
+            ))}
+          </Reorder.Group>
+        )}
+        <div className="flex gap-2">
+          <Input
+            placeholder="Name"
+            value={memberInput.name}
+            onChange={(e) => setMemberInput((prev) => ({ ...prev, name: e.target.value }))}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMember() } }}
+          />
+          <Input
+            placeholder="Role (e.g. Backend)"
+            value={memberInput.role}
+            onChange={(e) => setMemberInput((prev) => ({ ...prev, role: e.target.value }))}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMember() } }}
+          />
+          <Button type="button" variant="outline" size="icon" onClick={addMember}>
+            <PlusIcon className="h-4 w-4" />
+          </Button>
         </div>
-      )}
+      </div>
     </Field>
   )
 }
