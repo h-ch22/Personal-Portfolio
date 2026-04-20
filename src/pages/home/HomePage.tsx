@@ -1,4 +1,3 @@
-import { ScrollArea } from '#/components/ui/scroll-area'
 import { useHomeViewController } from './HomePage.lib'
 import { GalleryHorizontalEndIcon, NewspaperIcon } from 'lucide-react'
 import { BannerSection } from './components/BannerSection'
@@ -104,8 +103,7 @@ export default function HomePage() {
   } = useHomeViewController()
 
   return (
-    <ScrollArea className="w-full min-h-screen">
-      <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full">
         <BannerSection
           isLoaded={isLoaded}
           showContent={showContent}
@@ -300,7 +298,6 @@ export default function HomePage() {
           onToggle={handleToggleSection}
           onReset={handleResetSections}
         />
-      </div>
-    </ScrollArea>
+    </div>
   )
 }
