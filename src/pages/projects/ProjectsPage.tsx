@@ -175,7 +175,7 @@ const ProjectsPage = () => {
           </div>
         ) : (
           <div className="w-full mt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
               {sortByDate(filteredData).map((project, i) => (
                 <AnimatedItem key={project.id} index={i}>
                   <ProjectCard
@@ -203,7 +203,7 @@ const ProjectsPage = () => {
                 <span>No projects found.</span>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4 mt-4">
                 {sortByDate(normalProjects).map((project, i) => (
                   <AnimatedItem key={project.id} index={i}>
                     <ProjectCard
@@ -225,7 +225,7 @@ const ProjectsPage = () => {
                 <span>No experimental projects found.</span>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4 mt-4">
                 {sortByDate(experimentalProjects).map((project, i) => (
                   <AnimatedItem key={project.id} index={i}>
                     <ProjectCard
