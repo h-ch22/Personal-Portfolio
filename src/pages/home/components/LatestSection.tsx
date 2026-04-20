@@ -28,7 +28,9 @@ export function LatestSection({
 }: LatestSectionProps) {
   return (
     <AnimatedItem>
-      <div className={`flex flex-col gap-4 px-6 py-8 ${muted ? 'bg-muted' : ''}`}>
+      <div
+        className={`flex flex-col gap-4 px-6 py-8 ${muted ? 'bg-muted' : ''}`}
+      >
         <div className="flex flex-row items-end justify-between">
           <div>
             <div className="flex items-center gap-2 text-3xl font-bold text-foreground">
@@ -53,7 +55,7 @@ export function LatestSection({
               </AnimatedItem>
             ))
           ) : (
-            <div className="flex flex-col justify-center items-center w-full col-span-3 text-muted-foreground text-sm">
+            <div className="flex flex-col justify-center items-center w-full col-span-5 text-muted-foreground text-sm">
               <FrownIcon />
               {'There is no content to display :('}
             </div>

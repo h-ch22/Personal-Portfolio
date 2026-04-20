@@ -7,7 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog'
-import { FolderKanbanIcon, Settings2Icon, ImagesIcon, CheckIcon } from 'lucide-react'
+import {
+  FolderKanbanIcon,
+  Settings2Icon,
+  ImagesIcon,
+  CheckIcon,
+} from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { ChevronRightIcon, FrownIcon } from 'lucide-react'
 import type { User } from 'firebase/auth'
@@ -57,7 +62,9 @@ export function FeaturedProjectsSection({
   return (
     <>
       <AnimatedItem>
-        <div className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}>
+        <div
+          className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}
+        >
           <div className="flex flex-row items-end justify-between">
             <div>
               <div className="flex items-center gap-2 text-3xl font-bold text-foreground">
@@ -95,7 +102,7 @@ export function FeaturedProjectsSection({
                 </AnimatedItem>
               ))
             ) : (
-              <div className="flex flex-col justify-center items-center w-full col-span-3 text-muted-foreground text-sm py-8 gap-2">
+              <div className="flex flex-col justify-center items-center w-full col-span-5 text-muted-foreground text-sm py-8 gap-2">
                 <FrownIcon />
                 {user && isAdmin
                   ? 'No featured projects. Click the settings icon to select projects.'
@@ -135,7 +142,8 @@ export function FeaturedProjectsSection({
                   )
                   .map((project) => {
                     const isSelected = featuredSelectedIds.includes(project.id)
-                    const isDisabled = !isSelected && featuredSelectedIds.length >= maxFeatured
+                    const isDisabled =
+                      !isSelected && featuredSelectedIds.length >= maxFeatured
                     const thumbnail = project.images[0]?.url
 
                     return (
@@ -175,7 +183,8 @@ export function FeaturedProjectsSection({
                                 .slice(0, 3)
                                 .map((t) => t.name)
                                 .join(', ')}
-                              {project.techStack.length > 3 && ` +${project.techStack.length - 3}`}
+                              {project.techStack.length > 3 &&
+                                ` +${project.techStack.length - 3}`}
                             </div>
                           )}
                         </div>
@@ -196,7 +205,10 @@ export function FeaturedProjectsSection({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSelectDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowSelectDialog(false)}
+            >
               Cancel
             </Button>
             <Button onClick={onSave} disabled={isSavingFeatured}>
