@@ -13,19 +13,9 @@ import {
   CardTitle,
 } from '#/components/ui/card'
 import { useAuthStore } from '#/stores/use-auth-store'
-import type { News, NewsCategory } from '#/types/news'
-
-const CATEGORY_VARIANT: Record<
-  NewsCategory,
-  'default' | 'secondary' | 'outline'
-> = {
-  Award: 'default',
-  Research: 'secondary',
-  Publication: 'secondary',
-  Activity: 'outline',
-  Press: 'outline',
-  Other: 'outline',
-}
+import type { News } from '#/types/news'
+import { CATEGORY_VARIANT } from '#/types/news'
+import { CATEGORY_ICON } from '#/lib/news'
 
 const NewsCard = ({
   data,
@@ -63,7 +53,8 @@ const NewsCard = ({
           <CardTitle className="text-base line-clamp-2 leading-snug flex-1">
             {data.title}
           </CardTitle>
-          <Badge variant={CATEGORY_VARIANT[data.category]} className="shrink-0">
+          <Badge variant={CATEGORY_VARIANT[data.category]} className="shrink-0 gap-1">
+            {CATEGORY_ICON[data.category]}
             {data.category}
           </Badge>
         </div>

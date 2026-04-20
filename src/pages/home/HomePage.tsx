@@ -11,6 +11,8 @@ import { GalleryPreviewCard } from './components/GalleryPreviewCrad'
 import { FeaturedProjectsSection } from './components/FeaturedProjectsSection'
 import { EducationExperienceSection } from './components/EducationExperienceSection'
 import { SectionSettingsDialog } from './components/SectionSettingsDialog'
+import { NewsDetailDialog } from '#/pages/news/components/NewsDetailDialog'
+import { GalleryDetailDialog } from '#/pages/gallery/components/GalleryDetailDialog'
 import { LayoutDashboardIcon, ShieldIcon } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 import { Link } from '@tanstack/react-router'
@@ -90,6 +92,14 @@ export default function HomePage() {
     showExperienceDetail,
     setShowExperienceDetail,
     handleExperienceCardClick,
+    detailNews,
+    showNewsDetail,
+    setShowNewsDetail,
+    handleNewsCardClick,
+    detailGallery,
+    showGalleryDetail,
+    setShowGalleryDetail,
+    handleGalleryCardClick,
     maxFeatured,
     recentEducation,
     recentExperience,
@@ -249,7 +259,7 @@ export default function HomePage() {
                     viewAllTo="/news"
                     items={news}
                     gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
-                    renderItem={(item) => <NewsPreviewCard data={item} />}
+                    renderItem={(item) => <NewsPreviewCard data={item} onClick={handleNewsCardClick} />}
                   />
                 )
               case 'gallery':
@@ -263,7 +273,7 @@ export default function HomePage() {
                     viewAllTo="/gallery"
                     items={galleries}
                     gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
-                    renderItem={(item) => <GalleryPreviewCard data={item} />}
+                    renderItem={(item) => <GalleryPreviewCard data={item} onClick={handleGalleryCardClick} />}
                   />
                 )
               case 'socialLinks':
@@ -297,6 +307,18 @@ export default function HomePage() {
           onReorder={saveSectionOrder}
           onToggle={handleToggleSection}
           onReset={handleResetSections}
+        />
+
+        <NewsDetailDialog
+          news={detailNews}
+          open={showNewsDetail}
+          onOpenChange={setShowNewsDetail}
+        />
+
+        <GalleryDetailDialog
+          gallery={detailGallery}
+          open={showGalleryDetail}
+          onOpenChange={setShowGalleryDetail}
         />
     </div>
   )

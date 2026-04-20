@@ -19,7 +19,7 @@ import {
 } from '#/components/ui/popover'
 import { cn } from '#/lib/utils'
 import type { NewsCategory } from '#/types/news'
-import { CalendarIcon, FrownIcon, NewspaperIcon, SearchIcon, XIcon } from 'lucide-react'
+import { CalendarIcon, FrownIcon, NewspaperIcon, SearchIcon } from 'lucide-react'
 import { AddNews } from './components/AddNews'
 import { NewsCard } from './components/NewsCard'
 import { NewsDetailDialog } from './components/NewsDetailDialog'

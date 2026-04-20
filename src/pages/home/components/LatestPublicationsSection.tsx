@@ -3,11 +3,16 @@ import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { Button } from '#/components/ui/button'
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
-import { BookOpenIcon, ChevronDownIcon, ChevronRightIcon, FrownIcon } from 'lucide-react'
+import {
+  BookOpenIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  FrownIcon,
+} from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import type { Publication, PublicationType } from '#/types/publication'
 import { PublicationPreviewCard } from './PublicationPreviewCard'
@@ -55,7 +60,9 @@ export function LatestPublicationsSection({
 
   return (
     <AnimatedItem>
-      <div className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}>
+      <div
+        className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}
+      >
         <div className="flex flex-row items-end justify-between">
           <div>
             <div className="flex items-center gap-2 text-3xl font-bold text-foreground">
@@ -83,20 +90,22 @@ export function LatestPublicationsSection({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem
+              <DropdownMenuCheckboxItem
                 onSelect={() => setActiveType('all')}
                 className={activeType === 'all' ? 'font-medium' : ''}
+                checked={activeType === 'all'}
               >
                 All
-              </DropdownMenuItem>
+              </DropdownMenuCheckboxItem>
               {availableTypes.map((type) => (
-                <DropdownMenuItem
+                <DropdownMenuCheckboxItem
                   key={type}
+                  checked={activeType === type}
                   onSelect={() => setActiveType(type)}
                   className={activeType === type ? 'font-medium' : ''}
                 >
                   {type}
-                </DropdownMenuItem>
+                </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -106,7 +115,10 @@ export function LatestPublicationsSection({
           <div className="flex flex-col gap-3 xl:grid xl:grid-cols-2 2xl:grid-cols-3">
             {displayed.map((pub, i) => (
               <AnimatedItem key={pub.id} index={i}>
-                <PublicationPreviewCard data={pub} showType={activeType === 'all'} />
+                <PublicationPreviewCard
+                  data={pub}
+                  showType={activeType === 'all'}
+                />
               </AnimatedItem>
             ))}
           </div>

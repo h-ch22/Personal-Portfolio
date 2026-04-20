@@ -8,15 +8,11 @@ import type { Experience } from '#/types/experience'
 import { ExperienceDetailDialog } from '#/pages/experience/components/ExperienceDetailDialog'
 import { format } from 'date-fns'
 import {
-  ActivityIcon,
   BookOpenCheckIcon,
-  BriefcaseIcon,
   BuildingIcon,
   CalendarIcon,
   ChevronRightIcon,
-  FolderGitIcon,
   FrownIcon,
-  GitBranchIcon,
   GraduationCapIcon,
   PresentationIcon,
   ShieldCheckIcon,
@@ -25,8 +21,10 @@ import {
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { cn } from '#/lib/utils'
-import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS } from '#/types/techstack'
+import { TECH_STACK_GROUP_COLORS } from '#/types/techstack'
 import type { TechStackGroup } from '#/types/techstack'
+import { EXP_TYPE_ICONS } from '#/lib/experience'
+import { groupAndOrderTechStack } from '#/lib/techstack'
 
 const EDU_TYPE_ICON: Record<Education['type'], React.ReactNode> = {
   DEGREE: <GraduationCapIcon className="w-3 h-3" />,
@@ -82,13 +80,6 @@ function EducationCard({ data }: { data: Education }) {
   )
 }
 
-const EXP_TYPE_ICON: Record<Experience['type'], React.ReactNode> = {
-  Work: <BriefcaseIcon className="w-3 h-3" />,
-  Project: <FolderGitIcon className="w-3 h-3" />,
-  Activity: <ActivityIcon className="w-3 h-3" />,
-  'Open Source': <GitBranchIcon className="w-3 h-3" />,
-}
-
 function ExperienceCard({
   data,
   onClick,
@@ -96,6 +87,7 @@ function ExperienceCard({
   data: Experience
   onClick?: (d: Experience) => void
 }) {
+  const TypeIcon = EXP_TYPE_ICONS[data.type]
   const period = `${format(data.startDate, 'MMM yyyy')} – ${
     data.isCurrentlyWorking || !data.endDate
       ? 'Present'
@@ -104,7 +96,7 @@ function ExperienceCard({
 
   return (
     <div
-      className="flex flex-col gap-1 sm:gap-2 rounded-lg border bg-card px-4 py-3 sm:px-5 sm:py-4 cursor-pointer hover:bg-accent/50 transition-colors"
+      className="flex flex-col gap-2 rounded-lg border bg-card px-4 py-3 sm:px-5 sm:py-4 cursor-pointer hover:bg-accent/50 transition-colors"
       onClick={() => onClick?.(data)}
     >
       <div className="flex items-start justify-between gap-2">
@@ -119,7 +111,7 @@ function ExperienceCard({
           <span className="font-medium leading-snug">{data.title}</span>
         </div>
         <Badge variant="secondary" className="shrink-0 gap-1 text-xs">
-          {EXP_TYPE_ICON[data.type]}
+          <TypeIcon className="w-3 h-3" />
           {data.type}
         </Badge>
       </div>
@@ -142,20 +134,7 @@ function ExperienceCard({
       {data.techStack.length > 0 && (
         <>
           {(() => {
-            const grouped = data.techStack.reduce<
-              Record<string, typeof data.techStack>
-            >((acc, tech) => {
-              const g = tech.group ?? 'Other'
-              if (!acc[g]) acc[g] = []
-              acc[g].push(tech)
-              return acc
-            }, {})
-            const orderedGroups = [
-              ...TECH_STACK_GROUPS.filter((g) => grouped[g]),
-              ...Object.keys(grouped).filter(
-                (g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup),
-              ),
-            ]
+            const { grouped, orderedGroups } = groupAndOrderTechStack(data.techStack)
             return (
               <div className="flex flex-col gap-1 mt-1">
                 {orderedGroups.map((g) => (

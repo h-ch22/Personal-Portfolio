@@ -1,14 +1,5 @@
 import { format } from 'date-fns'
-import {
-  ActivityIcon,
-  BriefcaseIcon,
-  BuildingIcon,
-  CalendarIcon,
-  FolderGitIcon,
-  GitBranchIcon,
-  ImageIcon,
-  UserRoundIcon,
-} from 'lucide-react'
+import { BuildingIcon, CalendarIcon, ImageIcon, UserRoundIcon } from 'lucide-react'
 
 import {
   Dialog,
@@ -18,15 +9,10 @@ import {
 } from '#/components/ui/dialog'
 import { Badge } from '#/components/ui/badge'
 import { ScrollArea } from '#/components/ui/scroll-area'
-import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
+import { TECH_STACK_GROUP_COLORS, type TechStackGroup } from '#/types/techstack'
 import type { Experience } from '#/types/experience'
-
-const TYPE_ICON = {
-  Work: <BriefcaseIcon className="w-4 h-4" />,
-  Project: <FolderGitIcon className="w-4 h-4" />,
-  Activity: <ActivityIcon className="w-4 h-4" />,
-  'Open Source': <GitBranchIcon className="w-4 h-4" />,
-}
+import { EXP_TYPE_ICONS } from '#/lib/experience'
+import { groupAndOrderTechStack } from '#/lib/techstack'
 
 const ExperienceDetailDialog = ({
   experience,
@@ -37,6 +23,7 @@ const ExperienceDetailDialog = ({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) => {
+  const TypeIcon = experience ? EXP_TYPE_ICONS[experience.type] : null
   const periodLabel = experience
     ? `${format(experience.startDate, 'MMM yyyy')} – ${
         experience.isCurrentlyWorking || !experience.endDate
@@ -72,7 +59,7 @@ const ExperienceDetailDialog = ({
                       {experience.title}
                     </DialogTitle>
                     <Badge className="shrink-0 flex items-center gap-1.5">
-                      {TYPE_ICON[experience.type]}
+                      {TypeIcon && <TypeIcon className="w-4 h-4" />}
                       {experience.type}
                     </Badge>
                   </div>
@@ -94,16 +81,7 @@ const ExperienceDetailDialog = ({
                 </div>
 
                 {experience.techStack.length > 0 && (() => {
-                  const grouped = experience.techStack.reduce<Record<string, typeof experience.techStack>>((acc, tech) => {
-                    const g = tech.group ?? 'Other'
-                    if (!acc[g]) acc[g] = []
-                    acc[g].push(tech)
-                    return acc
-                  }, {})
-                  const orderedGroups = [
-                    ...TECH_STACK_GROUPS.filter((g) => grouped[g]),
-                    ...Object.keys(grouped).filter((g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup)),
-                  ]
+                  const { grouped, orderedGroups } = groupAndOrderTechStack(experience.techStack)
                   return (
                     <div className="flex flex-col gap-3">
                       <span className="text-sm font-semibold">Tech Stack</span>

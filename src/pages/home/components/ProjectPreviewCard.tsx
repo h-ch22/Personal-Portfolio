@@ -9,9 +9,9 @@ import { Badge } from '#/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
 import {
   TECH_STACK_GROUP_COLORS,
-  TECH_STACK_GROUPS,
   type TechStackGroup,
 } from '#/types/techstack'
+import { groupAndOrderTechStack } from '#/lib/techstack'
 import type { Project } from '#/types/project'
 
 const ProjectPreviewCard = ({
@@ -96,20 +96,7 @@ const ProjectPreviewCard = ({
         {data.techStack.length > 0 && (
           <>
             {(() => {
-              const grouped = data.techStack.reduce<
-                Record<string, typeof data.techStack>
-              >((acc, tech) => {
-                const g = tech.group ?? 'Other'
-                if (!acc[g]) acc[g] = []
-                acc[g].push(tech)
-                return acc
-              }, {})
-              const orderedGroups = [
-                ...TECH_STACK_GROUPS.filter((g) => grouped[g]),
-                ...Object.keys(grouped).filter(
-                  (g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup),
-                ),
-              ]
+              const { grouped, orderedGroups } = groupAndOrderTechStack(data.techStack)
               return (
                 <div className="flex flex-col gap-1">
                   {orderedGroups.map((g) => (

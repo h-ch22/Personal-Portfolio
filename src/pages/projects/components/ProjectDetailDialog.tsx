@@ -22,7 +22,8 @@ import {
 } from '#/components/ui/dialog'
 import { Badge } from '#/components/ui/badge'
 import { ScrollArea } from '#/components/ui/scroll-area'
-import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
+import { TECH_STACK_GROUP_COLORS, type TechStackGroup } from '#/types/techstack'
+import { groupAndOrderTechStack } from '#/lib/techstack'
 import type { Project } from '#/types/project'
 
 const ProjectDetailDialog = ({
@@ -162,13 +163,7 @@ const ProjectDetailDialog = ({
             )}
 
             {project.techStack.length > 0 && (() => {
-              const grouped = project.techStack.reduce<Record<string, typeof project.techStack>>((acc, tech) => {
-                const g = tech.group ?? 'Other'
-                if (!acc[g]) acc[g] = []
-                acc[g].push(tech)
-                return acc
-              }, {})
-              const orderedGroups = [...TECH_STACK_GROUPS.filter((g) => grouped[g]), ...Object.keys(grouped).filter((g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup))]
+              const { grouped, orderedGroups } = groupAndOrderTechStack(project.techStack)
               return (
                 <div className="flex flex-col gap-3">
                   <span className="text-sm font-semibold">Tech Stack</span>

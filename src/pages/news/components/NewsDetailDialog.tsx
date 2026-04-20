@@ -15,19 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog'
-import type { News, NewsCategory } from '#/types/news'
-
-const CATEGORY_VARIANT: Record<
-  NewsCategory,
-  'default' | 'secondary' | 'outline'
-> = {
-  Award: 'default',
-  Research: 'secondary',
-  Publication: 'secondary',
-  Activity: 'outline',
-  Press: 'outline',
-  Other: 'outline',
-}
+import type { News } from '#/types/news'
+import { CATEGORY_VARIANT } from '#/types/news'
+import { CATEGORY_ICON } from '#/lib/news'
 
 const NewsDetailDialog = ({
   news,
@@ -45,7 +35,8 @@ const NewsDetailDialog = ({
       <DialogContent className="max-w-2xl w-full">
         <DialogHeader>
           <div className="flex flex-row items-center gap-2 flex-wrap">
-            <Badge variant={CATEGORY_VARIANT[news.category]}>
+            <Badge variant={CATEGORY_VARIANT[news.category]} className="gap-1">
+              {CATEGORY_ICON[news.category]}
               {news.category}
             </Badge>
           </div>

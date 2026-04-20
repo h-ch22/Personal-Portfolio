@@ -3,10 +3,13 @@ import type { Gallery } from '#/types/gallery'
 import { format } from 'date-fns'
 import { ImagesIcon, CalendarIcon } from 'lucide-react'
 
-export const GalleryPreviewCard = ({ data }: { data: Gallery }) => {
+export const GalleryPreviewCard = ({ data, onClick }: { data: Gallery; onClick?: (data: Gallery) => void }) => {
   const thumbnail = data.images[0]?.url
   return (
-    <Card className="overflow-hidden gap-0">
+    <Card
+      className={`overflow-hidden gap-0${onClick ? ' cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      onClick={() => onClick?.(data)}
+    >
       <div className="w-full h-44 bg-muted overflow-hidden">
         {thumbnail ? (
           <img

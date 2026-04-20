@@ -23,6 +23,7 @@ import {
   type TechStackGroup,
 } from '#/types/techstack'
 import type { TechStackItem } from '#/types/experience'
+import { groupAndOrderTechStack } from '#/lib/techstack'
 
 const EMPTY_INPUT = { name: '', iconUrl: '', group: 'Other' as TechStackGroup }
 
@@ -302,21 +303,10 @@ export function TechStackInput({ value, onChange }: TechStackInputProps) {
       {value.length > 0 &&
         (() => {
           const indexed = value.map((tech, index) => ({ tech, index }))
-          const grouped = indexed.reduce<Record<string, typeof indexed>>(
-            (acc, item) => {
-              const g = item.tech.group ?? 'Other'
-              if (!acc[g]) acc[g] = []
-              acc[g].push(item)
-              return acc
-            },
-            {},
+          const { grouped, orderedGroups } = groupAndOrderTechStack(
+            indexed,
+            (item) => item.tech.group ?? 'Other',
           )
-          const orderedGroups = [
-            ...TECH_STACK_GROUPS.filter((g) => grouped[g]),
-            ...Object.keys(grouped).filter(
-              (g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup),
-            ),
-          ]
           return (
             <div className="flex flex-col gap-2">
               {orderedGroups.map((g) => (

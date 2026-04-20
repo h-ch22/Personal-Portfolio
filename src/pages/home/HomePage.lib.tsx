@@ -106,6 +106,10 @@ const useHomeViewController = () => {
   const [showProjectDetail, setShowProjectDetail] = useState(false)
   const [detailExperience, setDetailExperience] = useState<import('#/types/experience').Experience | null>(null)
   const [showExperienceDetail, setShowExperienceDetail] = useState(false)
+  const [detailNews, setDetailNews] = useState<import('#/types/news').News | null>(null)
+  const [showNewsDetail, setShowNewsDetail] = useState(false)
+  const [detailGallery, setDetailGallery] = useState<import('#/types/gallery').Gallery | null>(null)
+  const [showGalleryDetail, setShowGalleryDetail] = useState(false)
 
   const { data: bannerImage, isSuccess } = useQuery({
     queryKey: ['bannerImage'],
@@ -450,6 +454,16 @@ const useHomeViewController = () => {
     setShowExperienceDetail(true)
   }
 
+  const handleNewsCardClick = (newsItem: import('#/types/news').News) => {
+    setDetailNews(newsItem)
+    setShowNewsDetail(true)
+  }
+
+  const handleGalleryCardClick = (gallery: import('#/types/gallery').Gallery) => {
+    setDetailGallery(gallery)
+    setShowGalleryDetail(true)
+  }
+
   const handleBannerEditStart = () => {
     setBannerTextInput(bannerText)
     setIsEditingBanner(true)
@@ -585,6 +599,14 @@ const useHomeViewController = () => {
     showExperienceDetail,
     setShowExperienceDetail,
     handleExperienceCardClick,
+    detailNews,
+    showNewsDetail,
+    setShowNewsDetail,
+    handleNewsCardClick,
+    detailGallery,
+    showGalleryDetail,
+    setShowGalleryDetail,
+    handleGalleryCardClick,
     maxFeatured: MAX_FEATURED,
     recentEducation,
     recentExperience,

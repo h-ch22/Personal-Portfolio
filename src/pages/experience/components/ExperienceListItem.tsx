@@ -1,15 +1,5 @@
 import { format } from 'date-fns'
-import {
-  ActivityIcon,
-  BriefcaseIcon,
-  BuildingIcon,
-  CalendarIcon,
-  EditIcon,
-  FolderGitIcon,
-  GitBranchIcon,
-  TrashIcon,
-  UserRoundIcon,
-} from 'lucide-react'
+import { BuildingIcon, CalendarIcon, EditIcon, TrashIcon, UserRoundIcon } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -25,14 +15,9 @@ import {
 } from '#/components/ui/card'
 import { useAuthStore } from '#/stores/use-auth-store'
 import type { Experience } from '#/types/experience'
-import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
-
-const TYPE_ICON = {
-  Work: <BriefcaseIcon />,
-  Project: <FolderGitIcon />,
-  Activity: <ActivityIcon />,
-  'Open Source': <GitBranchIcon />,
-}
+import { TECH_STACK_GROUP_COLORS, type TechStackGroup } from '#/types/techstack'
+import { EXP_TYPE_ICONS } from '#/lib/experience'
+import { groupAndOrderTechStack } from '#/lib/techstack'
 
 const ExperienceListItem = ({
   data,
@@ -47,6 +32,7 @@ const ExperienceListItem = ({
 }) => {
   const user = useAuthStore((state) => state.user)
   const isAdmin = useAuthStore((state) => state.isAdmin)
+  const TypeIcon = EXP_TYPE_ICONS[data.type]
 
   const periodLabel = `${format(data.startDate, 'MMM yyyy')} – ${
     data.isCurrentlyWorking || !data.endDate
@@ -73,7 +59,7 @@ const ExperienceListItem = ({
               <span className="text-xl">{data.title}</span>
             </div>
             <Badge>
-              {TYPE_ICON[data.type]}
+              <TypeIcon />
               {data.type}
             </Badge>
           </div>
@@ -102,13 +88,7 @@ const ExperienceListItem = ({
             </div>
 
             {data.techStack.length > 0 && (() => {
-              const grouped = data.techStack.reduce<Record<string, typeof data.techStack>>((acc, tech) => {
-                const g = tech.group ?? 'Other'
-                if (!acc[g]) acc[g] = []
-                acc[g].push(tech)
-                return acc
-              }, {})
-              const orderedGroups = [...TECH_STACK_GROUPS.filter((g) => grouped[g]), ...Object.keys(grouped).filter((g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup))]
+              const { grouped, orderedGroups } = groupAndOrderTechStack(data.techStack)
               return (
                 <div className="flex flex-col gap-2 mt-1">
                   {orderedGroups.map((g) => (

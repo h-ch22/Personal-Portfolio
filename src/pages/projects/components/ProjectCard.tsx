@@ -20,7 +20,8 @@ import {
   CardTitle,
 } from '#/components/ui/card'
 import { useAuthStore } from '#/stores/use-auth-store'
-import { TECH_STACK_GROUP_COLORS, TECH_STACK_GROUPS, type TechStackGroup } from '#/types/techstack'
+import { TECH_STACK_GROUP_COLORS, type TechStackGroup } from '#/types/techstack'
+import { groupAndOrderTechStack } from '#/lib/techstack'
 import type { Project } from '#/types/project'
 
 const ProjectCard = ({
@@ -103,16 +104,7 @@ const ProjectCard = ({
         </div>
 
         {data.techStack.length > 0 && (() => {
-          const grouped = data.techStack.reduce<Record<string, typeof data.techStack>>((acc, tech) => {
-            const g = tech.group ?? 'Other'
-            if (!acc[g]) acc[g] = []
-            acc[g].push(tech)
-            return acc
-          }, {})
-          const orderedGroups = [
-            ...TECH_STACK_GROUPS.filter((g) => grouped[g]),
-            ...Object.keys(grouped).filter((g) => !TECH_STACK_GROUPS.includes(g as TechStackGroup)),
-          ]
+          const { grouped, orderedGroups } = groupAndOrderTechStack(data.techStack)
           return (
             <div className="flex flex-col gap-1.5">
               {orderedGroups.map((g) => (
