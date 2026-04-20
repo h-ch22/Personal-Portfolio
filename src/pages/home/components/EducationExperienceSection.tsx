@@ -141,30 +141,6 @@ function ExperienceCard({
       </div>
       {data.techStack.length > 0 && (
         <>
-          <div className="flex flex-wrap gap-1 mt-1 sm:hidden">
-            {data.techStack.slice(0, 4).map((t, i) => (
-              <Badge
-                key={i}
-                variant="outline"
-                className="text-xs px-1.5 py-0 h-auto gap-1"
-              >
-                {t.iconUrl && (
-                  <img
-                    src={t.iconUrl}
-                    alt={t.name}
-                    className="w-3 h-3 object-contain"
-                  />
-                )}
-                {t.name}
-              </Badge>
-            ))}
-            {data.techStack.length > 4 && (
-              <Badge variant="outline" className="text-xs px-1.5 py-0 h-auto">
-                +{data.techStack.length - 4}
-              </Badge>
-            )}
-          </div>
-
           {(() => {
             const grouped = data.techStack.reduce<
               Record<string, typeof data.techStack>
@@ -181,7 +157,7 @@ function ExperienceCard({
               ),
             ]
             return (
-              <div className="hidden sm:flex flex-col gap-1 mt-1">
+              <div className="flex flex-col gap-1 mt-1">
                 {orderedGroups.map((g) => (
                   <div key={g} className="flex flex-wrap items-center gap-1">
                     <span className="text-xs font-medium text-muted-foreground w-14 shrink-0">

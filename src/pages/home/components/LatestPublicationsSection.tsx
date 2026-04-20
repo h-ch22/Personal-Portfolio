@@ -1,8 +1,13 @@
 import { useState } from 'react'
 import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { Button } from '#/components/ui/button'
-import { ToggleGroup, ToggleGroupItem } from '#/components/ui/toggle-group'
-import { BookOpenIcon, ChevronRightIcon, FrownIcon } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '#/components/ui/dropdown-menu'
+import { BookOpenIcon, ChevronDownIcon, ChevronRightIcon, FrownIcon } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import type { Publication, PublicationType } from '#/types/publication'
 import { PublicationPreviewCard } from './PublicationPreviewCard'
@@ -70,29 +75,31 @@ export function LatestPublicationsSection({
         </div>
 
         {availableTypes.length > 0 && (
-          <div className="w-full overflow-x-auto scrollbar-none">
-            <ToggleGroup
-              type="single"
-              className="flex-nowrap justify-start"
-              value={activeType}
-              onValueChange={(v) =>
-                setActiveType((v || 'all') as PublicationType | 'all')
-              }
-            >
-              <ToggleGroupItem className="rounded-full shrink-0" value="all">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-fit gap-2">
+                {activeType === 'all' ? 'All' : activeType}
+                <ChevronDownIcon className="w-4 h-4 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem
+                onSelect={() => setActiveType('all')}
+                className={activeType === 'all' ? 'font-medium' : ''}
+              >
                 All
-              </ToggleGroupItem>
+              </DropdownMenuItem>
               {availableTypes.map((type) => (
-                <ToggleGroupItem
+                <DropdownMenuItem
                   key={type}
-                  className="rounded-full shrink-0"
-                  value={type}
+                  onSelect={() => setActiveType(type)}
+                  className={activeType === type ? 'font-medium' : ''}
                 >
                   {type}
-                </ToggleGroupItem>
+                </DropdownMenuItem>
               ))}
-            </ToggleGroup>
-          </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
 
         {displayed.length > 0 ? (

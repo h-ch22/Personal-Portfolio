@@ -95,39 +95,6 @@ const ProjectPreviewCard = ({
 
         {data.techStack.length > 0 && (
           <>
-            <div className="flex flex-wrap gap-1 sm:hidden">
-              {data.techStack.slice(0, 5).map((tech, i) => {
-                const groupColor =
-                  TECH_STACK_GROUP_COLORS[
-                    (tech.group ?? 'Other') as TechStackGroup
-                  ] ?? TECH_STACK_GROUP_COLORS.Other
-                return (
-                  <Badge
-                    key={i}
-                    variant="outline"
-                    className={`flex items-center gap-1 px-1.5 py-0.5 h-auto text-xs border-0 ${groupColor}`}
-                  >
-                    {tech.iconUrl && (
-                      <img
-                        src={tech.iconUrl}
-                        alt={tech.name}
-                        className="w-3 h-3 object-contain"
-                      />
-                    )}
-                    {tech.name}
-                  </Badge>
-                )
-              })}
-              {data.techStack.length > 5 && (
-                <Badge
-                  variant="outline"
-                  className="text-xs px-1.5 py-0.5 h-auto"
-                >
-                  +{data.techStack.length - 5}
-                </Badge>
-              )}
-            </div>
-
             {(() => {
               const grouped = data.techStack.reduce<
                 Record<string, typeof data.techStack>
@@ -144,7 +111,7 @@ const ProjectPreviewCard = ({
                 ),
               ]
               return (
-                <div className="hidden sm:flex flex-col gap-1">
+                <div className="flex flex-col gap-1">
                   {orderedGroups.map((g) => (
                     <div key={g} className="flex flex-wrap items-center gap-1">
                       <span className="text-xs font-medium text-muted-foreground w-14 shrink-0">

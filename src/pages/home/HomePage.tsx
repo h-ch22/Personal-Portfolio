@@ -1,17 +1,12 @@
 import { ScrollArea } from '#/components/ui/scroll-area'
 import { useHomeViewController } from './HomePage.lib'
-import {
-  BookOpenIcon,
-  GalleryHorizontalEndIcon,
-  NewspaperIcon,
-} from 'lucide-react'
+import { GalleryHorizontalEndIcon, NewspaperIcon } from 'lucide-react'
 import { BannerSection } from './components/BannerSection'
 import { ProfileSection } from './components/ProfileSection'
 import { TechStackSection } from './components/TechStackSection'
 import { SocialLinksSection } from './components/SocialLinksSection'
 import { LatestSection } from './components/LatestSection'
 import { LatestPublicationsSection } from './components/LatestPublicationsSection'
-import { PublicationPreviewCard } from './components/PublicationPreviewCard'
 import { NewsPreviewCard } from './components/NewsPreviewCard'
 import { GalleryPreviewCard } from './components/GalleryPreviewCrad'
 import { FeaturedProjectsSection } from './components/FeaturedProjectsSection'
@@ -110,7 +105,7 @@ export default function HomePage() {
 
   return (
     <ScrollArea className="w-full min-h-screen">
-      <div className="flex flex-col gap-4 overflow-hidden">
+      <div className="flex flex-col gap-4">
         <BannerSection
           isLoaded={isLoaded}
           showContent={showContent}
