@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { format } from 'date-fns'
-import { CalendarIcon, ImagePlusIcon, PlusIcon, XIcon } from 'lucide-react'
+import { CalendarIcon, CheckIcon, GripVerticalIcon, ImagePlusIcon, PencilIcon, PlusIcon, XIcon } from 'lucide-react'
 
 import { LogoUploadField } from '#/components/common/LogoUploadField'
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
@@ -19,6 +19,178 @@ import { cn } from '#/lib/utils'
 import type { GalleryImage } from '#/types/gallery'
 import type { ProjectMember } from '#/types/project'
 import type { ProjectFormInstance } from '../hooks/useProjectsPage'
+
+function MemberRow({
+  member,
+  isDragOver,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+  onRemove,
+  onEdit,
+}: {
+  member: ProjectMember
+  isDragOver: boolean
+  onDragStart: () => void
+  onDragOver: (e: React.DragEvent) => void
+  onDrop: (e: React.DragEvent) => void
+  onDragEnd: () => void
+  onRemove: () => void
+  onEdit: (updated: ProjectMember) => void
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValues, setEditValues] = useState({ name: member.name, role: member.role })
+
+  const confirmEdit = () => {
+    if (!editValues.name.trim() || !editValues.role.trim()) return
+    onEdit({ name: editValues.name.trim(), role: editValues.role.trim() })
+    setIsEditing(false)
+  }
+
+  return (
+    <div
+      draggable={!isEditing}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move'
+        onDragStart()
+      }}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+      className={cn(
+        'flex items-center gap-2 rounded-md transition-colors',
+        isDragOver && 'outline-2 outline-primary outline-offset-1',
+      )}
+    >
+      <span className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none py-1">
+        <GripVerticalIcon className="w-4 h-4" />
+      </span>
+      {isEditing ? (
+        <>
+          <Input
+            autoFocus
+            value={editValues.name}
+            onChange={(e) => setEditValues((prev) => ({ ...prev, name: e.target.value }))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') { e.preventDefault(); confirmEdit() }
+              if (e.key === 'Escape') { setIsEditing(false) }
+            }}
+            className="flex-1"
+          />
+          <Input
+            value={editValues.role}
+            onChange={(e) => setEditValues((prev) => ({ ...prev, role: e.target.value }))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') { e.preventDefault(); confirmEdit() }
+              if (e.key === 'Escape') { setIsEditing(false) }
+            }}
+            className="flex-1"
+          />
+          <Button type="button" variant="outline" size="icon-sm" onClick={confirmEdit}>
+            <CheckIcon className="h-3.5 w-3.5" />
+          </Button>
+        </>
+      ) : (
+        <>
+          <div className="flex-1 flex items-center gap-2 border rounded-md px-3 py-1.5 bg-muted text-sm">
+            <span className="font-medium">{member.name}</span>
+            <span className="text-muted-foreground text-xs">{member.role}</span>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            onClick={() => {
+              setEditValues({ name: member.name, role: member.role })
+              setIsEditing(true)
+            }}
+          >
+            <PencilIcon className="h-3.5 w-3.5" />
+          </Button>
+          <Button type="button" variant="outline" size="icon-sm" onClick={onRemove}>
+            <XIcon className="h-3.5 w-3.5" />
+          </Button>
+        </>
+      )}
+    </div>
+  )
+}
+
+function MembersField({
+  value,
+  onChange,
+}: {
+  value: ProjectMember[]
+  onChange: (members: ProjectMember[]) => void
+}) {
+  const [memberInput, setMemberInput] = useState({ name: '', role: '' })
+  const [dragFromIndex, setDragFromIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+
+  const addMember = () => {
+    if (!memberInput.name.trim() || !memberInput.role.trim()) return
+    onChange([...value, { name: memberInput.name.trim(), role: memberInput.role.trim() }])
+    setMemberInput({ name: '', role: '' })
+  }
+
+  const commitReorder = () => {
+    if (dragFromIndex === null || dragOverIndex === null || dragFromIndex === dragOverIndex) return
+    const next = [...value]
+    const [removed] = next.splice(dragFromIndex, 1)
+    next.splice(dragOverIndex, 0, removed)
+    onChange(next)
+  }
+
+  const clearDrag = () => {
+    setDragFromIndex(null)
+    setDragOverIndex(null)
+  }
+
+  return (
+    <Field>
+      <FieldLabel>People</FieldLabel>
+      <div className="flex gap-2">
+        <Input
+          placeholder="Name"
+          value={memberInput.name}
+          onChange={(e) => setMemberInput((prev) => ({ ...prev, name: e.target.value }))}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMember() } }}
+        />
+        <Input
+          placeholder="Role (e.g. Backend)"
+          value={memberInput.role}
+          onChange={(e) => setMemberInput((prev) => ({ ...prev, role: e.target.value }))}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMember() } }}
+        />
+        <Button type="button" variant="outline" size="icon" onClick={addMember}>
+          <PlusIcon className="h-4 w-4" />
+        </Button>
+      </div>
+      {value.length > 0 && (
+        <div className="flex flex-col gap-1.5 mt-2">
+          {value.map((member, index) => (
+            <MemberRow
+              key={index}
+              member={member}
+              isDragOver={dragOverIndex === index && dragFromIndex !== index}
+              onDragStart={() => setDragFromIndex(index)}
+              onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index) }}
+              onDrop={(e) => { e.preventDefault(); commitReorder(); clearDrag() }}
+              onDragEnd={clearDrag}
+              onRemove={() => onChange(value.filter((_, i) => i !== index))}
+              onEdit={(updated) => {
+                const next = [...value]
+                next[index] = updated
+                onChange(next)
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </Field>
+  )
+}
 
 const AddProject = ({
   form,
@@ -52,25 +224,12 @@ const AddProject = ({
   setExistingLogoUrl: (url: string | undefined) => void
 }) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false)
-  const [memberInput, setMemberInput] = useState({ name: '', role: '' })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     setPendingFiles((prev) => [...prev, ...files])
     if (fileInputRef.current) fileInputRef.current.value = ''
-  }
-
-  const addMember = (
-    members: ProjectMember[],
-    handleChange: (v: ProjectMember[]) => void,
-  ) => {
-    if (!memberInput.name.trim() || !memberInput.role.trim()) return
-    handleChange([
-      ...members,
-      { name: memberInput.name.trim(), role: memberInput.role.trim() },
-    ])
-    setMemberInput({ name: '', role: '' })
   }
 
   const pendingPreviews = pendingFiles.map((f) => URL.createObjectURL(f))
@@ -240,82 +399,10 @@ const AddProject = ({
 
           <form.Field name="members">
             {(field) => (
-              <Field>
-                <FieldLabel>People</FieldLabel>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Name"
-                    value={memberInput.name}
-                    onChange={(e) =>
-                      setMemberInput((prev) => ({
-                        ...prev,
-                        name: e.target.value,
-                      }))
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        addMember(field.state.value, field.handleChange)
-                      }
-                    }}
-                  />
-                  <Input
-                    placeholder="Role (e.g. Backend)"
-                    value={memberInput.role}
-                    onChange={(e) =>
-                      setMemberInput((prev) => ({
-                        ...prev,
-                        role: e.target.value,
-                      }))
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        addMember(field.state.value, field.handleChange)
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() =>
-                      addMember(field.state.value, field.handleChange)
-                    }
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {field.state.value.length > 0 && (
-                  <div className="flex flex-col gap-1.5 mt-2">
-                    {field.state.value.map((member, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between rounded-md border px-3 py-1.5 text-sm"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{member.name}</span>
-                          <span className="text-muted-foreground text-xs">
-                            {member.role}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-destructive transition-colors"
-                          onClick={() =>
-                            field.handleChange(
-                              field.state.value.filter((_, i) => i !== index),
-                            )
-                          }
-                        >
-                          <XIcon className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Field>
+              <MembersField
+                value={field.state.value}
+                onChange={field.handleChange}
+              />
             )}
           </form.Field>
 
