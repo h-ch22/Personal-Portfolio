@@ -1,11 +1,18 @@
 import { Badge } from '#/components/ui/badge'
+import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
 import { CONFIG } from '#/config'
 import type { Publication } from '#/types/publication'
 import { format } from 'date-fns'
-import { CalendarIcon, UsersIcon } from 'lucide-react'
+import { CalendarIcon, ExternalLinkIcon, UsersIcon } from 'lucide-react'
 
-const PublicationPreviewCard = ({ data }: { data: Publication }) => {
+const PublicationPreviewCard = ({
+  data,
+  showType = true,
+}: {
+  data: Publication
+  showType?: boolean
+}) => {
   return (
     <Card className="gap-2">
       <CardHeader className="pb-1">
@@ -13,7 +20,7 @@ const PublicationPreviewCard = ({ data }: { data: Publication }) => {
           {data.title}
         </CardTitle>
         <div className="flex flex-row items-center gap-1 flex-wrap">
-          <Badge variant="outline">{data.type}</Badge>
+          {showType && <Badge variant="outline">{data.type}</Badge>}
           <Badge>{data.journal}</Badge>
         </div>
       </CardHeader>
@@ -31,9 +38,19 @@ const PublicationPreviewCard = ({ data }: { data: Publication }) => {
             </span>
           ))}
         </div>
-        <div className="flex flex-row items-center gap-1 text-xs text-muted-foreground">
-          <CalendarIcon className="w-3.5 h-3.5" />
-          <span>{format(new Date(data.publicationYear, data.publicationMonth - 1, 1), 'MMM yyyy')}</span>
+        <div className="flex flex-row items-center justify-between gap-1">
+          <div className="flex flex-row items-center gap-1 text-xs text-muted-foreground">
+            <CalendarIcon className="w-3.5 h-3.5" />
+            <span>{format(new Date(data.publicationYear, data.publicationMonth - 1, 1), 'MMM yyyy')}</span>
+          </div>
+          {data.link && (
+            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1" asChild>
+              <a href={data.link} target="_blank" rel="noopener noreferrer">
+                <ExternalLinkIcon className="w-3 h-3" />
+                Link
+              </a>
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

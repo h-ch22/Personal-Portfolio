@@ -187,25 +187,29 @@ const useHomeViewController = () => {
     queryKey: ['education'],
     queryFn: fetchEducation,
     staleTime: 1000 * 60 * 10,
-    select: (data) =>
-      [...data]
-        .sort(
-          (a, b) => b.startYear - a.startYear || b.startMonth - a.startMonth,
-        )
-        .slice(0, 5),
+    select: (data) => {
+      const current = data.filter((e) => e.inProgress)
+      const past = data
+        .filter((e) => !e.inProgress)
+        .sort((a, b) => b.endYear - a.endYear || b.endMonth - a.endMonth)
+      return [...current, ...past].slice(0, 5)
+    },
   })
 
   const { data: recentExperience = [] } = useQuery({
     queryKey: ['experience'],
     queryFn: fetchExperience,
     staleTime: 1000 * 60 * 10,
-    select: (data) =>
-      [...data]
+    select: (data) => {
+      const current = data.filter((e) => e.isCurrentlyWorking || !e.endDate)
+      const past = data
+        .filter((e) => !e.isCurrentlyWorking && e.endDate)
         .sort(
           (a, b) =>
-            new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+            new Date(b.endDate!).getTime() - new Date(a.endDate!).getTime(),
         )
-        .slice(0, 5),
+      return [...current, ...past].slice(0, 5)
+    },
   })
 
   const { data: sectionVisibility = { ...DEFAULT_SECTION_VISIBILITY } } =

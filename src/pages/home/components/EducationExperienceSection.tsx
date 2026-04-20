@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -23,6 +24,7 @@ import {
   UserRoundIcon,
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+import { cn } from '#/lib/utils'
 
 const EDU_TYPE_ICON: Record<Education['type'], React.ReactNode> = {
   DEGREE: <GraduationCapIcon className="w-3 h-3" />,
@@ -46,7 +48,11 @@ function EducationCard({ data }: { data: Education }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           {data.logoUrl && (
-            <img src={data.logoUrl} alt={data.title} className="w-6 h-6 rounded-sm object-contain shrink-0 bg-muted p-0.5" />
+            <img
+              src={data.logoUrl}
+              alt={data.title}
+              className="w-6 h-6 rounded-sm object-contain shrink-0 bg-muted p-0.5"
+            />
           )}
           <span className="font-medium leading-snug">{data.title}</span>
         </div>
@@ -81,7 +87,13 @@ const EXP_TYPE_ICON: Record<Experience['type'], React.ReactNode> = {
   'Open Source': <GitBranchIcon className="w-3 h-3" />,
 }
 
-function ExperienceCard({ data, onClick }: { data: Experience; onClick?: (d: Experience) => void }) {
+function ExperienceCard({
+  data,
+  onClick,
+}: {
+  data: Experience
+  onClick?: (d: Experience) => void
+}) {
   const period = `${format(data.startDate, 'MMM yyyy')} – ${
     data.isCurrentlyWorking || !data.endDate
       ? 'Present'
@@ -192,30 +204,42 @@ function GroupedList<
     .map(Number)
     .sort((a, b) => b - a)
 
+  const sections = [
+    ...(currentItems.length > 0
+      ? [{ label: 'Current', isCurrent: true, items: currentItems }]
+      : []),
+    ...sortedYears.map((year) => ({
+      label: String(year),
+      isCurrent: false,
+      items: grouped[year],
+    })),
+  ]
+
   return (
-    <div className="flex flex-col gap-6">
-      {currentItems.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Current
+    <div className="flex flex-col gap-5">
+      {sections.map(({ label, isCurrent, items: sectionItems }) => (
+        <div key={label}>
+          <div className="flex items-center gap-2 mb-3">
+            <div
+              className={cn(
+                'w-2.5 h-2.5 rounded-full shrink-0',
+                isCurrent
+                  ? 'bg-primary'
+                  : 'bg-background border-2 border-muted-foreground/40',
+              )}
+            />
+            <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+              {label}
+            </span>
+            <div className="flex-1 h-px bg-border" />
           </div>
-          {currentItems.map((item, i) => (
-            <AnimatedItem key={item.id} index={i}>
-              {renderCard(item)}
-            </AnimatedItem>
-          ))}
-        </div>
-      )}
-      {sortedYears.map((year) => (
-        <div key={year} className="flex flex-col gap-2">
-          <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            {year}
+          <div className="ml-1 border-l border-border pl-5 flex flex-col gap-2">
+            {sectionItems.map((item, i) => (
+              <AnimatedItem key={item.id} index={i}>
+                {renderCard(item)}
+              </AnimatedItem>
+            ))}
           </div>
-          {grouped[year].map((item, i) => (
-            <AnimatedItem key={item.id} index={i}>
-              {renderCard(item)}
-            </AnimatedItem>
-          ))}
         </div>
       ))}
     </div>
@@ -241,62 +265,64 @@ export function EducationExperienceSection({
   onExperienceCardClick,
   muted = false,
 }: EducationExperienceSectionProps) {
+  const [activeTab, setActiveTab] = useState<'experience' | 'education'>('experience')
+
   return (
     <>
-    <AnimatedItem>
-      <div
-        className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}
-      >
-        <div className="flex items-center gap-2 text-3xl font-bold text-foreground">
-          <BookOpenCheckIcon className="w-7 h-7" />
-          Education & Experience
+      <AnimatedItem>
+        <div
+          className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}
+        >
+          <div className="flex flex-row items-end justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-3xl font-bold text-foreground">
+                <BookOpenCheckIcon className="w-7 h-7" />
+                Experience & Education
+              </div>
+              <p className="text-muted-foreground mt-1">
+                Academic background and hands-on experience
+              </p>
+            </div>
+            <Button variant="ghost" asChild>
+              <Link to={activeTab === 'experience' ? '/experience' : '/education'}>
+                View All
+                <ChevronRightIcon className="w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+            <TabsList className="mb-2">
+              <TabsTrigger value="experience">Experience</TabsTrigger>
+              <TabsTrigger value="education">Education</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="experience">
+              <GroupedList
+                items={recentExperience}
+                groupKey={(e) => (e.endDate ?? e.startDate).getFullYear()}
+                renderCard={(e) => (
+                  <ExperienceCard data={e} onClick={onExperienceCardClick} />
+                )}
+              />
+            </TabsContent>
+
+            <TabsContent value="education">
+              <GroupedList
+                items={recentEducation}
+                groupKey={(e) => e.endYear ?? e.startYear}
+                renderCard={(e) => <EducationCard data={e} />}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-        <p className="text-muted-foreground -mt-2">
-          Academic background and hands-on experience
-        </p>
+      </AnimatedItem>
 
-        <Tabs defaultValue="experience">
-          <TabsList className="mb-2">
-            <TabsTrigger value="experience">Experience</TabsTrigger>
-            <TabsTrigger value="education">Education</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="experience">
-            <GroupedList
-              items={recentExperience}
-              groupKey={(e) => (e.endDate ?? e.startDate).getFullYear()}
-              renderCard={(e) => <ExperienceCard data={e} onClick={onExperienceCardClick} />}
-            />
-            <Button variant="ghost" asChild className="mt-4 w-full">
-              <Link to="/experience">
-                View All Experience
-                <ChevronRightIcon className="w-4 h-4" />
-              </Link>
-            </Button>
-          </TabsContent>
-
-          <TabsContent value="education">
-            <GroupedList
-              items={recentEducation}
-              groupKey={(e) => e.endYear ?? e.startYear}
-              renderCard={(e) => <EducationCard data={e} />}
-            />
-            <Button variant="ghost" asChild className="mt-4 w-full">
-              <Link to="/education">
-                View All Education
-                <ChevronRightIcon className="w-4 h-4" />
-              </Link>
-            </Button>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </AnimatedItem>
-
-    <ExperienceDetailDialog
-      experience={detailExperience}
-      open={showExperienceDetail}
-      onOpenChange={setShowExperienceDetail}
-    />
-  </>
+      <ExperienceDetailDialog
+        experience={detailExperience}
+        open={showExperienceDetail}
+        onOpenChange={setShowExperienceDetail}
+      />
+    </>
   )
 }

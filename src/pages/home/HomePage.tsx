@@ -10,6 +10,7 @@ import { ProfileSection } from './components/ProfileSection'
 import { TechStackSection } from './components/TechStackSection'
 import { SocialLinksSection } from './components/SocialLinksSection'
 import { LatestSection } from './components/LatestSection'
+import { LatestPublicationsSection } from './components/LatestPublicationsSection'
 import { PublicationPreviewCard } from './components/PublicationPreviewCard'
 import { NewsPreviewCard } from './components/NewsPreviewCard'
 import { GalleryPreviewCard } from './components/GalleryPreviewCrad'
@@ -238,15 +239,10 @@ export default function HomePage() {
                 )
               case 'publications':
                 return (
-                  <LatestSection
+                  <LatestPublicationsSection
                     key={id}
                     muted={muted}
-                    icon={BookOpenIcon}
-                    title="Latest Publications"
-                    description="Recent research papers and conference proceedings"
-                    viewAllTo="/publications"
-                    items={publications}
-                    renderItem={(pub) => <PublicationPreviewCard data={pub} />}
+                    publications={publications}
                   />
                 )
               case 'news':
@@ -259,7 +255,7 @@ export default function HomePage() {
                     description="Recent activities, awards, and updates"
                     viewAllTo="/news"
                     items={news}
-                    gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                    gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
                     renderItem={(item) => <NewsPreviewCard data={item} />}
                   />
                 )
@@ -273,7 +269,7 @@ export default function HomePage() {
                     description="Photos and moments from recent events"
                     viewAllTo="/gallery"
                     items={galleries}
-                    gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                    gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
                     renderItem={(item) => <GalleryPreviewCard data={item} />}
                   />
                 )

@@ -18,17 +18,35 @@ import {
   LinkIcon,
   NewspaperIcon,
 } from 'lucide-react'
-import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY } from '#/api/banner/banner'
+
 import type { SectionId, SectionVisibility } from '#/api/banner/banner'
 
-const SECTION_META: Record<SectionId, { label: string; icon: React.ReactNode }> = {
+const SECTION_META: Record<
+  SectionId,
+  { label: string; icon: React.ReactNode }
+> = {
   techStack: { label: 'Tech Stack', icon: <CpuIcon className="w-4 h-4" /> },
-  featuredProjects: { label: 'Featured Projects', icon: <FolderKanbanIcon className="w-4 h-4" /> },
-  educationExperience: { label: 'Education & Experience', icon: <BookOpenCheckIcon className="w-4 h-4" /> },
-  publications: { label: 'Latest Publications', icon: <BookOpenIcon className="w-4 h-4" /> },
+  featuredProjects: {
+    label: 'Featured Projects',
+    icon: <FolderKanbanIcon className="w-4 h-4" />,
+  },
+  educationExperience: {
+    label: 'Experience & Education',
+    icon: <BookOpenCheckIcon className="w-4 h-4" />,
+  },
+  publications: {
+    label: 'Latest Publications',
+    icon: <BookOpenIcon className="w-4 h-4" />,
+  },
   news: { label: 'Latest News', icon: <NewspaperIcon className="w-4 h-4" /> },
-  gallery: { label: 'Latest Gallery', icon: <GalleryHorizontalEndIcon className="w-4 h-4" /> },
-  socialLinks: { label: 'Social Links', icon: <LinkIcon className="w-4 h-4" /> },
+  gallery: {
+    label: 'Latest Gallery',
+    icon: <GalleryHorizontalEndIcon className="w-4 h-4" />,
+  },
+  socialLinks: {
+    label: 'Social Links',
+    icon: <LinkIcon className="w-4 h-4" />,
+  },
 }
 
 function DraggableRow({
