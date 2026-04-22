@@ -16,9 +16,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '#/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '#/components/ui/select'
 import { cn } from '#/lib/utils'
 import type { GalleryImage } from '#/types/gallery'
 import type { ProjectMember } from '#/types/project'
+import type { Experience } from '#/types/experience'
 import type { ProjectFormInstance } from '../hooks/useProjectsPage'
 
 function DraggableMemberRow({
@@ -185,6 +194,7 @@ const AddProject = ({
   setLogoFile,
   existingLogoUrl,
   setExistingLogoUrl,
+  allExperiences = [],
 }: {
   form: ProjectFormInstance
   isEditMode: boolean
@@ -200,6 +210,7 @@ const AddProject = ({
   setLogoFile: (f: File | null) => void
   existingLogoUrl?: string
   setExistingLogoUrl: (url: string | undefined) => void
+  allExperiences?: Experience[]
 }) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -374,6 +385,48 @@ const AddProject = ({
               </Field>
             )}
           </form.Field>
+
+          {allExperiences.length > 0 && (
+            <form.Field name="experienceId">
+              {(field) => {
+                const sorted = [...allExperiences].sort((a, b) => {
+                  if (a.isCurrentlyWorking && !b.isCurrentlyWorking) return -1
+                  if (!a.isCurrentlyWorking && b.isCurrentlyWorking) return 1
+                  const aEnd = a.endDate ? new Date(a.endDate).getTime() : 0
+                  const bEnd = b.endDate ? new Date(b.endDate).getTime() : 0
+                  return bEnd - aEnd
+                })
+                return (
+                  <Field>
+                    <FieldLabel>Related Experience</FieldLabel>
+                    <Select
+                      value={field.state.value || undefined}
+                      onValueChange={(v) => field.handleChange(v === '__none__' ? '' : v)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select an experience (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="__none__">— None —</SelectItem>
+                          {sorted.map((e) => (
+                            <SelectItem key={e.id} value={e.id}>
+                              <div className="flex items-center gap-2">
+                                {e.logoUrl && (
+                                  <img src={e.logoUrl} alt={e.title} className="w-4 h-4 rounded-sm object-contain" />
+                                )}
+                                {e.title} · {e.company}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )
+              }}
+            </form.Field>
+          )}
 
           <form.Field name="members">
             {(field) => (

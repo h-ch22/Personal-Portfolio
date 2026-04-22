@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
@@ -17,6 +17,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '#/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '#/components/ui/select'
 import { cn } from '#/lib/utils'
 import { CalendarIcon, FrownIcon, LaptopMinimalCheckIcon, SearchIcon, XIcon } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
@@ -24,6 +32,7 @@ import { AddProject } from './components/AddProject'
 import { ProjectCard } from './components/ProjectCard'
 import { ProjectDetailDialog } from './components/ProjectDetailDialog'
 import { useProjectsPageController } from './hooks/useProjectsPage'
+import { Route } from '#/routes/projects'
 
 const ProjectsPage = () => {
   const {
@@ -57,17 +66,29 @@ const ProjectsPage = () => {
     onCardClick,
     onModifyButtonClick,
     onDeleteButtonClick,
+    experienceFilter,
+    setExperienceFilter,
+    allExperiences,
   } = useProjectsPageController()
+
+  const { experienceId: experienceIdParam } = Route.useSearch()
+
+  useEffect(() => {
+    if (experienceIdParam) setExperienceFilter(experienceIdParam)
+  }, [experienceIdParam])
 
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const clearDateRange = () => setDateRangeFilter({ from: null, to: null })
 
-  const isSearching = searchText.trim() !== '' || techFilter.length > 0 || dateRangeFilter.from !== null
+  const isSearching = searchText.trim() !== '' || techFilter.length > 0 || dateRangeFilter.from !== null || experienceFilter !== ''
   const normalProjects = filteredData.filter((p) => !p.isExperimental)
   const experimentalProjects = filteredData.filter((p) => p.isExperimental)
 
   const sortByDate = (arr: typeof filteredData) =>
     [...arr].sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+
+  const getLinkedExperience = (experienceId?: string) =>
+    experienceId ? allExperiences.find((e) => e.id === experienceId) : undefined
 
   return (
     <div className="w-full flex flex-1 flex-col px-4">
@@ -153,13 +174,49 @@ const ProjectsPage = () => {
         </div>
       )}
 
-      {(searchText.trim() || techFilter.length > 0 || dateRangeFilter.from) && (
+      {allExperiences.length > 0 && (
+        <div className="flex items-center gap-2 mt-2 justify-end">
+          <Select
+            value={experienceFilter || '__all__'}
+            onValueChange={(v) => setExperienceFilter(v === '__all__' ? '' : v)}
+          >
+            <SelectTrigger className={cn('w-64 h-8 text-xs', experienceFilter && 'border-primary text-primary')}>
+              <SelectValue placeholder="Filter by experience" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="__all__">All experiences</SelectItem>
+                {[...allExperiences]
+                  .sort((a, b) => {
+                    if (a.isCurrentlyWorking && !b.isCurrentlyWorking) return -1
+                    if (!a.isCurrentlyWorking && b.isCurrentlyWorking) return 1
+                    const aEnd = a.endDate ? new Date(a.endDate).getTime() : 0
+                    const bEnd = b.endDate ? new Date(b.endDate).getTime() : 0
+                    return bEnd - aEnd
+                  })
+                  .map((e) => (
+                    <SelectItem key={e.id} value={e.id}>
+                      <div className="flex items-center gap-2">
+                        {e.logoUrl && (
+                          <img src={e.logoUrl} alt={e.title} className="w-4 h-4 rounded-sm object-contain" />
+                        )}
+                        {e.title} · {e.company}
+                      </div>
+                    </SelectItem>
+                  ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {(searchText.trim() || techFilter.length > 0 || dateRangeFilter.from || experienceFilter) && (
         <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground justify-end">
           <span>Filters active</span>
           <button
             type="button"
             className="flex items-center gap-0.5 hover:text-foreground transition-colors"
-            onClick={() => { setSearchText(''); setTechFilter([]); clearDateRange() }}
+            onClick={() => { setSearchText(''); setTechFilter([]); clearDateRange(); setExperienceFilter('') }}
           >
             <XIcon className="h-3 w-3" />
             Clear all
@@ -183,6 +240,7 @@ const ProjectsPage = () => {
                     onCardClick={onCardClick}
                     onModifyButtonClick={onModifyButtonClick}
                     onDeleteButtonClick={onDeleteButtonClick}
+                    linkedExperience={getLinkedExperience(project.experienceId)}
                   />
                 </AnimatedItem>
               ))}
@@ -264,6 +322,7 @@ const ProjectsPage = () => {
             setLogoFile={setLogoFile}
             existingLogoUrl={existingLogoUrl}
             setExistingLogoUrl={setExistingLogoUrl}
+            allExperiences={allExperiences}
           />
         </DialogContent>
       </Dialog>
@@ -272,6 +331,7 @@ const ProjectsPage = () => {
         project={detailData}
         open={showDetailDialog}
         onOpenChange={handleDetailDialogClose}
+        linkedExperience={getLinkedExperience(detailData?.experienceId)}
       />
     </div>
   )

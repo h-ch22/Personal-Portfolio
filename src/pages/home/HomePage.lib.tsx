@@ -17,6 +17,7 @@ import {
   uploadProfileImage,
 } from '#/api/banner/banner'
 import type { SectionId, SectionVisibility } from '#/api/banner/banner'
+import { fetchAwards } from '#/api/awards/awards'
 import { fetchEducation } from '#/api/education/education'
 import { fetchExperience } from '#/api/experience/experience'
 import { fetchGalleries } from '#/api/gallery/gallery'
@@ -49,12 +50,14 @@ import {
 import type { Project } from '#/types/project'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 const MAX_FEATURED = 10
 
 const useHomeViewController = () => {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const isAdmin = useAuthStore((state) => state.isAdmin)
   const user = useAuthStore((state) => state.user)
@@ -104,6 +107,8 @@ const useHomeViewController = () => {
   const [featuredSelectedIds, setFeaturedSelectedIds] = useState<string[]>([])
   const [detailProject, setDetailProject] = useState<Project | null>(null)
   const [showProjectDetail, setShowProjectDetail] = useState(false)
+  const [detailPubProject, setDetailPubProject] = useState<Project | null>(null)
+  const [showPubProjectDetail, setShowPubProjectDetail] = useState(false)
   const [detailExperience, setDetailExperience] = useState<import('#/types/experience').Experience | null>(null)
   const [showExperienceDetail, setShowExperienceDetail] = useState(false)
   const [detailNews, setDetailNews] = useState<import('#/types/news').News | null>(null)
@@ -200,21 +205,27 @@ const useHomeViewController = () => {
     },
   })
 
-  const { data: recentExperience = [] } = useQuery({
+  const { data: recentAwards = [] } = useQuery({
+    queryKey: ['awards'],
+    queryFn: fetchAwards,
+    staleTime: 1000 * 60 * 10,
+    select: (data) =>
+      [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5),
+  })
+
+  const { data: allExperiences = [] } = useQuery({
     queryKey: ['experience'],
     queryFn: fetchExperience,
     staleTime: 1000 * 60 * 10,
-    select: (data) => {
-      const current = data.filter((e) => e.isCurrentlyWorking || !e.endDate)
-      const past = data
-        .filter((e) => !e.isCurrentlyWorking && e.endDate)
-        .sort(
-          (a, b) =>
-            new Date(b.endDate!).getTime() - new Date(a.endDate!).getTime(),
-        )
-      return [...current, ...past].slice(0, 5)
-    },
   })
+
+  const recentExperience = (() => {
+    const current = allExperiences.filter((e) => e.isCurrentlyWorking || !e.endDate)
+    const past = allExperiences
+      .filter((e) => !e.isCurrentlyWorking && e.endDate)
+      .sort((a, b) => new Date(b.endDate!).getTime() - new Date(a.endDate!).getTime())
+    return [...current, ...past].slice(0, 5)
+  })()
 
   const { data: sectionVisibility = { ...DEFAULT_SECTION_VISIBILITY } } =
     useQuery({
@@ -449,6 +460,26 @@ const useHomeViewController = () => {
     setShowProjectDetail(true)
   }
 
+  const handlePublicationViewProject = (projectId: string) => {
+    const project = allProjects.find((p) => p.id === projectId)
+    if (project) {
+      setDetailPubProject(project)
+      setShowPubProjectDetail(true)
+    }
+  }
+
+  const handleNewsPreviewViewProject = (projectId: string) => {
+    const project = allProjects.find((p) => p.id === projectId)
+    if (project) {
+      setDetailPubProject(project)
+      setShowPubProjectDetail(true)
+    }
+  }
+
+  const handleExperienceViewProjects = (experienceId: string) => {
+    navigate({ to: '/projects', search: { experienceId } })
+  }
+
   const handleExperienceCardClick = (experience: import('#/types/experience').Experience) => {
     setDetailExperience(experience)
     setShowExperienceDetail(true)
@@ -581,6 +612,7 @@ const useHomeViewController = () => {
     addSocialLink,
     removeSocialLink,
     allProjects,
+    allExperiences,
     featuredProjects,
     featuredProjectIds,
     isSavingFeatured,
@@ -595,6 +627,12 @@ const useHomeViewController = () => {
     showProjectDetail,
     setShowProjectDetail,
     handleProjectCardClick,
+    detailPubProject,
+    showPubProjectDetail,
+    setShowPubProjectDetail,
+    handlePublicationViewProject,
+    handleNewsPreviewViewProject,
+    handleExperienceViewProjects,
     detailExperience,
     showExperienceDetail,
     setShowExperienceDetail,
@@ -610,6 +648,7 @@ const useHomeViewController = () => {
     maxFeatured: MAX_FEATURED,
     recentEducation,
     recentExperience,
+    recentAwards,
     sectionVisibility,
     saveSectionVisibility,
     sectionOrder,

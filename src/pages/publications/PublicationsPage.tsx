@@ -18,6 +18,7 @@ import {
 } from '#/components/ui/popover'
 import { AddPublication } from './components/AddPublication'
 import { PublicationListItem } from './components/PublicationListItem'
+import { ProjectDetailDialog } from '#/pages/projects/components/ProjectDetailDialog'
 import { ToggleGroup, ToggleGroupItem } from '#/components/ui/toggle-group'
 import type { PublicationType } from '#/types/publication'
 import { Button } from '#/components/ui/button'
@@ -40,6 +41,11 @@ const PublicationsPage = () => {
     setSearchText,
     dateRangeFilter,
     setDateRangeFilter,
+    allProjects,
+    detailProject,
+    showProjectDetail,
+    setShowProjectDetail,
+    handleViewProject,
   } = usePublicationsPageController()
 
   const [datePickerOpen, setDatePickerOpen] = useState(false)
@@ -178,6 +184,7 @@ const PublicationsPage = () => {
                         showType={isSearching}
                         onModifyButtonClick={onModifyButtonClick}
                         onDeleteButtonClick={onDeleteButtonClick}
+                        onViewProject={p.projectId && allProjects.some(proj => proj.id === p.projectId) ? handleViewProject : undefined}
                       />
                     </AnimatedItem>
                   ))}
@@ -197,9 +204,14 @@ const PublicationsPage = () => {
             </DialogTitle>
           </DialogHeader>
 
-          <AddPublication form={form} isEditMode={selectedData !== null} />
+          <AddPublication form={form} isEditMode={selectedData !== null} allProjects={allProjects} />
         </DialogContent>
       </Dialog>
+      <ProjectDetailDialog
+        project={detailProject}
+        open={showProjectDetail}
+        onOpenChange={setShowProjectDetail}
+      />
     </div>
   )
 }

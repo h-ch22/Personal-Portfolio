@@ -4,11 +4,13 @@ import {
   fetchNews,
   modifyNews,
 } from '#/api/news/news'
+import { fetchProjects } from '#/api/projects/projects'
 import { useAlertDialogStore } from '#/stores/use-alert-dialog-store'
 import type { News, NewsCategory } from '#/types/news'
 import type { GalleryImage } from '#/types/gallery'
+import type { Project } from '#/types/project'
 import { useForm } from '@tanstack/react-form'
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useQueryClient, useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import * as z from 'zod'
@@ -20,6 +22,8 @@ const useNewsPageController = () => {
   const [showDetailDialog, setShowDetailDialog] = useState(false)
   const [selectedData, setSelectedData] = useState<News | null>(null)
   const [detailData, setDetailData] = useState<News | null>(null)
+  const [detailProject, setDetailProject] = useState<Project | null>(null)
+  const [showProjectDetail, setShowProjectDetail] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<NewsCategory[]>([])
   const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null })
@@ -43,6 +47,7 @@ const useNewsPageController = () => {
     ]),
     description: z.string().min(1, 'Description is required'),
     link: z.string(),
+    projectId: z.string(),
   })
 
   const form = useForm({
@@ -52,35 +57,23 @@ const useNewsPageController = () => {
       category: 'Other' as NewsCategory,
       description: '',
       link: '',
+      projectId: '',
     },
     validators: {
       onSubmit: newsSchema,
     },
     onSubmit: async ({ value }) => {
+      const newsPayload = {
+        title: value.title,
+        date: value.date,
+        category: value.category,
+        description: value.description,
+        link: value.link || undefined,
+        projectId: value.projectId || undefined,
+      }
       const operation = selectedData
-        ? modifyNews(
-            {
-              title: value.title,
-              date: value.date,
-              category: value.category,
-              description: value.description,
-              link: value.link || undefined,
-            },
-            selectedData.id,
-            existingImages,
-            pendingFiles,
-            deletedImagePaths,
-          )
-        : createNews(
-            {
-              title: value.title,
-              date: value.date,
-              category: value.category,
-              description: value.description,
-              link: value.link || undefined,
-            },
-            pendingFiles,
-          )
+        ? modifyNews(newsPayload, selectedData.id, existingImages, pendingFiles, deletedImagePaths)
+        : createNews(newsPayload, pendingFiles)
 
       toast.promise(
         operation.then(async () => {
@@ -111,6 +104,12 @@ const useNewsPageController = () => {
     queryFn: async () => fetchNews(),
   })
 
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: fetchProjects,
+    staleTime: 1000 * 60 * 10,
+  })
+
   const filteredData = data.filter((n) => {
     const matchesSearch = searchText.trim()
       ? n.title.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -138,6 +137,14 @@ const useNewsPageController = () => {
     setShowDetailDialog(true)
   }
 
+  const handleViewProject = (projectId: string) => {
+    const project = allProjects.find(p => p.id === projectId)
+    if (project) {
+      setDetailProject(project)
+      setShowProjectDetail(true)
+    }
+  }
+
   const onModifyButtonClick = (news: News) => {
     setSelectedData(news)
     form.setFieldValue('title', news.title)
@@ -145,6 +152,7 @@ const useNewsPageController = () => {
     form.setFieldValue('category', news.category)
     form.setFieldValue('description', news.description)
     form.setFieldValue('link', news.link ?? '')
+    form.setFieldValue('projectId', news.projectId ?? '')
     setExistingImages(news.images)
     setDeletedImagePaths([])
     setPendingFiles([])
@@ -219,6 +227,11 @@ const useNewsPageController = () => {
     onCardClick,
     onModifyButtonClick,
     onDeleteButtonClick,
+    allProjects,
+    detailProject,
+    showProjectDetail,
+    setShowProjectDetail,
+    handleViewProject,
   }
 }
 

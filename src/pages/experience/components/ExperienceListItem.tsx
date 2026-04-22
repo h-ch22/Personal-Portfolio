@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { BuildingIcon, CalendarIcon, EditIcon, TrashIcon, UserRoundIcon } from 'lucide-react'
+import { BuildingIcon, CalendarIcon, EditIcon, FolderGitIcon, TrashIcon, UserRoundIcon } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -24,11 +24,15 @@ const ExperienceListItem = ({
   onCardClick,
   onModifyButtonClick,
   onDeleteButtonClick,
+  onViewProjects,
+  linkedProjectCount = 0,
 }: {
   data: Experience
   onCardClick: (data: Experience) => void
   onModifyButtonClick: (data: Experience) => void
   onDeleteButtonClick: (data: Experience) => void
+  onViewProjects?: () => void
+  linkedProjectCount?: number
 }) => {
   const user = useAuthStore((state) => state.user)
   const isAdmin = useAuthStore((state) => state.isAdmin)
@@ -121,30 +125,46 @@ const ExperienceListItem = ({
         </CardDescription>
       </CardContent>
 
-      {user && isAdmin && (
+      {(onViewProjects && linkedProjectCount > 0 || (user && isAdmin)) && (
         <CardFooter>
           <CardAction>
             <ButtonGroup>
-              <Button
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onModifyButtonClick(data)
-                }}
-              >
-                <EditIcon />
-                Modify
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDeleteButtonClick(data)
-                }}
-              >
-                <TrashIcon />
-                Delete
-              </Button>
+              {onViewProjects && linkedProjectCount > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onViewProjects()
+                  }}
+                >
+                  <FolderGitIcon />
+                  View Projects ({linkedProjectCount})
+                </Button>
+              )}
+              {user && isAdmin && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onModifyButtonClick(data)
+                    }}
+                  >
+                    <EditIcon />
+                    Modify
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDeleteButtonClick(data)
+                    }}
+                  >
+                    <TrashIcon />
+                    Delete
+                  </Button>
+                </>
+              )}
             </ButtonGroup>
           </CardAction>
         </CardFooter>

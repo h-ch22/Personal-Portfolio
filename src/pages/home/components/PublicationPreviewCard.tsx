@@ -4,14 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
 import { CONFIG } from '#/config'
 import type { Publication } from '#/types/publication'
 import { format } from 'date-fns'
-import { CalendarIcon, ExternalLinkIcon, UsersIcon } from 'lucide-react'
+import { CalendarIcon, ExternalLinkIcon, FolderGitIcon, UsersIcon } from 'lucide-react'
 
 const PublicationPreviewCard = ({
   data,
   showType = true,
+  onViewProject,
 }: {
   data: Publication
   showType?: boolean
+  onViewProject?: (projectId: string) => void
 }) => {
   return (
     <Card className="gap-2">
@@ -43,14 +45,27 @@ const PublicationPreviewCard = ({
             <CalendarIcon className="w-3.5 h-3.5" />
             <span>{format(new Date(data.publicationYear, data.publicationMonth - 1, 1), 'MMM yyyy')}</span>
           </div>
-          {data.link && (
-            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1" asChild>
-              <a href={data.link} target="_blank" rel="noopener noreferrer">
-                <ExternalLinkIcon className="w-3 h-3" />
-                Link
-              </a>
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            {data.link && (
+              <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1" asChild>
+                <a href={data.link} target="_blank" rel="noopener noreferrer">
+                  <ExternalLinkIcon className="w-3 h-3" />
+                  Link
+                </a>
+              </Button>
+            )}
+            {data.projectId && onViewProject && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs gap-1"
+                onClick={() => onViewProject(data.projectId!)}
+              >
+                <FolderGitIcon className="w-3 h-3" />
+                Project
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

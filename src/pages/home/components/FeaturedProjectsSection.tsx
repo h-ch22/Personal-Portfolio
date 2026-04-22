@@ -17,6 +17,7 @@ import { Link } from '@tanstack/react-router'
 import { ChevronRightIcon, FrownIcon } from 'lucide-react'
 import type { User } from 'firebase/auth'
 import type { Project } from '#/types/project'
+import type { Experience } from '#/types/experience'
 import { ProjectDetailDialog } from '#/pages/projects/components/ProjectDetailDialog'
 import { ProjectPreviewCard } from './ProjectPreviewCard'
 
@@ -37,6 +38,7 @@ interface FeaturedProjectsSectionProps {
   showDetail: boolean
   setShowDetail: (open: boolean) => void
   onCardClick: (project: Project) => void
+  allExperiences?: Experience[]
   muted?: boolean
 }
 
@@ -57,8 +59,12 @@ export function FeaturedProjectsSection({
   showDetail,
   setShowDetail,
   onCardClick,
+  allExperiences = [],
   muted = false,
 }: FeaturedProjectsSectionProps) {
+  const linkedExperience = detailProject?.experienceId
+    ? allExperiences.find((e) => e.id === detailProject.experienceId)
+    : undefined
   return (
     <>
       <AnimatedItem>
@@ -222,6 +228,7 @@ export function FeaturedProjectsSection({
         project={detailProject}
         open={showDetail}
         onOpenChange={setShowDetail}
+        linkedExperience={linkedExperience}
       />
     </>
   )

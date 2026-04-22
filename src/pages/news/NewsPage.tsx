@@ -24,6 +24,7 @@ import { AddNews } from './components/AddNews'
 import { NewsCard } from './components/NewsCard'
 import { NewsDetailDialog } from './components/NewsDetailDialog'
 import { useNewsPageController } from './hooks/useNewsPage'
+import { ProjectDetailDialog } from '#/pages/projects/components/ProjectDetailDialog'
 
 const NEWS_CATEGORIES: NewsCategory[] = [
   'Award',
@@ -59,7 +60,15 @@ const NewsPage = () => {
     onCardClick,
     onModifyButtonClick,
     onDeleteButtonClick,
+    allProjects,
+    detailProject,
+    showProjectDetail,
+    setShowProjectDetail,
+    handleViewProject,
   } = useNewsPageController()
+
+  const getLinkedProject = (projectId?: string) =>
+    projectId ? allProjects.find((p) => p.id === projectId) : undefined
 
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const clearDateRange = () => setDateRangeFilter({ from: null, to: null })
@@ -177,6 +186,7 @@ const NewsPage = () => {
                   onCardClick={onCardClick}
                   onModifyButtonClick={onModifyButtonClick}
                   onDeleteButtonClick={onDeleteButtonClick}
+                  onViewProject={getLinkedProject(news.projectId) ? () => handleViewProject(news.projectId!) : undefined}
                 />
               </AnimatedItem>
             ))}
@@ -200,6 +210,7 @@ const NewsPage = () => {
             deletedImagePaths={deletedImagePaths}
             onMarkImageForDeletion={onMarkImageForDeletion}
             onUnmarkImageForDeletion={onUnmarkImageForDeletion}
+            allProjects={allProjects}
           />
         </DialogContent>
       </Dialog>
@@ -208,6 +219,14 @@ const NewsPage = () => {
         news={detailData}
         open={showDetailDialog}
         onOpenChange={handleDetailDialogClose}
+        linkedProject={getLinkedProject(detailData?.projectId)}
+        onViewProject={getLinkedProject(detailData?.projectId) ? () => handleViewProject(detailData!.projectId!) : undefined}
+      />
+
+      <ProjectDetailDialog
+        project={detailProject}
+        open={showProjectDetail}
+        onOpenChange={setShowProjectDetail}
       />
     </div>
   )

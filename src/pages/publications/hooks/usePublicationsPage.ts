@@ -1,8 +1,10 @@
 import { deletePublication, fetchPublications, modifyPublication, uploadPublication } from "#/api/publications/publications";
+import { fetchProjects } from "#/api/projects/projects";
 import { useAlertDialogStore } from "#/stores/use-alert-dialog-store";
 import { type PublicationType, type Publication } from "#/types/publication";
+import type { Project } from "#/types/project";
 import { useForm } from "@tanstack/react-form";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
+import { useQueryClient, useSuspenseQuery, useQuery } from "@tanstack/react-query"
 import { useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
@@ -14,7 +16,8 @@ const publicationSchema = z.object({
     publicationYear: z.number().int().min(2001, "Publication year must be after your birth year"),
     publicationMonth: z.number().int().min(1, "Publication month must be between 1 and 12").max(12, "Publication month must be between 1 and 12"),
     type: z.enum(["International Journal", "International Conference", "Domestic Journal", "Domestic Conference", "Patent", "Book"]),
-    link: z.string()
+    link: z.string(),
+    projectId: z.string(),
 })
 
 const usePublicationsPageController = () => {
@@ -22,6 +25,8 @@ const usePublicationsPageController = () => {
 
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [selectedData, setSelectedData] = useState<Publication | null>(null);
+    const [detailProject, setDetailProject] = useState<Project | null>(null);
+    const [showProjectDetail, setShowProjectDetail] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState<PublicationType>("International Journal");
     const [searchText, setSearchText] = useState("");
     const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
@@ -36,7 +41,8 @@ const usePublicationsPageController = () => {
             publicationYear: new Date().getFullYear(),
             publicationMonth: new Date().getMonth() + 1,
             type: "International Journal" as Publication["type"],
-            link: ""
+            link: "",
+            projectId: "" as string,
         },
         validators: {
             onSubmit: publicationSchema,
@@ -47,9 +53,14 @@ const usePublicationsPageController = () => {
                 return;
             }
 
+            const payload = {
+                ...value,
+                projectId: value.projectId || undefined,
+            }
+
             const opeartion = selectedData
-                ? modifyPublication(value, selectedData.id)
-                : uploadPublication(value);
+                ? modifyPublication(payload, selectedData.id)
+                : uploadPublication(payload);
 
             toast.promise(
                 opeartion.then(async () => {
@@ -71,6 +82,20 @@ const usePublicationsPageController = () => {
         queryKey: ["publications"],
         queryFn: async () => fetchPublications()
     });
+
+    const { data: allProjects = [] } = useQuery({
+        queryKey: ["projects"],
+        queryFn: fetchProjects,
+        staleTime: 1000 * 60 * 10,
+    });
+
+    const handleViewProject = (projectId: string) => {
+        const project = allProjects.find((p) => p.id === projectId)
+        if (project) {
+            setDetailProject(project)
+            setShowProjectDetail(true)
+        }
+    }
 
     const isSearching = searchText.trim() !== "";
 
@@ -120,6 +145,7 @@ const usePublicationsPageController = () => {
         form.setFieldValue("publicationMonth", publication.publicationMonth);
         form.setFieldValue("type", publication.type);
         form.setFieldValue("link", publication.link);
+        form.setFieldValue("projectId", publication.projectId ?? "");
         setShowAddDialog(true);
     };
 
@@ -167,6 +193,11 @@ const usePublicationsPageController = () => {
         setSearchText,
         dateRangeFilter,
         setDateRangeFilter,
+        allProjects,
+        detailProject,
+        showProjectDetail,
+        setShowProjectDetail,
+        handleViewProject,
     }
 }
 

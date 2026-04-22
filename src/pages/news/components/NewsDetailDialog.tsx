@@ -1,7 +1,8 @@
 import { format } from 'date-fns'
-import { CalendarIcon, ExternalLinkIcon, ImagesIcon } from 'lucide-react'
+import { CalendarIcon, ExternalLinkIcon, FolderGitIcon, ImagesIcon } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
+import { Button } from '#/components/ui/button'
 import {
   Carousel,
   CarouselContent,
@@ -16,6 +17,7 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import type { News } from '#/types/news'
+import type { Project } from '#/types/project'
 import { CATEGORY_VARIANT } from '#/types/news'
 import { CATEGORY_ICON } from '#/lib/news'
 
@@ -23,10 +25,14 @@ const NewsDetailDialog = ({
   news,
   open,
   onOpenChange,
+  linkedProject,
+  onViewProject,
 }: {
   news: News | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  linkedProject?: Project
+  onViewProject?: () => void
 }) => {
   if (!news) return null
 
@@ -95,6 +101,20 @@ const NewsDetailDialog = ({
               <ExternalLinkIcon className="w-3.5 h-3.5" />
               Read more
             </a>
+          )}
+
+          {linkedProject && onViewProject && (
+            <Button
+              variant="outline"
+              className="w-fit"
+              onClick={() => {
+                onOpenChange(false)
+                onViewProject()
+              }}
+            >
+              <FolderGitIcon className="w-4 h-4" />
+              View Project
+            </Button>
           )}
         </div>
       </DialogContent>

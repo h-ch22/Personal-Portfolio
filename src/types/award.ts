@@ -7,6 +7,7 @@ export type Award = {
     date: Date;
     type: AwardType;
     description?: string;
+    projectId?: string;
 };
 
 export type AwardRequest = Omit<Award, 'id'>;

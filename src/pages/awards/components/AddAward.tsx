@@ -22,14 +22,17 @@ import {
 import { Textarea } from '#/components/ui/textarea'
 import { cn } from '#/lib/utils'
 import type { AwardRequest } from '#/types/award'
+import type { Project } from '#/types/project'
 import type { AwardFormInstance } from '../hooks/useAwardsPage'
 
 const AddAward = ({
   form,
   isEditMode,
+  allProjects = [],
 }: {
   form: AwardFormInstance
   isEditMode: boolean
+  allProjects?: Project[]
 }) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false)
 
@@ -179,6 +182,46 @@ const AddAward = ({
                 </Field>
               )}
             </form.Field>
+
+            {allProjects.length > 0 && (
+              <form.Field name="projectId">
+                {(field) => {
+                  const sorted = [...allProjects].sort((a, b) => {
+                    if (a.isOngoing && !b.isOngoing) return -1
+                    if (!a.isOngoing && b.isOngoing) return 1
+                    return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+                  })
+                  return (
+                    <Field>
+                      <FieldLabel>Related Project (optional)</FieldLabel>
+                      <Select
+                        value={field.state.value || undefined}
+                        onValueChange={(v) => field.handleChange(v === '__none__' ? '' : v)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a project (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="__none__">— None —</SelectItem>
+                            {sorted.map((p) => (
+                              <SelectItem key={p.id} value={p.id}>
+                                <div className="flex items-center gap-2">
+                                  {p.logoUrl && (
+                                    <img src={p.logoUrl} alt={p.title} className="w-4 h-4 rounded-sm object-contain" />
+                                  )}
+                                  {p.title}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )
+                }}
+              </form.Field>
+            )}
           </FieldGroup>
         </div>
       </form>

@@ -20,6 +20,7 @@ export type Project = {
     endDate: Date | null
     isOngoing: boolean
     isExperimental?: boolean
+    experienceId?: string
 }
 
 export type ProjectRequest = Omit<Project, 'id'>

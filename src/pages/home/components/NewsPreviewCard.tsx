@@ -1,11 +1,20 @@
 import { Badge } from '#/components/ui/badge'
-import { Card, CardHeader, CardTitle, CardContent } from '#/components/ui/card'
+import { Button } from '#/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardAction } from '#/components/ui/card'
 import { type News, CATEGORY_VARIANT } from '#/types/news'
 import { CATEGORY_ICON } from '#/lib/news'
 import { format } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, FolderGitIcon } from 'lucide-react'
 
-export const NewsPreviewCard = ({ data, onClick }: { data: News; onClick?: (data: News) => void }) => {
+export const NewsPreviewCard = ({
+  data,
+  onClick,
+  onViewProject,
+}: {
+  data: News
+  onClick?: (data: News) => void
+  onViewProject?: () => void
+}) => {
   const thumbnail = data.images[0]?.url
   return (
     <Card
@@ -32,7 +41,7 @@ export const NewsPreviewCard = ({ data, onClick }: { data: News; onClick?: (data
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="pb-3 flex flex-col gap-1">
+      <CardContent className="pb-2 flex flex-col gap-1">
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <CalendarIcon className="w-3.5 h-3.5" />
           <span>{format(data.date, 'MMM yyyy')}</span>
@@ -41,6 +50,16 @@ export const NewsPreviewCard = ({ data, onClick }: { data: News; onClick?: (data
           {data.description}
         </p>
       </CardContent>
+      {onViewProject && (
+        <CardFooter onClick={(e) => e.stopPropagation()}>
+          <CardAction>
+            <Button variant="outline" size="sm" onClick={onViewProject}>
+              <FolderGitIcon className="w-3.5 h-3.5" />
+              View Project
+            </Button>
+          </CardAction>
+        </CardFooter>
+      )}
     </Card>
   )
 }

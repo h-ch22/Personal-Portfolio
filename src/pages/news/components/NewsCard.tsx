@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { CalendarIcon, EditIcon, ExternalLinkIcon, ImagesIcon, TrashIcon } from 'lucide-react'
+import { CalendarIcon, EditIcon, ExternalLinkIcon, FolderGitIcon, ImagesIcon, TrashIcon } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -22,11 +22,13 @@ const NewsCard = ({
   onCardClick,
   onModifyButtonClick,
   onDeleteButtonClick,
+  onViewProject,
 }: {
   data: News
   onCardClick: (data: News) => void
   onModifyButtonClick: (data: News) => void
   onDeleteButtonClick: (data: News) => void
+  onViewProject?: () => void
 }) => {
   const user = useAuthStore((state) => state.user)
   const isAdmin = useAuthStore((state) => state.isAdmin)
@@ -84,26 +86,36 @@ const NewsCard = ({
         </p>
       </CardContent>
 
-      {user && isAdmin && (
+      {(onViewProject || (user && isAdmin)) && (
         <CardFooter onClick={(e) => e.stopPropagation()}>
           <CardAction>
             <ButtonGroup>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onModifyButtonClick(data)}
-              >
-                <EditIcon className="w-3.5 h-3.5" />
-                Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => onDeleteButtonClick(data)}
-              >
-                <TrashIcon className="w-3.5 h-3.5" />
-                Delete
-              </Button>
+              {onViewProject && (
+                <Button variant="outline" size="sm" onClick={onViewProject}>
+                  <FolderGitIcon className="w-3.5 h-3.5" />
+                  View Project
+                </Button>
+              )}
+              {user && isAdmin && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onModifyButtonClick(data)}
+                  >
+                    <EditIcon className="w-3.5 h-3.5" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDeleteButtonClick(data)}
+                  >
+                    <TrashIcon className="w-3.5 h-3.5" />
+                    Delete
+                  </Button>
+                </>
+              )}
             </ButtonGroup>
           </CardAction>
         </CardFooter>

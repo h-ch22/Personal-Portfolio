@@ -16,6 +16,7 @@ export type News = {
   description: string
   images: GalleryImage[]
   link?: string
+  projectId?: string
 }
 
 export const CATEGORY_VARIANT: Record<

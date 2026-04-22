@@ -15,7 +15,9 @@ import {
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import type { Publication, PublicationType } from '#/types/publication'
+import type { Project } from '#/types/project'
 import { PublicationPreviewCard } from './PublicationPreviewCard'
+import { ProjectDetailDialog } from '#/pages/projects/components/ProjectDetailDialog'
 
 const PUBLICATION_TYPES: PublicationType[] = [
   'International Journal',
@@ -38,14 +40,32 @@ function sortByDate(pubs: Publication[]) {
 
 interface LatestPublicationsSectionProps {
   publications: Publication[]
+  allProjects?: Project[]
+  onViewProject?: (projectId: string) => void
   muted?: boolean
 }
 
 export function LatestPublicationsSection({
   publications,
+  allProjects = [],
+  onViewProject,
   muted = false,
 }: LatestPublicationsSectionProps) {
   const [activeType, setActiveType] = useState<PublicationType | 'all'>('all')
+  const [detailProject, setDetailProject] = useState<Project | null>(null)
+  const [showProjectDetail, setShowProjectDetail] = useState(false)
+
+  const handleViewProject = (projectId: string) => {
+    if (onViewProject) {
+      onViewProject(projectId)
+    } else {
+      const project = allProjects.find((p) => p.id === projectId)
+      if (project) {
+        setDetailProject(project)
+        setShowProjectDetail(true)
+      }
+    }
+  }
 
   const availableTypes = PUBLICATION_TYPES.filter((t) =>
     publications.some((p) => p.type === t),
@@ -59,6 +79,7 @@ export function LatestPublicationsSection({
   const displayed = filtered.slice(0, TOP_N)
 
   return (
+    <>
     <AnimatedItem>
       <div
         className={`flex flex-col gap-4 px-6 py-8${muted ? ' bg-muted' : ''}`}
@@ -118,6 +139,7 @@ export function LatestPublicationsSection({
                 <PublicationPreviewCard
                   data={pub}
                   showType={activeType === 'all'}
+                  onViewProject={pub.projectId && allProjects.some((p) => p.id === pub.projectId) ? handleViewProject : undefined}
                 />
               </AnimatedItem>
             ))}
@@ -130,5 +152,12 @@ export function LatestPublicationsSection({
         )}
       </div>
     </AnimatedItem>
+
+    <ProjectDetailDialog
+      project={detailProject}
+      open={showProjectDetail}
+      onOpenChange={setShowProjectDetail}
+    />
+    </>
   )
 }

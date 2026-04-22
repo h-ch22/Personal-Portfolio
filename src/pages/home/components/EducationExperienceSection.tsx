@@ -5,13 +5,17 @@ import { Button } from '#/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
 import type { Education } from '#/types/education'
 import type { Experience } from '#/types/experience'
+import type { Project } from '#/types/project'
+import type { Award } from '#/types/award'
 import { ExperienceDetailDialog } from '#/pages/experience/components/ExperienceDetailDialog'
+import { AwardListItem } from '#/pages/awards/components/AwardListItem'
 import { format } from 'date-fns'
 import {
   BookOpenCheckIcon,
   BuildingIcon,
   CalendarIcon,
   ChevronRightIcon,
+  FolderGitIcon,
   FrownIcon,
   GraduationCapIcon,
   PresentationIcon,
@@ -83,9 +87,13 @@ function EducationCard({ data }: { data: Education }) {
 function ExperienceCard({
   data,
   onClick,
+  linkedProjectCount = 0,
+  onViewProjects,
 }: {
   data: Experience
   onClick?: (d: Experience) => void
+  linkedProjectCount?: number
+  onViewProjects?: () => void
 }) {
   const TypeIcon = EXP_TYPE_ICONS[data.type]
   const period = `${format(data.startDate, 'MMM yyyy')} – ${
@@ -134,7 +142,9 @@ function ExperienceCard({
       {data.techStack.length > 0 && (
         <>
           {(() => {
-            const { grouped, orderedGroups } = groupAndOrderTechStack(data.techStack)
+            const { grouped, orderedGroups } = groupAndOrderTechStack(
+              data.techStack,
+            )
             return (
               <div className="flex flex-col gap-1 mt-1">
                 {orderedGroups.map((g) => (
@@ -170,6 +180,20 @@ function ExperienceCard({
             )
           })()}
         </>
+      )}
+      {onViewProjects && linkedProjectCount > 0 && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-fit mt-1"
+          onClick={(e) => {
+            e.stopPropagation()
+            onViewProjects()
+          }}
+        >
+          <FolderGitIcon className="w-3.5 h-3.5" />
+          View Projects ({linkedProjectCount})
+        </Button>
       )}
     </div>
   )
@@ -258,25 +282,33 @@ function GroupedList<
 interface EducationExperienceSectionProps {
   recentEducation: Education[]
   recentExperience: Experience[]
+  recentAwards?: Award[]
+  allProjects?: Project[]
   detailExperience: Experience | null
   showExperienceDetail: boolean
   setShowExperienceDetail: (open: boolean) => void
   onExperienceCardClick: (experience: Experience) => void
+  onExperienceViewProjects?: (experienceId: string) => void
+  onAwardViewProject?: (projectId: string) => void
   muted?: boolean
 }
 
 export function EducationExperienceSection({
   recentEducation,
   recentExperience,
+  recentAwards = [],
+  allProjects = [],
   detailExperience,
   showExperienceDetail,
   setShowExperienceDetail,
   onExperienceCardClick,
+  onExperienceViewProjects,
+  onAwardViewProject,
   muted = false,
 }: EducationExperienceSectionProps) {
-  const [activeTab, setActiveTab] = useState<'experience' | 'education'>(
-    'experience',
-  )
+  const [activeTab, setActiveTab] = useState<
+    'experience' | 'education' | 'awards'
+  >('experience')
 
   return (
     <>
@@ -291,12 +323,18 @@ export function EducationExperienceSection({
                 Experience & Education
               </div>
               <p className="text-muted-foreground mt-1">
-                Academic background and hands-on experience
+                Hands-on experience, awards, and Academic background
               </p>
             </div>
             <Button variant="ghost" asChild>
               <Link
-                to={activeTab === 'experience' ? '/experience' : '/education'}
+                to={
+                  activeTab === 'experience'
+                    ? '/experience'
+                    : activeTab === 'education'
+                      ? '/education'
+                      : '/awards'
+                }
               >
                 View All
                 <ChevronRightIcon className="w-4 h-4" />
@@ -310,6 +348,7 @@ export function EducationExperienceSection({
           >
             <TabsList className="mb-2">
               <TabsTrigger value="experience">Experience</TabsTrigger>
+              <TabsTrigger value="awards">Awards</TabsTrigger>
               <TabsTrigger value="education">Education</TabsTrigger>
             </TabsList>
 
@@ -317,9 +356,23 @@ export function EducationExperienceSection({
               <GroupedList
                 items={recentExperience}
                 groupKey={(e) => (e.endDate ?? e.startDate).getFullYear()}
-                renderCard={(e) => (
-                  <ExperienceCard data={e} onClick={onExperienceCardClick} />
-                )}
+                renderCard={(e) => {
+                  const count = allProjects.filter(
+                    (p) => p.experienceId === e.id,
+                  ).length
+                  return (
+                    <ExperienceCard
+                      data={e}
+                      onClick={onExperienceCardClick}
+                      linkedProjectCount={count}
+                      onViewProjects={
+                        count > 0 && onExperienceViewProjects
+                          ? () => onExperienceViewProjects(e.id)
+                          : undefined
+                      }
+                    />
+                  )
+                }}
               />
             </TabsContent>
 
@@ -330,6 +383,33 @@ export function EducationExperienceSection({
                 renderCard={(e) => <EducationCard data={e} />}
               />
             </TabsContent>
+
+            <TabsContent value="awards">
+              {recentAwards.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2 text-sm">
+                  <FrownIcon className="w-6 h-6" />
+                  There is no content to display :(
+                </div>
+              ) : (
+                <div className="flex flex-col">
+                  {recentAwards.map((award, i) => (
+                    <AnimatedItem key={award.id} index={i}>
+                      <AwardListItem
+                        data={award}
+                        showAdminActions={false}
+                        onViewProject={
+                          award.projectId &&
+                          allProjects.some((p) => p.id === award.projectId) &&
+                          onAwardViewProject
+                            ? () => onAwardViewProject(award.projectId!)
+                            : undefined
+                        }
+                      />
+                    </AnimatedItem>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
         </div>
       </AnimatedItem>
@@ -338,6 +418,20 @@ export function EducationExperienceSection({
         experience={detailExperience}
         open={showExperienceDetail}
         onOpenChange={setShowExperienceDetail}
+        linkedProjectCount={
+          detailExperience
+            ? allProjects.filter((p) => p.experienceId === detailExperience.id)
+                .length
+            : 0
+        }
+        onViewProjects={
+          detailExperience && onExperienceViewProjects
+            ? () => {
+                setShowExperienceDetail(false)
+                onExperienceViewProjects(detailExperience.id)
+              }
+            : undefined
+        }
       />
     </>
   )

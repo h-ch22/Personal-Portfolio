@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
+import { useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { fetchProjects } from '#/api/projects/projects'
 import { AnimatedItem } from '#/components/common/AnimatedItem'
 import { BoardHeader } from '#/components/common/BoardHeader'
 import { MonthRangePicker } from '#/components/common/MonthRangePicker'
@@ -68,6 +71,21 @@ const ExperiencePage = () => {
     existingLogoUrl,
     setExistingLogoUrl,
   } = useExperiencePageController()
+
+  const navigate = useNavigate()
+
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: fetchProjects,
+    staleTime: 1000 * 60 * 10,
+  })
+
+  const getLinkedProjectCount = (experienceId: string) =>
+    allProjects.filter((p) => p.experienceId === experienceId).length
+
+  const handleViewProjects = (experienceId: string) => {
+    navigate({ to: '/projects', search: { experienceId } })
+  }
 
   const [datePickerOpen, setDatePickerOpen] = useState(false)
 
@@ -231,6 +249,8 @@ const ExperiencePage = () => {
                       onCardClick={onCardClick}
                       onModifyButtonClick={onModifyButtonClick}
                       onDeleteButtonClick={onDeleteButtonClick}
+                      linkedProjectCount={getLinkedProjectCount(d.id)}
+                      onViewProjects={() => handleViewProjects(d.id)}
                     />
                   </AnimatedItem>
                 ))}
@@ -256,6 +276,8 @@ const ExperiencePage = () => {
                         onCardClick={onCardClick}
                         onModifyButtonClick={onModifyButtonClick}
                         onDeleteButtonClick={onDeleteButtonClick}
+                        linkedProjectCount={getLinkedProjectCount(d.id)}
+                        onViewProjects={() => handleViewProjects(d.id)}
                       />
                     </AnimatedItem>
                   ))}
@@ -288,6 +310,8 @@ const ExperiencePage = () => {
         experience={detailData}
         open={showDetailDialog}
         onOpenChange={setShowDetailDialog}
+        linkedProjectCount={detailData ? getLinkedProjectCount(detailData.id) : 0}
+        onViewProjects={detailData ? () => handleViewProjects(detailData.id) : undefined}
       />
     </div>
   )

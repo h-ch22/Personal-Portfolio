@@ -18,6 +18,7 @@ import {
   CalendarIcon,
   EditIcon,
   ExternalLinkIcon,
+  FolderGitIcon,
   TrashIcon,
   UsersIcon,
 } from 'lucide-react'
@@ -27,11 +28,13 @@ const PublicationListItem = ({
   showType = false,
   onModifyButtonClick,
   onDeleteButtonClick,
+  onViewProject,
 }: {
   data: Publication
   showType?: boolean
   onModifyButtonClick: (data: Publication) => void
   onDeleteButtonClick: (data: Publication) => void
+  onViewProject?: (projectId: string) => void
 }) => {
   const user = useAuthStore((state) => state.user)
   const isAdmin = useAuthStore((state) => state.isAdmin)
@@ -73,16 +76,27 @@ const PublicationListItem = ({
               </div>
             </div>
 
-            {data.link !== '' && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="self-start sm:self-auto"
-                onClick={() => window.open(data.link, '_blank')}
-              >
-                <ExternalLinkIcon />
-              </Button>
-            )}
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              {data.link !== '' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(data.link, '_blank')}
+                >
+                  <ExternalLinkIcon />
+                </Button>
+              )}
+              {data.projectId && onViewProject && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onViewProject(data.projectId!)}
+                >
+                  <FolderGitIcon className="w-3.5 h-3.5" />
+                  View Project
+                </Button>
+              )}
+            </div>
           </div>
         </CardDescription>
       </CardContent>

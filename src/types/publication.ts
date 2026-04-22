@@ -9,6 +9,7 @@ export type Publication = {
     publicationMonth: number;
     type: PublicationType;
     link: string;
+    projectId?: string;
 }
 
 export type PublicationRequest = Omit<Publication, "id">

@@ -23,6 +23,7 @@ import { CalendarIcon, FrownIcon, SearchIcon, Trophy, XIcon } from 'lucide-react
 import { AddAward } from './components/AddAward'
 import { AwardListItem } from './components/AwardListItem'
 import { useAwardsPageController } from './hooks/useAwardsPage'
+import { ProjectDetailDialog } from '#/pages/projects/components/ProjectDetailDialog'
 
 const AWARD_TYPES = [
   'Competition',
@@ -47,7 +48,15 @@ const AwardsPage = () => {
     setDateRangeFilter,
     onModifyButtonClick,
     onDeleteButtonClick,
+    allProjects,
+    detailProject,
+    showProjectDetail,
+    setShowProjectDetail,
+    handleViewProject,
   } = useAwardsPageController()
+
+  const getLinkedProject = (projectId?: string) =>
+    projectId ? allProjects.find((p) => p.id === projectId) : undefined
 
   const [datePickerOpen, setDatePickerOpen] = useState(false)
 
@@ -180,6 +189,7 @@ const AwardsPage = () => {
                         data={d}
                         onModifyButtonClick={onModifyButtonClick}
                         onDeleteButtonClick={onDeleteButtonClick}
+                        onViewProject={getLinkedProject(d.projectId) ? () => handleViewProject(d.projectId!) : undefined}
                       />
                     </AnimatedItem>
                   ))}
@@ -195,9 +205,15 @@ const AwardsPage = () => {
               {selectedData ? 'Edit Award' : 'Add Award'}
             </DialogTitle>
           </DialogHeader>
-          <AddAward form={form} isEditMode={selectedData !== null} />
+          <AddAward form={form} isEditMode={selectedData !== null} allProjects={allProjects} />
         </DialogContent>
       </Dialog>
+
+      <ProjectDetailDialog
+        project={detailProject}
+        open={showProjectDetail}
+        onOpenChange={setShowProjectDetail}
+      />
     </div>
   )
 }

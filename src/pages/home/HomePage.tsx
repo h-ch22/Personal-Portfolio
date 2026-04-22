@@ -13,6 +13,7 @@ import { EducationExperienceSection } from './components/EducationExperienceSect
 import { SectionSettingsDialog } from './components/SectionSettingsDialog'
 import { NewsDetailDialog } from '#/pages/news/components/NewsDetailDialog'
 import { GalleryDetailDialog } from '#/pages/gallery/components/GalleryDetailDialog'
+import { ProjectDetailDialog } from '#/pages/projects/components/ProjectDetailDialog'
 import { LayoutDashboardIcon, ShieldIcon } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 import { Link } from '@tanstack/react-router'
@@ -76,6 +77,7 @@ export default function HomePage() {
     addSocialLink,
     removeSocialLink,
     allProjects,
+    allExperiences,
     featuredProjects,
     isSavingFeatured,
     showFeaturedSelectDialog,
@@ -88,6 +90,12 @@ export default function HomePage() {
     showProjectDetail,
     setShowProjectDetail,
     handleProjectCardClick,
+    detailPubProject,
+    showPubProjectDetail,
+    setShowPubProjectDetail,
+    handlePublicationViewProject,
+    handleNewsPreviewViewProject,
+    handleExperienceViewProjects,
     detailExperience,
     showExperienceDetail,
     setShowExperienceDetail,
@@ -103,6 +111,7 @@ export default function HomePage() {
     maxFeatured,
     recentEducation,
     recentExperience,
+    recentAwards,
     sectionVisibility,
     sectionOrder,
     saveSectionOrder,
@@ -211,6 +220,7 @@ export default function HomePage() {
                     muted={muted}
                     featuredProjects={featuredProjects}
                     allProjects={allProjects}
+                    allExperiences={allExperiences}
                     featuredSelectedIds={featuredSelectedIds}
                     user={user}
                     isAdmin={isAdmin}
@@ -234,10 +244,14 @@ export default function HomePage() {
                     muted={muted}
                     recentEducation={recentEducation}
                     recentExperience={recentExperience}
+                    recentAwards={recentAwards}
+                    allProjects={allProjects}
                     detailExperience={detailExperience}
                     showExperienceDetail={showExperienceDetail}
                     setShowExperienceDetail={setShowExperienceDetail}
                     onExperienceCardClick={handleExperienceCardClick}
+                    onExperienceViewProjects={handleExperienceViewProjects}
+                    onAwardViewProject={handleNewsPreviewViewProject}
                   />
                 )
               case 'publications':
@@ -246,6 +260,8 @@ export default function HomePage() {
                     key={id}
                     muted={muted}
                     publications={publications}
+                    allProjects={allProjects}
+                    onViewProject={handlePublicationViewProject}
                   />
                 )
               case 'news':
@@ -259,7 +275,13 @@ export default function HomePage() {
                     viewAllTo="/news"
                     items={news}
                     gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
-                    renderItem={(item) => <NewsPreviewCard data={item} onClick={handleNewsCardClick} />}
+                    renderItem={(item) => (
+                      <NewsPreviewCard
+                        data={item}
+                        onClick={handleNewsCardClick}
+                        onViewProject={item.projectId && allProjects.some((p) => p.id === item.projectId) ? () => handleNewsPreviewViewProject(item.projectId!) : undefined}
+                      />
+                    )}
                   />
                 )
               case 'gallery':
@@ -313,12 +335,20 @@ export default function HomePage() {
           news={detailNews}
           open={showNewsDetail}
           onOpenChange={setShowNewsDetail}
+          linkedProject={detailNews?.projectId ? allProjects.find((p) => p.id === detailNews.projectId) : undefined}
+          onViewProject={detailNews?.projectId && allProjects.some((p) => p.id === detailNews.projectId) ? () => handleNewsPreviewViewProject(detailNews.projectId!) : undefined}
         />
 
         <GalleryDetailDialog
           gallery={detailGallery}
           open={showGalleryDetail}
           onOpenChange={setShowGalleryDetail}
+        />
+
+        <ProjectDetailDialog
+          project={detailPubProject}
+          open={showPubProjectDetail}
+          onOpenChange={setShowPubProjectDetail}
         />
     </div>
   )

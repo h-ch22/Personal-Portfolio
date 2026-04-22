@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { BuildingIcon, CalendarIcon, ImageIcon, UserRoundIcon } from 'lucide-react'
+import { BuildingIcon, CalendarIcon, FolderGitIcon, ImageIcon, UserRoundIcon } from 'lucide-react'
 
 import {
   Dialog,
@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { Badge } from '#/components/ui/badge'
+import { Button } from '#/components/ui/button'
 import { ScrollArea } from '#/components/ui/scroll-area'
 import { TECH_STACK_GROUP_COLORS, type TechStackGroup } from '#/types/techstack'
 import type { Experience } from '#/types/experience'
@@ -18,10 +19,14 @@ const ExperienceDetailDialog = ({
   experience,
   open,
   onOpenChange,
+  linkedProjectCount = 0,
+  onViewProjects,
 }: {
   experience: Experience | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  linkedProjectCount?: number
+  onViewProjects?: () => void
 }) => {
   const TypeIcon = experience ? EXP_TYPE_ICONS[experience.type] : null
   const periodLabel = experience
@@ -79,6 +84,20 @@ const ExperienceDetailDialog = ({
                     <span>{periodLabel}</span>
                   </div>
                 </div>
+
+                {onViewProjects && linkedProjectCount > 0 && (
+                  <Button
+                    variant="outline"
+                    className="w-fit"
+                    onClick={() => {
+                      onOpenChange(false)
+                      onViewProjects()
+                    }}
+                  >
+                    <FolderGitIcon className="w-4 h-4" />
+                    View Projects ({linkedProjectCount})
+                  </Button>
+                )}
 
                 {experience.techStack.length > 0 && (() => {
                   const { grouped, orderedGroups } = groupAndOrderTechStack(experience.techStack)

@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import {
+  BriefcaseIcon,
   CalendarIcon,
   EditIcon,
   ExternalLinkIcon,
@@ -23,17 +24,20 @@ import { useAuthStore } from '#/stores/use-auth-store'
 import { TECH_STACK_GROUP_COLORS, type TechStackGroup } from '#/types/techstack'
 import { groupAndOrderTechStack } from '#/lib/techstack'
 import type { Project } from '#/types/project'
+import type { Experience } from '#/types/experience'
 
 const ProjectCard = ({
   data,
   onCardClick,
   onModifyButtonClick,
   onDeleteButtonClick,
+  linkedExperience,
 }: {
   data: Project
   onCardClick: (data: Project) => void
   onModifyButtonClick: (data: Project) => void
   onDeleteButtonClick: (data: Project) => void
+  linkedExperience?: Experience
 }) => {
   const user = useAuthStore((state) => state.user)
   const isAdmin = useAuthStore((state) => state.isAdmin)
@@ -76,6 +80,12 @@ const ProjectCard = ({
       </CardHeader>
 
       <CardContent className="pb-2 flex flex-col gap-2 flex-1">
+        {linkedExperience && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+            <BriefcaseIcon className="w-3 h-3 shrink-0" />
+            <span className="line-clamp-1">{linkedExperience.company} · {linkedExperience.title}</span>
+          </div>
+        )}
         <div className="flex flex-row items-center gap-3 text-xs text-muted-foreground flex-wrap">
           <div className="flex items-center gap-1">
             <CalendarIcon className="w-3.5 h-3.5" />

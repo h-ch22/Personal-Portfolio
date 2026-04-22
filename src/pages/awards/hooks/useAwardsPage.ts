@@ -1,8 +1,10 @@
 import { deleteAward, fetchAwards, modifyAward, uploadAward } from "#/api/awards/awards";
+import { fetchProjects } from "#/api/projects/projects";
 import { useAlertDialogStore } from "#/stores/use-alert-dialog-store";
-import type { Award, AwardType } from "#/types/award";
+import type { Award, AwardRequest, AwardType } from "#/types/award";
+import type { Project } from "#/types/project";
 import { useForm } from "@tanstack/react-form";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -13,14 +15,19 @@ const awardSchema = z.object({
     issuer: z.string().min(1, "Issuer is required"),
     date: z.date().refine(date => date.getFullYear() >= 2001, "Date must be after your birth year"),
     type: z.enum(["Competition", "Academic", "Scholarship", "Recognition", "Other"]),
-    description: z.string()
+    description: z.string(),
+    projectId: z.string(),
 })
 
 const useAwardsPageController = () => {
     const queryClient = useQueryClient();
 
     const [showAddDialog, setShowAddDialog] = useState(false);
+    const [showDetailDialog, setShowDetailDialog] = useState(false);
     const [selectedData, setSelectedData] = useState<Award | null>(null);
+    const [detailData, setDetailData] = useState<Award | null>(null);
+    const [detailProject, setDetailProject] = useState<Project | null>(null);
+    const [showProjectDetail, setShowProjectDetail] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [typeFilter, setTypeFilter] = useState<AwardType[]>([]);
     const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
@@ -34,14 +41,24 @@ const useAwardsPageController = () => {
             date: new Date(),
             type: "Competition" as AwardType,
             description: "",
+            projectId: "",
         },
         validators: {
             onSubmit: awardSchema
         },
         onSubmit: async ({ value }) => {
+            const raw = {
+                title: value.title,
+                issuer: value.issuer,
+                date: value.date,
+                type: value.type,
+                ...(value.description ? { description: value.description } : {}),
+                ...(value.projectId ? { projectId: value.projectId } : {}),
+            }
+            const payload = raw as AwardRequest
             const operation = selectedData
-                ? modifyAward(value, selectedData.id)
-                : uploadAward(value);
+                ? modifyAward(payload, selectedData.id)
+                : uploadAward(payload);
 
             toast.promise(
                 operation.then(async () => {
@@ -62,6 +79,12 @@ const useAwardsPageController = () => {
     const { data } = useSuspenseQuery({
         queryKey: ["awards"],
         queryFn: async () => fetchAwards(),
+    });
+
+    const { data: allProjects = [] } = useQuery({
+        queryKey: ["projects"],
+        queryFn: fetchProjects,
+        staleTime: 1000 * 60 * 10,
     });
 
     const filteredData = data.filter((a) => {
@@ -91,6 +114,11 @@ const useAwardsPageController = () => {
         return acc;
     }, {});
 
+    const onCardClick = (award: Award) => {
+        setDetailData(award);
+        setShowDetailDialog(true);
+    };
+
     const onModifyButtonClick = (award: Award) => {
         setSelectedData(award);
         form.setFieldValue("title", award.title);
@@ -98,7 +126,21 @@ const useAwardsPageController = () => {
         form.setFieldValue("date", new Date(award.date));
         form.setFieldValue("type", award.type);
         form.setFieldValue("description", award.description ?? "");
+        form.setFieldValue("projectId", award.projectId ?? "");
         setShowAddDialog(true);
+    };
+
+    const handleViewProject = (projectId: string) => {
+        const project = allProjects.find(p => p.id === projectId);
+        if (project) {
+            setDetailProject(project);
+            setShowProjectDetail(true);
+        }
+    };
+
+    const handleDetailDialogClose = (open: boolean) => {
+        if (!open) setDetailData(null);
+        setShowDetailDialog(open);
     };
 
     const onDeleteButtonClick = (award: Award) => {
@@ -133,7 +175,10 @@ const useAwardsPageController = () => {
         form,
         showAddDialog,
         handleDialogClose,
+        showDetailDialog,
+        handleDetailDialogClose,
         selectedData,
+        detailData,
         groupedData,
         searchText,
         setSearchText,
@@ -141,8 +186,14 @@ const useAwardsPageController = () => {
         setTypeFilter,
         dateRangeFilter,
         setDateRangeFilter,
+        onCardClick,
         onModifyButtonClick,
         onDeleteButtonClick,
+        allProjects,
+        detailProject,
+        showProjectDetail,
+        setShowProjectDetail,
+        handleViewProject,
     };
 };
 

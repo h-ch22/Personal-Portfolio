@@ -6,12 +6,13 @@ import {
     uploadProjectLogo,
     updateProjectLogoUrl,
 } from '#/api/projects/projects'
+import { fetchExperience } from '#/api/experience/experience'
 import { useAlertDialogStore } from '#/stores/use-alert-dialog-store'
 import type { Project, ProjectMember } from '#/types/project'
 import type { GalleryImage } from '#/types/gallery'
 import type { TechStackItem } from '#/types/experience'
 import { useForm } from '@tanstack/react-form'
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useQueryClient, useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -25,6 +26,7 @@ const useProjectsPageController = () => {
     const [searchText, setSearchText] = useState('')
     const [techFilter, setTechFilter] = useState<string[]>([])
     const [dateRangeFilter, setDateRangeFilter] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null })
+    const [experienceFilter, setExperienceFilter] = useState<string>('')
 
     const [pendingFiles, setPendingFiles] = useState<File[]>([])
     const [existingImages, setExistingImages] = useState<GalleryImage[]>([])
@@ -46,6 +48,7 @@ const useProjectsPageController = () => {
             endDate: null as Date | null,
             isOngoing: true,
             isExperimental: false,
+            experienceId: '' as string,
         },
         onSubmit: async ({ value }) => {
             if (!value.title.trim()) {
@@ -77,6 +80,7 @@ const useProjectsPageController = () => {
                 isOngoing: value.isOngoing,
                 isExperimental: value.isExperimental,
                 logoUrl: existingLogoUrl,
+                experienceId: value.experienceId || undefined,
             }
 
             const operation = async () => {
@@ -125,6 +129,12 @@ const useProjectsPageController = () => {
         queryFn: fetchProjects,
     })
 
+    const { data: allExperiences = [] } = useQuery({
+        queryKey: ['experience'],
+        queryFn: fetchExperience,
+        staleTime: 1000 * 60 * 10,
+    })
+
     const allTechNames = Array.from(
         new Set(data.flatMap((p) => p.techStack.map((t) => t.name))),
     ).sort()
@@ -149,12 +159,13 @@ const useProjectsPageController = () => {
             const filterTo = dateRangeFilter.to ?? new Date()
             if (!(start <= filterTo && end >= dateRangeFilter.from)) return false
         }
+        if (experienceFilter && p.experienceId !== experienceFilter) return false
         return true
     })
 
     const resetForm = () => {
         setSelectedData(null)
-        form.reset({ title: '', techStack: [], members: [], link: '', githubUrl: '', startDate: new Date(), endDate: null, isOngoing: true, isExperimental: false })
+        form.reset({ title: '', techStack: [], members: [], link: '', githubUrl: '', startDate: new Date(), endDate: null, isOngoing: true, isExperimental: false, experienceId: '' })
         setRichDescription('')
         setPendingFiles([])
         setExistingImages([])
@@ -183,6 +194,7 @@ const useProjectsPageController = () => {
         )
         form.setFieldValue('isOngoing', project.isOngoing)
         form.setFieldValue('isExperimental', project.isExperimental ?? false)
+        form.setFieldValue('experienceId', project.experienceId ?? '')
         setRichDescription(project.description)
         setExistingImages(project.images)
         setDeletedImagePaths([])
@@ -246,6 +258,9 @@ const useProjectsPageController = () => {
         setTechFilter,
         dateRangeFilter,
         setDateRangeFilter,
+        experienceFilter,
+        setExperienceFilter,
+        allExperiences,
         richDescription,
         setRichDescription,
         pendingFiles,
