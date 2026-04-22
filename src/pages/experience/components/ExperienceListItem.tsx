@@ -6,7 +6,6 @@ import { Button } from '#/components/ui/button'
 import { ButtonGroup } from '#/components/ui/button-group'
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -126,47 +125,43 @@ const ExperienceListItem = ({
       </CardContent>
 
       {(onViewProjects && linkedProjectCount > 0 || (user && isAdmin)) && (
-        <CardFooter>
-          <CardAction>
+        <CardFooter
+          className="flex items-center justify-between gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div>
+            {onViewProjects && linkedProjectCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60"
+                onClick={onViewProjects}
+              >
+                <FolderGitIcon className="w-3.5 h-3.5" />
+                View Projects ({linkedProjectCount})
+              </Button>
+            )}
+          </div>
+          {user && isAdmin && (
             <ButtonGroup>
-              {onViewProjects && linkedProjectCount > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onViewProjects()
-                  }}
-                >
-                  <FolderGitIcon />
-                  View Projects ({linkedProjectCount})
-                </Button>
-              )}
-              {user && isAdmin && (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onModifyButtonClick(data)
-                    }}
-                  >
-                    <EditIcon />
-                    Modify
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onDeleteButtonClick(data)
-                    }}
-                  >
-                    <TrashIcon />
-                    Delete
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onModifyButtonClick(data)}
+              >
+                <EditIcon className="w-3.5 h-3.5" />
+                Modify
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onDeleteButtonClick(data)}
+              >
+                <TrashIcon className="w-3.5 h-3.5" />
+                Delete
+              </Button>
             </ButtonGroup>
-          </CardAction>
+          )}
         </CardFooter>
       )}
     </Card>

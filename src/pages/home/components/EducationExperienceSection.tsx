@@ -185,7 +185,7 @@ function ExperienceCard({
         <Button
           variant="outline"
           size="sm"
-          className="w-fit mt-1"
+          className="w-fit mt-1 border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60"
           onClick={(e) => {
             e.stopPropagation()
             onViewProjects()

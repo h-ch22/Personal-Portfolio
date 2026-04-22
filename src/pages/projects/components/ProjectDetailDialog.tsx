@@ -338,6 +338,11 @@ const ProjectDetailDialog = ({
               )}
             </div>
           </ScrollArea>
+          <div className="px-6 pb-5 pt-3 border-t shrink-0">
+            <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
+              Close
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

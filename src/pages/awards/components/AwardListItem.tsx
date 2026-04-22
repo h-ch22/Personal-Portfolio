@@ -83,7 +83,12 @@ const AwardListItem = ({
         {(onViewProject || (showAdminActions && user && isAdmin)) && (
           <div className="flex items-center gap-1.5 mt-2">
             {onViewProject && (
-              <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={onViewProject}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs gap-1 border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60"
+                onClick={onViewProject}
+              >
                 <FolderGitIcon className="w-3 h-3" />
                 View Project
               </Button>

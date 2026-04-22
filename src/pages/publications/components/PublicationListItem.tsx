@@ -90,6 +90,7 @@ const PublicationListItem = ({
                 <Button
                   variant="outline"
                   size="sm"
+                  className="border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60"
                   onClick={() => onViewProject(data.projectId!)}
                 >
                   <FolderGitIcon className="w-3.5 h-3.5" />

@@ -53,7 +53,12 @@ export const NewsPreviewCard = ({
       {onViewProject && (
         <CardFooter onClick={(e) => e.stopPropagation()}>
           <CardAction>
-            <Button variant="outline" size="sm" onClick={onViewProject}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60"
+              onClick={onViewProject}
+            >
               <FolderGitIcon className="w-3.5 h-3.5" />
               View Project
             </Button>

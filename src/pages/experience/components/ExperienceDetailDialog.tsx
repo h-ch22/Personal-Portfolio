@@ -88,7 +88,7 @@ const ExperienceDetailDialog = ({
                 {onViewProjects && linkedProjectCount > 0 && (
                   <Button
                     variant="outline"
-                    className="w-fit"
+                    className="w-fit border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60"
                     onClick={() => {
                       onOpenChange(false)
                       onViewProjects()

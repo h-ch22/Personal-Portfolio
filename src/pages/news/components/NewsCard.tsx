@@ -6,7 +6,6 @@ import { Button } from '#/components/ui/button'
 import { ButtonGroup } from '#/components/ui/button-group'
 import {
   Card,
-  CardAction,
   CardContent,
   CardFooter,
   CardHeader,
@@ -87,37 +86,43 @@ const NewsCard = ({
       </CardContent>
 
       {(onViewProject || (user && isAdmin)) && (
-        <CardFooter onClick={(e) => e.stopPropagation()}>
-          <CardAction>
+        <CardFooter
+          className="flex items-center justify-between gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div>
+            {onViewProject && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60"
+                onClick={onViewProject}
+              >
+                <FolderGitIcon className="w-3.5 h-3.5" />
+                View Project
+              </Button>
+            )}
+          </div>
+          {user && isAdmin && (
             <ButtonGroup>
-              {onViewProject && (
-                <Button variant="outline" size="sm" onClick={onViewProject}>
-                  <FolderGitIcon className="w-3.5 h-3.5" />
-                  View Project
-                </Button>
-              )}
-              {user && isAdmin && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onModifyButtonClick(data)}
-                  >
-                    <EditIcon className="w-3.5 h-3.5" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => onDeleteButtonClick(data)}
-                  >
-                    <TrashIcon className="w-3.5 h-3.5" />
-                    Delete
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onModifyButtonClick(data)}
+              >
+                <EditIcon className="w-3.5 h-3.5" />
+                Edit
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onDeleteButtonClick(data)}
+              >
+                <TrashIcon className="w-3.5 h-3.5" />
+                Delete
+              </Button>
             </ButtonGroup>
-          </CardAction>
+          )}
         </CardFooter>
       )}
     </Card>
