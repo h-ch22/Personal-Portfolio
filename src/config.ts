@@ -47,7 +47,7 @@ const changjinData: ProjectConfig = {
     },
 
     footer: {
-        email: "ckdwls9460@gmail.com",
+        email: "dev.changjin.ha@gmail.com",
         name: "Changjin Ha"
     },
 
