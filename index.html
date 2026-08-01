@@ -18,7 +18,8 @@
     <link rel="icon" type="image/png" href="/%VITE_TARGET_USER%/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="/%VITE_TARGET_USER%/favicon-16x16.png" sizes="16x16" />
     <link rel="icon" type="image/png" href="/%VITE_TARGET_USER%/favicon-128.png" sizes="128x128" />
-    
+    <link rel="canonical" href="%VITE_SITE_URL%" />
+
     <meta name="application-name" content="&nbsp;"/>
     <meta name="msapplication-TileColor" content="#" />
     <meta name="msapplication-TileImage" content="/%VITE_TARGET_USER%/mstile-144x144.png" />
@@ -26,9 +27,42 @@
     <meta name="msapplication-square150x150logo" content="/%VITE_TARGET_USER%/mstile-150x150.png" />
     <meta name="msapplication-wide310x150logo" content="/%VITE_TARGET_USER%/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="/%VITE_TARGET_USER%/mstile-310x310.png" />
-    
+    <meta name="description" content="%VITE_SITE_DESCRIPTION%" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="%VITE_SITE_TITLE%" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:description" content="%VITE_SITE_DESCRIPTION%" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>%VITE_SITE_TITLE%</title>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        "url": "%VITE_SITE_URL%",
+        "mainEntity": {
+          "@type": "Person",
+          "name": "%VITE_NAME_KO%",
+          "alternateName": "%VITE_SITE_TITLE%",
+          "url": "%VITE_SITE_URL%",
+          "jobTitle": "Software Engineer",
+          "description": "%VITE_SITE_DESCRIPTION%",
+          "knowsAbout": [
+            "Android",
+            "Kotlin",
+            "iOS",
+            "Swift",
+            "React",
+            "Spring",
+            "Artificial Intelligence"
+          ],
+          "sameAs": [
+            "%VITE_GITHUB%",
+            "%VITE_LINKEDIN%"
+          ]
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -3,7 +3,13 @@ import changjin from '@/assets/images/changjin.png'
 
 import { Link } from '@tanstack/react-router'
 import { Button } from '../ui/button'
-import { LogOutIcon, MenuIcon, UserIcon, XIcon } from 'lucide-react'
+import {
+  LogOutIcon,
+  MenuIcon,
+  SunMoonIcon,
+  UserIcon,
+  XIcon,
+} from 'lucide-react'
 import type { Theme } from '#/types/theme'
 import { useState } from 'react'
 import AuthDialog from '../auth/AuthDialog'
@@ -25,7 +31,7 @@ export default function Header({
 
   const user = useAuthStore((user) => user.user)
 
-  const CurrentIcon = IconMap[theme]
+  const CurrentIcon = IconMap[theme] ?? SunMoonIcon
 
   return (
     <header className="fixed left-0 right-0 top-4 z-50 mx-auto w-[calc(100%-2rem)] rounded-2xl bg-background/50 px-4 py-2 shadow-lg backdrop-blur-lg transition-all">

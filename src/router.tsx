@@ -16,6 +16,7 @@ export function getRouter() {
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: ({ error }: { error: any }) => {
+      alert(error.message)
       let statusCode = 'Unknown'
 
       if (error.response) {
